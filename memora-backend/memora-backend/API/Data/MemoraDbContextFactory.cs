@@ -7,10 +7,10 @@ public class MemoraDbContextFactory : IDesignTimeDbContextFactory<MemoraDbContex
 {
     public MemoraDbContext CreateDbContext(string[] args)
     {
-        var optionsBuilder = new DbContextOptionsBuilder<MemoraDbContext>();
+        var options = new DbContextOptionsBuilder<MemoraDbContext>()
+            .UseSqlite("Data Source=memora.db")
+            .Options;
 
-        optionsBuilder.UseSqlite("Data Source=memora.db");
-
-        return new MemoraDbContext(optionsBuilder.Options);
+        return new MemoraDbContext(options);
     }
 }

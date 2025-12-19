@@ -6,7 +6,5 @@ public class User
 
     public string Username { get; set; } = default!;
     public string DisplayName { get; set; } = default!;
-
-    public ICollection<Memory> Memories { get; set; } = new List<Memory>();
-    public ICollection<MemoryLike> Likes { get; set; } = new List<MemoryLike>();
+    public string PasswordHash { get; set; } = default!;
 }
