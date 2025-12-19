@@ -1,28 +1,42 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { tap } from 'rxjs';
+
+interface AuthResponse {
+  token: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private isLoggedIn = false;
+  private readonly apiUrl = 'https://localhost:5001/api/auth';
 
-  constructor(private router: Router) {}
+  constructor(private http: HttpClient) {}
 
   login(email: string, password: string) {
-    if (email && password) {
-      this.isLoggedIn = true;
-      this.router.navigate(['/home']);
-    }
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/login`, { email, password })
+      .pipe(
+        tap(res => localStorage.setItem('token', res.token))
+      );
   }
 
   register(email: string, password: string) {
-    if (email && password) {
-      this.isLoggedIn = true;
-      this.router.navigate(['/home']);
-    }
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/register`, { email, password })
+      .pipe(
+        tap(res => localStorage.setItem('token', res.token))
+      );
   }
 
   logout() {
-    this.isLoggedIn = false;
-    this.router.navigate(['/login']);
+    localStorage.removeItem('token');
+  }
+
+  get token(): string | null {
+    return localStorage.getItem('token');
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.token;
   }
 }

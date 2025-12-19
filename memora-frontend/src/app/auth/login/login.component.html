@@ -16,6 +16,10 @@
 
     <button (click)="login()">Login</button>
 
+    <p *ngIf="error" style="color:#ffdddd; margin-top:1rem;">
+      {{ error }}
+    </p>
+
     <p>
       No account?
       <a routerLink="/register">Register</a>
