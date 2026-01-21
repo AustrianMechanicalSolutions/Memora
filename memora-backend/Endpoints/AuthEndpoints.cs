@@ -4,10 +4,7 @@ using AuthApi.Services;
 using AuthApi.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-<<<<<<< HEAD
 using OtpNet;
-=======
->>>>>>> origin/main
 
 namespace AuthApi.Endpoints;
 
@@ -54,7 +51,6 @@ public static class AuthEndpoints
             if (result == PasswordVerificationResult.Failed)
                 return Results.Unauthorized();
 
-<<<<<<< HEAD
             if (user.TwoFactorEnabled)
             {
                 if (string.IsNullOrWhiteSpace(user.TwoFactorSecret))
@@ -69,8 +65,6 @@ public static class AuthEndpoints
                 if (!ok) return Results.Json(new { error = "2fa_invalid" }, statusCode: 401);
             }
 
-=======
->>>>>>> origin/main
             return Results.Ok(new AuthResponse(jwtSvc.CreateToken(user)));
         });
 

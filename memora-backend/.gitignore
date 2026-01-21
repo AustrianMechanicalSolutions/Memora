@@ -1,7 +1,4 @@
 bin
-<<<<<<< HEAD
 obj
 node_modules
-=======
-obj
->>>>>>> origin/main
+Migrations
