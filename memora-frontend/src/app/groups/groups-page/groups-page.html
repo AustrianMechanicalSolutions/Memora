@@ -1,0 +1,57 @@
+<div class="page">
+  <header class="header">
+    <div>
+      <h1 class="title">Groups</h1>
+      <p class="subtitle">Create a group and start collecting memories together.</p>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Create Group</h2>
+      <span class="badge">New</span>
+    </div>
+
+    <div class="create-row">
+      <input
+        class="input"
+        placeholder="e.g. Class 4B, Friends, Vacation 2025..."
+        [(ngModel)]="newGroupName"
+        (keyup.enter)="createGroup()"
+      />
+
+      <button class="btn primary" (click)="createGroup()" [disabled]="creating || !newGroupName.trim()">
+        {{ creating ? 'Creating...' : 'Create' }}
+      </button>
+    </div>
+
+    <p class="error" *ngIf="errorMsg">{{ errorMsg }}</p>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2 class="panel-title">My Groups</h2>
+      <span class="muted">{{ groups.length }} total</span>
+    </div>
+
+    <div class="loading" *ngIf="loading">Loading groups...</div>
+
+    <div class="grid" *ngIf="!loading">
+      <a class="group-card" *ngFor="let g of groups" [routerLink]="['/groups', g.id]">
+        <div class="group-top">
+          <div class="group-name">{{ g.name }}</div>
+          <div class="arrow">→</div>
+        </div>
+
+        <div class="group-meta">
+          <span class="pill">{{ g.memberCount }} members</span>
+        </div>
+      </a>
+
+      <div class="empty" *ngIf="groups.length === 0">
+        <div class="empty-title">No groups yet</div>
+        <div class="empty-sub">Create your first group above ✨</div>
+      </div>
+    </div>
+  </section>
+</div>

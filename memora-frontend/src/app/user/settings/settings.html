@@ -1,0 +1,189 @@
+<div class="page">
+  <header class="header">
+    <div>
+      <h1 class="title">Account Settings</h1>
+      <p class="subtitle">Customize your profile and security settings.</p>
+    </div>
+  </header>
+
+  <div class="panel" *ngIf="loading">Loading...</div>
+
+  <div class="panel" *ngIf="!loading">
+    <div class="panel-head">
+      <h2 class="panel-title">Profile</h2>
+      <button class="btn primary" (click)="saveProfile()" [disabled]="saving">
+        {{ saving ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label>Displayname</label>
+        <input class="input" [(ngModel)]="profile.displayName" />
+        <div class="hint">Not your backend unique username.</div>
+      </div>
+
+      <div class="field">
+        <label>Status</label>
+        <input class="input" [(ngModel)]="profile.status" placeholder="e.g. chilling 😎" />
+      </div>
+
+      <div class="field">
+        <label>Birthdate</label>
+        <input class="input" type="date" [(ngModel)]="profile.birthDate" />
+      </div>
+
+      <div class="field">
+        <label>Profile picture URL</label>
+        <input class="input" [(ngModel)]="profile.profileImageUrl" placeholder="https://..." />
+      </div>
+
+      <div class="field full">
+        <label>Bio</label>
+        <textarea class="input textarea" [(ngModel)]="profile.bio" placeholder="Write something about you..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Contact</h2>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label>Email</label>
+        <input class="input" disabled placeholder="Email is your login" />
+      </div>
+
+      <div class="field">
+        <label>Phone number</label>
+        <input class="input" [(ngModel)]="profile.phoneNumber" placeholder="+43..." />
+      </div>
+
+      <div class="field">
+        <label>Discord</label>
+        <input class="input" [(ngModel)]="profile.discordTag" placeholder="name#1234" />
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Social Links</h2>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label>Instagram</label>
+        <input class="input" [(ngModel)]="profile.instagramUrl" placeholder="https://instagram.com/..." />
+      </div>
+
+      <div class="field">
+        <label>TikTok</label>
+        <input class="input" [(ngModel)]="profile.tiktokUrl" placeholder="https://tiktok.com/@..." />
+      </div>
+
+      <div class="field">
+        <label>YouTube</label>
+        <input class="input" [(ngModel)]="profile.youtubeUrl" placeholder="https://youtube.com/..." />
+      </div>
+
+      <div class="field">
+        <label>Website</label>
+        <input class="input" [(ngModel)]="profile.websiteUrl" placeholder="https://..." />
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Security</h2>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label>Current password</label>
+        <input class="input" type="password" [(ngModel)]="password.currentPassword" />
+      </div>
+
+      <div class="field">
+        <label>New password</label>
+        <input class="input" type="password" [(ngModel)]="password.newPassword" />
+      </div>
+
+      <div class="field full">
+        <button class="btn primary" (click)="changePassword()" [disabled]="saving">
+          Change password
+        </button>
+      </div>
+
+      <div class="field full">
+        <div class="twofa">
+          <div class="twofa-title">Two-Factor Authentication (2FA)</div>
+          <div class="twofa-sub">
+            🔒 Change me later: 2FA is not implemented yet.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+        <h2 class="panel-title">Two-Factor Authentication (Microsoft Authenticator)</h2>
+
+        <span class="state" [class.on]="twoFaEnabled" [class.off]="!twoFaEnabled">
+        {{ twoFaEnabled ? 'Enabled' : 'Disabled' }}
+        </span>
+    </div>
+
+    <div class="twofa-box">
+        <p class="twofa-text">
+        Protect your account with a 6-digit code from Microsoft Authenticator.
+        </p>
+
+        <div class="twofa-actions">
+        <button class="btn primary" (click)="setup2FA()" [disabled]="twoFaLoading">
+            {{ twoFaLoading ? 'Loading...' : 'Setup 2FA' }}
+        </button>
+
+        <button class="btn danger" (click)="disable2FA()" [disabled]="twoFaLoading || !twoFaEnabled">
+            Disable
+        </button>
+        </div>
+
+        <div *ngIf="twoFaQrDataUrl" class="twofa-setup">
+        <div class="qr-wrap">
+            <img class="qr" [src]="twoFaQrDataUrl" alt="2FA QR Code" />
+        </div>
+
+        <div class="setup-info">
+            <div class="setup-title">Step 1: Scan</div>
+            <div class="setup-sub">
+            Open <b>Microsoft Authenticator</b> → Add account → Scan QR code.
+            </div>
+
+            <div class="setup-title" style="margin-top: 10px;">Secret (backup)</div>
+            <div class="secret">{{ twoFaSecret }}</div>
+
+            <div class="setup-title" style="margin-top: 10px;">Step 2: Verify</div>
+            <div class="code-row">
+            <input
+                class="input code"
+                placeholder="123456"
+                maxlength="6"
+                [(ngModel)]="twoFaCode"
+            />
+            <button class="btn primary" (click)="enable2FA()" [disabled]="twoFaLoading || twoFaCode.trim().length !== 6">
+                Enable
+            </button>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
+
+  <p class="msg" *ngIf="msg">{{ msg }}</p>
+  <p class="err" *ngIf="err">{{ err }}</p>
+</div>
