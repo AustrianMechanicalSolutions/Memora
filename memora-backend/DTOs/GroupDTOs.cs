@@ -12,7 +12,7 @@ public record MemoryDto(
     DateTime HappenedAt,
     DateTime CreatedAt,
     Guid CreatedByUserId,
-    List<string> Tags
+    List<string> Tags 
 );
 
 public record CreateGroupRequest(string Name);
