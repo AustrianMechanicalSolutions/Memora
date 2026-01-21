@@ -10,6 +10,7 @@ public class AppUser
     [Required]
     public string PasswordHash { get; set; } = string.Empty;
     public DateTimeOffset CreatedAtUtc { get; set; } = DateTimeOffset.UtcNow;
+<<<<<<< HEAD
 
     // Profile Fields
     [MaxLength(50)]
@@ -35,4 +36,6 @@ public class AppUser
     // TOTP
     public bool TwoFactorEnabled { get; set; }
     public string? TwoFactorSecret { get; set; } // base32 secret
+=======
+>>>>>>> origin/main
 }

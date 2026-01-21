@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+<<<<<<< HEAD
 import { AuthService } from '../user/auth.service';
+=======
+import { AuthService } from '../auth/auth.service';
+>>>>>>> origin/main
 
 @Component({
   standalone: true,

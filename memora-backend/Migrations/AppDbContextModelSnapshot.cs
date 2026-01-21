@@ -23,6 +23,7 @@ namespace memorabackend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+<<<<<<< HEAD
                     b.Property<string>("Bio")
                         .HasColumnType("TEXT");
 
@@ -40,18 +41,27 @@ namespace memorabackend.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
+=======
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+>>>>>>> origin/main
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(320)
                         .HasColumnType("TEXT");
 
+<<<<<<< HEAD
                     b.Property<string>("InstagramUrl")
                         .HasColumnType("TEXT");
 
+=======
+>>>>>>> origin/main
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+<<<<<<< HEAD
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("TEXT");
 
@@ -76,6 +86,8 @@ namespace memorabackend.Migrations
                     b.Property<string>("YouTubeUrl")
                         .HasColumnType("TEXT");
 
+=======
+>>>>>>> origin/main
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
@@ -83,6 +95,7 @@ namespace memorabackend.Migrations
 
                     b.ToTable("Users");
                 });
+<<<<<<< HEAD
 
             modelBuilder.Entity("Group", b =>
                 {
@@ -225,6 +238,8 @@ namespace memorabackend.Migrations
                 {
                     b.Navigation("Tags");
                 });
+=======
+>>>>>>> origin/main
 #pragma warning restore 612, 618
         }
     }
