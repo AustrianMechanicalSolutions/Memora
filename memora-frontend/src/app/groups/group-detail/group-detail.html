@@ -1,24 +1,35 @@
 <div class="page" *ngIf="group as g">
+  <!-- Header -->
   <header class="header">
-    <div>
+    <div class="header-left">
       <h1 class="title">{{ g.name }}</h1>
-      <p class="subtitle">
-        Invite Code: <b class="code">{{ g.inviteCode }}</b>
-        <span class="dot">•</span>
-        {{ g.memberCount }} members
-      </p>
+
+      <div class="meta">
+        <span class="meta-item">
+          Invite Code:
+          <span class="code">{{ g.inviteCode }}</span>
+        </span>
+
+        <span class="sep">•</span>
+
+        <span class="meta-item">{{ g.memberCount }} members</span>
+      </div>
     </div>
 
-    <button class="btn primary" (click)="showCreate = !showCreate">
-      {{ showCreate ? 'Close' : '+ New Memory' }}
-    </button>
+    <div class="header-actions">
+      <button class="btn ghost" (click)="reload()">Refresh</button>
+
+      <button class="btn primary" (click)="showCreate = !showCreate">
+        {{ showCreate ? 'Close' : '+ New Memory' }}
+      </button>
+    </div>
   </header>
 
   <!-- Filters -->
   <section class="panel">
     <div class="panel-head">
       <h2 class="panel-title">Filters</h2>
-      <button class="btn" (click)="reload()">Refresh</button>
+      <span class="muted">Narrow down what you want to see</span>
     </div>
 
     <div class="filters">
@@ -26,9 +37,9 @@
         <label>Type</label>
         <select class="input" [(ngModel)]="fType" (change)="reload()">
           <option [ngValue]="null">All</option>
-          <option [ngValue]="0">Photo</option>
-          <option [ngValue]="1">Video</option>
-          <option [ngValue]="2">Quote</option>
+          <option [ngValue]="0">📷 Photo</option>
+          <option [ngValue]="1">🎥 Video</option>
+          <option [ngValue]="2">💬 Quote</option>
         </select>
       </div>
 
@@ -44,38 +55,43 @@
 
       <div class="field grow">
         <label>Search</label>
-        <input
-          class="input"
-          placeholder="Search title, quote, tags..."
-          [(ngModel)]="fSearch"
-          (keyup.enter)="reload()"
-        />
+        <div class="search-wrap">
+          <span class="search-icon">🔎</span>
+          <input
+            class="input search"
+            placeholder="Search title, quote, tags..."
+            [(ngModel)]="fSearch"
+            (keyup.enter)="reload()"
+          />
+        </div>
       </div>
 
       <div class="field">
         <label>Sort</label>
         <select class="input" [(ngModel)]="fSort" (change)="reload()">
-          <option value="newest">Newest</option>
-          <option value="oldest">Oldest</option>
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
         </select>
       </div>
     </div>
   </section>
 
   <!-- Create -->
-  <section class="panel" *ngIf="showCreate">
+  <section class="panel create" *ngIf="showCreate">
     <div class="panel-head">
-      <h2 class="panel-title">New Memory</h2>
-      <span class="muted">Add something to the timeline</span>
+      <div>
+        <h2 class="panel-title">New Memory</h2>
+        <span class="muted">Add something meaningful to the timeline ✨</span>
+      </div>
     </div>
 
     <div class="create-grid">
       <div class="field">
         <label>Type</label>
         <select class="input" [(ngModel)]="cType">
-          <option [ngValue]="0">Photo</option>
-          <option [ngValue]="1">Video</option>
-          <option [ngValue]="2">Quote</option>
+          <option [ngValue]="0">📷 Photo</option>
+          <option [ngValue]="1">🎥 Video</option>
+          <option [ngValue]="2">💬 Quote</option>
         </select>
       </div>
 
@@ -91,21 +107,28 @@
 
       <div class="field full" *ngIf="cType === 2">
         <label>Quote</label>
-        <textarea class="input textarea" [(ngModel)]="cQuoteText" placeholder="Write the quote..."></textarea>
+        <textarea
+          class="input textarea"
+          [(ngModel)]="cQuoteText"
+          placeholder="Write the quote..."
+        ></textarea>
       </div>
 
       <div class="field full" *ngIf="cType !== 2">
         <label>Media URL</label>
         <input class="input" [(ngModel)]="cMediaUrl" placeholder="https://..." />
+        <div class="hint">Tip: paste a direct image/video URL</div>
       </div>
 
       <div class="field full">
         <label>Tags</label>
         <input class="input" [(ngModel)]="cTags" placeholder="fun, class, discord" />
+        <div class="hint">Comma-separated (example: fun, class)</div>
       </div>
     </div>
 
     <div class="actions">
+      <button class="btn" (click)="showCreate = false">Cancel</button>
       <button class="btn primary" (click)="create()">Save Memory</button>
     </div>
   </section>
@@ -113,8 +136,10 @@
   <!-- Timeline -->
   <section class="panel">
     <div class="panel-head">
-      <h2 class="panel-title">Timeline</h2>
-      <span class="muted">{{ items.length }} shown</span>
+      <div>
+        <h2 class="panel-title">Timeline</h2>
+        <span class="muted">{{ items.length }} shown</span>
+      </div>
     </div>
 
     <div class="timeline" *ngIf="items.length > 0; else emptyState">
@@ -125,7 +150,10 @@
 
         <div class="card">
           <div class="card-top">
-            <span class="type-pill">{{ typeLabel(m.type) }}</span>
+            <span class="type-pill" [class.photo]="m.type===0" [class.video]="m.type===1" [class.quote]="m.type===2">
+              {{ typeLabel(m.type) }}
+            </span>
+
             <span class="date">{{ m.happenedAt | date:'dd.MM.yyyy' }}</span>
           </div>
 
@@ -136,7 +164,9 @@
           </div>
 
           <div class="media" *ngIf="m.type !== 2 && m.mediaUrl">
-            <a class="link" [href]="m.mediaUrl" target="_blank">Open media</a>
+            <a class="link" [href]="m.mediaUrl" target="_blank" rel="noopener noreferrer">
+              Open media →
+            </a>
           </div>
 
           <div class="tags" *ngIf="m.tags?.length">

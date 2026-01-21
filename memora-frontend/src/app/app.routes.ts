@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoginComponent } from './user/login/login';
-import { RegisterComponent } from './user/register/register';
+import { LoginComponent } from './user/auth/login/login';
+import { RegisterComponent } from './user/auth/register/register';
 import { HomeComponent } from './home/home.component';
 import { GroupsPageComponent } from './groups/groups-page/groups-page';
 import { GroupDetailComponent } from './groups/group-detail/group-detail';
