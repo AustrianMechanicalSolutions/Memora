@@ -78,6 +78,22 @@ export class GroupsService {
     return this.http.post(`${this.baseUrl}/${groupId}/memories`, body);
   }
 
+  createMemoryWithFile(groupId: string, file: File, data: any) {
+    const formData = new FormData();
+
+    formData.append("type", String(data.type));
+    formData.append("title", data.title ?? "");
+    formData.append("quoteText", data.quoteText ?? "");
+    formData.append("happenedAt", data.happenedAt);
+    for (const tag of (data.tags ?? [])) {
+      formData.append("tags", tag);
+    }
+
+    formData.append("file", file);
+
+    return this.http.post(`${this.baseUrl}/${groupId}/memories`, formData);
+  }
+
   createGroup(name: string) {
     return this.http.post<GroupDetailDto>(this.baseUrl, { name });
   }

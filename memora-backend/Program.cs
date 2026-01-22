@@ -64,6 +64,7 @@ app.UseHttpsRedirection();
 app.UseCors("frontend");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 
 // ---- Map endpoints ----
 app.MapAuthEndpoints();

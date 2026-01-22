@@ -12,7 +12,7 @@ public record MemoryDto(
     DateTime HappenedAt,
     DateTime CreatedAt,
     Guid CreatedByUserId,
-    List<string> Tags 
+    List<string>? Tags 
 );
 
 public record CreateGroupRequest(string Name);
@@ -25,7 +25,8 @@ public record CreateMemoryRequest(
     string? MediaUrl,
     string? ThumbUrl,
     DateTime HappenedAt,
-    List<string>? Tags
+    List<string>? Tags,
+    IFormFile? File
 );
 
 public class MemoryQuery

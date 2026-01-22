@@ -116,8 +116,15 @@
 
       <div class="field full" *ngIf="cType !== 2">
         <label>Media URL</label>
-        <input class="input" [(ngModel)]="cMediaUrl" placeholder="https://..." />
-        <div class="hint">Tip: paste a direct image/video URL</div>
+        
+        <input
+          class="input"
+          type="file"
+          accept="image/*,video/*"
+          (change)="onFileSelected($event)"
+        />
+
+        <div class="hint" *ngIf="selectedFile">Selected: {{ selectedFile.name }}</div>
       </div>
 
       <div class="field full">
@@ -164,13 +171,27 @@
           </div>
 
           <div class="media" *ngIf="m.type !== 2 && m.mediaUrl">
-            <a class="link" [href]="m.mediaUrl" target="_blank" rel="noopener noreferrer">
+            <img
+              *ngIf="m.type === 0"
+              class="media-img"
+              [src]="'http://localhost:5000' + m.mediaUrl"
+              alt="Memory photo"
+            />
+
+            <video
+              *ngIf="m.type === 1"
+              class="media-video"
+              controls
+              [src]="'http://localhost:5000' + m.mediaUrl"
+            ></video>
+
+            <a class="link media-link" [href]="'http://localhost:5000' + m.mediaUrl" target="_blank" rel="noopener noreferrer">
               Open media →
             </a>
           </div>
 
-          <div class="tags" *ngIf="m.tags?.length">
-            <span class="tag" *ngFor="let t of m.tags">#{{ t }}</span>
+          <div class="tags" *ngIf="cleanTags(m.tags).length > 0">
+            <span class="tag" *ngFor="let t of cleanTags(m.tags)">#{{ t }}</span>
           </div>
         </div>
       </div>

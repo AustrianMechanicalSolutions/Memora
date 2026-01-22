@@ -111,7 +111,13 @@ public class GroupsController : ControllerBase
             .Select(x => new MemoryDto(
                 x.Id, x.GroupId, x.Type, x.Title, x.QuoteText, x.MediaUrl, x.ThumbUrl,
                 x.HappenedAt, x.CreatedAt, x.CreatedByUserId,
-                x.Tags.Select(t => t.Value).ToList()
+                x.Tags
+                    .Any()
+                    ? x.Tags
+                        .Select(t => t.Value)
+                        .Where(v => !string.IsNullOrWhiteSpace(v))
+                        .ToList()
+                    : null
             ))
             .ToListAsync();
 
@@ -119,11 +125,29 @@ public class GroupsController : ControllerBase
     }
 
     [HttpPost("{groupId:guid}/memories")]
-    public async Task<ActionResult<MemoryDto>> CreateMemory(Guid groupId, [FromBody] CreateMemoryRequest req)
+    [RequestSizeLimit(200_000_000)] // 200MB limit
+    public async Task<ActionResult<MemoryDto>> CreateMemory(Guid groupId, [FromForm] CreateMemoryRequest req)
     {
         var uid = User.UserId();
         var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
         if (!isMember) return Forbid();
+
+        string? mediaUrl = req.MediaUrl;
+
+        if (req.File != null && req.File.Length > 0)
+        {
+            var uploadsFolder = Path.Combine("wwwroot", "uploads");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var ext = Path.GetExtension(req.File.FileName);
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using var stream = System.IO.File.Create(filePath);
+            await req.File.CopyToAsync(stream);
+
+            mediaUrl = $"/uploads/{fileName}";
+        }
 
         var m = new Memory
         {
@@ -132,14 +156,24 @@ public class GroupsController : ControllerBase
             Type = req.Type,
             Title = req.Title,
             QuoteText = req.QuoteText,
-            MediaUrl = req.MediaUrl,
+            MediaUrl = mediaUrl,
             ThumbUrl = req.ThumbUrl,
             HappenedAt = req.HappenedAt,
             CreatedByUserId = uid
         };
 
         if (req.Tags?.Any() == true)
-            m.Tags = req.Tags.Distinct().Select(t => new MemoryTag { MemoryId = m.Id, Value = t.Trim() }).ToList();
+        {
+            var cleanTags = req.Tags
+                .Select(t => t.Trim())
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Distinct()
+                .ToList();
+
+            m.Tags = cleanTags
+                .Select(t => new MemoryTag { MemoryId = m.Id, Value = t })
+                .ToList();
+        }
 
         _db.Add(m);
         await _db.SaveChangesAsync();

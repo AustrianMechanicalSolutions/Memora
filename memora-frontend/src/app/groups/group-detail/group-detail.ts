@@ -33,6 +33,7 @@ export class GroupDetailComponent {
   cQuoteText = '';
   cMediaUrl = '';
   cTags = '';
+  selectedFile: File | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -66,33 +67,74 @@ export class GroupDetailComponent {
     });
   }
 
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+    }
+  }
+
   create() {
     const tags = this.cTags.split(',').map(x => x.trim()).filter(Boolean);
 
-    const body = {
+    // Quote memory => no file uploaded needed
+    if (this.cType == 2) {
+      const body = {
+        type: this.cType,
+        title: this.cTitle || null,
+        quoteText: this.cType === 2 ? (this.cQuoteText || null) : null,
+        mediaUrl: this.cType !== 2 ? (this.cMediaUrl || null) : null,
+        thumbUrl: null,
+        happenedAt: new Date(this.cHappenedAt).toISOString(),
+        tags
+      };
+
+      this.groupsService.createMemory(this.groupId, body).subscribe({
+        next: () => this.afterCreate(),
+        error: (err) => console.error(err)
+      });
+
+      return;
+    }
+
+    // Photo / Video => upload file
+
+    if (!this.selectedFile) {
+      alert("Please choose a photo/video file first!");
+      return;
+    }
+
+    const data = {
       type: this.cType,
       title: this.cTitle || null,
-      quoteText: this.cType === 2 ? (this.cQuoteText || null) : null,
-      mediaUrl: this.cType !== 2 ? (this.cMediaUrl || null) : null,
-      thumbUrl: null,
+      quoteText: null,
       happenedAt: new Date(this.cHappenedAt).toISOString(),
       tags
     };
 
-    this.groupsService.createMemory(this.groupId, body).subscribe({
-      next: () => {
-        this.showCreate = false;
-        this.cTitle = '';
-        this.cQuoteText = '';
-        this.cMediaUrl = '';
-        this.cTags = '';
-        this.reload();
-      },
+    this.groupsService.createMemoryWithFile(this.groupId, this.selectedFile, data).subscribe({
+      next: () => this.afterCreate(),
       error: (err) => console.error(err)
     });
   }
 
+  private afterCreate() {
+    this.showCreate = false;
+    this.cTitle = '';
+    this.cQuoteText = '';
+    this.cMediaUrl = '';
+    this.cTags = '';
+    this.selectedFile = null;
+    this.reload();
+  }
+
   typeLabel(t: number) {
     return t === 0 ? 'Photo' : t === 1 ? 'Video' : 'Quote';
+  }
+
+  cleanTags(tags: string[] | null | undefined): string[] {
+    return (tags ?? [])
+      .map(t => (t ?? '').trim())
+      .filter(t => t.length > 0);
   }
 }
