@@ -54,4 +54,26 @@
       </div>
     </div>
   </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Join Group</h2>
+      <span class="badge">Invite</span>
+    </div>
+
+    <div class="create-row">
+      <input
+        class="input"
+        placeholder="Enter invite code (e.g A1B2C3D4)"
+        [(ngModel)]="inviteCode"
+        (keyup.enter)="joinGroup()"
+      />
+
+      <button class="btn primary" (click)="joinGroup()" [disabled]="joining || !inviteCode.trim()">
+        {{ joining ? 'Joining...' : 'Join' }}
+      </button>
+    </div>
+
+    <p class="error" *ngIf="joinErrorMsg">{{ joinErrorMsg }}</p>
+  </section>
 </div>

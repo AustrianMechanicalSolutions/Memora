@@ -29,6 +29,14 @@ public record CreateMemoryRequest(
     IFormFile? File
 );
 
+public class CreateQuoteRequest
+{
+    public string? Title { get; set; }
+    public string QuoteText { get; set; } = "";
+    public DateTime HappenedAt { get; set; }
+    public List<string>? Tags { get; set; }
+};
+
 public class MemoryQuery
 {
     public MemoryType? Type { get; set; }
@@ -39,3 +47,4 @@ public class MemoryQuery
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 20;
 }
+

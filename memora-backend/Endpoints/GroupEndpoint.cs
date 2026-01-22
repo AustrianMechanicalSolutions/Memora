@@ -125,6 +125,48 @@ public class GroupsController : ControllerBase
     }
 
     [HttpPost("{groupId:guid}/memories")]
+    public async Task<ActionResult<MemoryDto>> CreateQuote(Guid groupId, [FromBody] CreateQuoteRequest req)
+    {
+        var uid = User.UserId();
+        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+        if (!isMember) return Forbid();
+
+        var m = new Memory
+        {
+            Id = Guid.NewGuid(),
+            GroupId = groupId,
+            Type = MemoryType.Quote,
+            Title = req.Title,
+            QuoteText = req.QuoteText,
+            HappenedAt = req.HappenedAt,
+            CreatedByUserId = uid
+        };
+
+        if (req.Tags?.Any() == true)
+        {
+            var cleanTags = req.Tags
+                .Select(t => t.Trim())
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Distinct()
+                .ToList();
+
+            m.Tags = cleanTags.Select(t => new MemoryTag { MemoryId = m.Id, Value = t }).ToList();
+        }
+
+        _db.Add(m);
+        await _db.SaveChangesAsync();
+
+        var tags = m.Tags.Select(t => t.Value).ToList();
+
+        return Ok(new MemoryDto(
+            m.Id, m.GroupId, m.Type, m.Title, m.QuoteText, m.MediaUrl, m.ThumbUrl,
+            m.HappenedAt, m.CreatedAt, m.CreatedByUserId,
+            tags.Count == 0 ? null : tags
+        ));
+    }
+
+
+    [HttpPost("{groupId:guid}/memories/upload")]
     [RequestSizeLimit(200_000_000)] // 200MB limit
     public async Task<ActionResult<MemoryDto>> CreateMemory(Guid groupId, [FromForm] CreateMemoryRequest req)
     {

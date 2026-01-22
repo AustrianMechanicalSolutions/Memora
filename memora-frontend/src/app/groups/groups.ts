@@ -91,10 +91,14 @@ export class GroupsService {
 
     formData.append("file", file);
 
-    return this.http.post(`${this.baseUrl}/${groupId}/memories`, formData);
+    return this.http.post(`${this.baseUrl}/${groupId}/memories/upload`, formData);
   }
 
   createGroup(name: string) {
     return this.http.post<GroupDetailDto>(this.baseUrl, { name });
+  }
+
+  joinGroup(inviteCode: string) {
+    return this.http.post('/api/groups/join', { inviteCode });
   }
 }
