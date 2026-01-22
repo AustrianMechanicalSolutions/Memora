@@ -9,7 +9,8 @@ public record RegisterRequest(
 
 public record LoginRequest(
     [Required, EmailAddress] string Email,
-    [Required] string Password
+    [Required] string Password,
+    string? TwoFactorCode
 );
 
 public record AuthResponse(string Token);

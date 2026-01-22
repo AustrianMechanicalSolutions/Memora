@@ -1,0 +1,156 @@
+<div class="page" *ngIf="group as g">
+  <header class="header">
+    <div>
+      <h1 class="title">{{ g.name }}</h1>
+      <p class="subtitle">
+        Invite Code: <b class="code">{{ g.inviteCode }}</b>
+        <span class="dot">•</span>
+        {{ g.memberCount }} members
+      </p>
+    </div>
+
+    <button class="btn primary" (click)="showCreate = !showCreate">
+      {{ showCreate ? 'Close' : '+ New Memory' }}
+    </button>
+  </header>
+
+  <!-- Filters -->
+  <section class="panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Filters</h2>
+      <button class="btn" (click)="reload()">Refresh</button>
+    </div>
+
+    <div class="filters">
+      <div class="field">
+        <label>Type</label>
+        <select class="input" [(ngModel)]="fType" (change)="reload()">
+          <option [ngValue]="null">All</option>
+          <option [ngValue]="0">Photo</option>
+          <option [ngValue]="1">Video</option>
+          <option [ngValue]="2">Quote</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>From</label>
+        <input class="input" type="date" [(ngModel)]="fFrom" (change)="reload()" />
+      </div>
+
+      <div class="field">
+        <label>To</label>
+        <input class="input" type="date" [(ngModel)]="fTo" (change)="reload()" />
+      </div>
+
+      <div class="field grow">
+        <label>Search</label>
+        <input
+          class="input"
+          placeholder="Search title, quote, tags..."
+          [(ngModel)]="fSearch"
+          (keyup.enter)="reload()"
+        />
+      </div>
+
+      <div class="field">
+        <label>Sort</label>
+        <select class="input" [(ngModel)]="fSort" (change)="reload()">
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- Create -->
+  <section class="panel" *ngIf="showCreate">
+    <div class="panel-head">
+      <h2 class="panel-title">New Memory</h2>
+      <span class="muted">Add something to the timeline</span>
+    </div>
+
+    <div class="create-grid">
+      <div class="field">
+        <label>Type</label>
+        <select class="input" [(ngModel)]="cType">
+          <option [ngValue]="0">Photo</option>
+          <option [ngValue]="1">Video</option>
+          <option [ngValue]="2">Quote</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Date</label>
+        <input class="input" type="date" [(ngModel)]="cHappenedAt" />
+      </div>
+
+      <div class="field full">
+        <label>Title</label>
+        <input class="input" [(ngModel)]="cTitle" placeholder="e.g. Funny moment in class" />
+      </div>
+
+      <div class="field full" *ngIf="cType === 2">
+        <label>Quote</label>
+        <textarea class="input textarea" [(ngModel)]="cQuoteText" placeholder="Write the quote..."></textarea>
+      </div>
+
+      <div class="field full" *ngIf="cType !== 2">
+        <label>Media URL</label>
+        <input class="input" [(ngModel)]="cMediaUrl" placeholder="https://..." />
+      </div>
+
+      <div class="field full">
+        <label>Tags</label>
+        <input class="input" [(ngModel)]="cTags" placeholder="fun, class, discord" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" (click)="create()">Save Memory</button>
+    </div>
+  </section>
+
+  <!-- Timeline -->
+  <section class="panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Timeline</h2>
+      <span class="muted">{{ items.length }} shown</span>
+    </div>
+
+    <div class="timeline" *ngIf="items.length > 0; else emptyState">
+      <div class="item" *ngFor="let m of items">
+        <div class="line">
+          <div class="dot-circle"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-top">
+            <span class="type-pill">{{ typeLabel(m.type) }}</span>
+            <span class="date">{{ m.happenedAt | date:'dd.MM.yyyy' }}</span>
+          </div>
+
+          <div class="card-title" *ngIf="m.title">{{ m.title }}</div>
+
+          <div class="quote" *ngIf="m.type === 2">
+            “{{ m.quoteText }}”
+          </div>
+
+          <div class="media" *ngIf="m.type !== 2 && m.mediaUrl">
+            <a class="link" [href]="m.mediaUrl" target="_blank">Open media</a>
+          </div>
+
+          <div class="tags" *ngIf="m.tags?.length">
+            <span class="tag" *ngFor="let t of m.tags">#{{ t }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="empty">
+        <div class="empty-title">No memories yet</div>
+        <div class="empty-sub">Click “+ New Memory” to add the first one ✨</div>
+      </div>
+    </ng-template>
+  </section>
+</div>

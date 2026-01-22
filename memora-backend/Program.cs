@@ -10,6 +10,8 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
+
 // ---- JWT config ----
 builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetSection("Jwt"));
@@ -45,12 +47,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 // ---- CORS (Angular) ----
-builder.Services.AddCors(opt =>
+builder.Services.AddCors(options =>
 {
-    opt.AddPolicy("frontend", p =>
-        p.WithOrigins("http://localhost:4200")
-         .AllowAnyHeader()
-         .AllowAnyMethod());
+    options.AddPolicy("frontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
 });
 
 var app = builder.Build();
@@ -62,6 +67,8 @@ app.UseAuthorization();
 
 // ---- Map endpoints ----
 app.MapAuthEndpoints();
+
+app.MapControllers();
 
 // ---- Protected test ----
 app.MapGet("/api/me", (System.Security.Claims.ClaimsPrincipal user) =>

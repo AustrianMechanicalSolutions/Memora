@@ -11,11 +11,26 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Users
         modelBuilder.Entity<AppUser>(e =>
         {
             e.HasIndex(u => u.Email).IsUnique();
             e.Property(u => u.Email).IsRequired();
             e.Property(u => u.PasswordHash).IsRequired();
         });
+
+        // Groups
+        modelBuilder.Entity<GroupMember>().HasKey(x => new { x.GroupId, x.UserId });
+        modelBuilder.Entity<MemoryTag>().HasKey(x => new { x.MemoryId, x.Value });
+
+        modelBuilder.Entity<Group>()
+            .HasMany(x => x.Members)
+            .WithOne(x => x.Group)
+            .HasForeignKey(x => x.GroupId);
+
+        modelBuilder.Entity<Group>()
+            .HasMany(x => x.Memories)
+            .WithOne(x => x.Group)
+            .HasForeignKey(x => x.GroupId);
     }
 }

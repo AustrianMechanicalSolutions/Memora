@@ -1,0 +1,255 @@
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  min-height: 100vh;
+
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #e5e7eb;
+
+  background: radial-gradient(1200px 600px at 20% 0%, rgba(255,255,255,0.08), transparent 55%),
+              radial-gradient(900px 500px at 80% 20%, rgba(255,255,255,0.06), transparent 55%),
+              linear-gradient(135deg, #3b4cc0 0%, #6d28d9 55%, #0f172a 100%);
+}
+
+.header {
+  margin-bottom: 14px;
+}
+
+.title {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: -0.5px;
+  color: #f9fafb;
+}
+
+.subtitle {
+  margin: 6px 0 0 0;
+  color: rgba(229, 231, 235, 0.75);
+}
+
+.panel {
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 14px;
+
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.panel-title {
+  margin: 0;
+  font-size: 16px;
+  color: #f9fafb;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field.full {
+  grid-column: span 2;
+}
+
+label {
+  font-size: 12px;
+  color: rgba(229, 231, 235, 0.75);
+}
+
+.hint {
+  font-size: 12px;
+  color: rgba(229, 231, 235, 0.55);
+}
+
+.input {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+
+  background: rgba(15, 23, 42, 0.55);
+  color: #f9fafb;
+}
+
+.input:focus {
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.10);
+}
+
+.textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.btn {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.55);
+  color: #f9fafb;
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.btn.primary {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.msg {
+  color: #bbf7d0;
+  font-weight: 700;
+}
+
+.err {
+  color: #fecaca;
+  font-weight: 700;
+}
+
+.twofa {
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  background: rgba(15, 23, 42, 0.25);
+}
+
+.twofa-title {
+  font-weight: 800;
+  color: #f9fafb;
+}
+
+.twofa-sub {
+  margin-top: 4px;
+  color: rgba(229, 231, 235, 0.75);
+}
+
+.state {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(15, 23, 42, 0.35);
+  color: rgba(229, 231, 235, 0.85);
+  font-weight: 800;
+}
+
+.state.on {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.25);
+  color: #bbf7d0;
+}
+
+.state.off {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #fecaca;
+}
+
+.twofa-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.twofa-text {
+  margin: 0;
+  color: rgba(229, 231, 235, 0.75);
+}
+
+.twofa-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn.danger {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.twofa-setup {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 14px;
+  align-items: start;
+  margin-top: 6px;
+}
+
+.qr-wrap {
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.qr {
+  width: 160px;
+  height: 160px;
+  border-radius: 12px;
+}
+
+.setup-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setup-title {
+  font-weight: 850;
+  color: #f9fafb;
+}
+
+.setup-sub {
+  color: rgba(229, 231, 235, 0.75);
+}
+
+.secret {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(15, 23, 42, 0.55);
+  color: #f9fafb;
+  word-break: break-all;
+}
+
+.code-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.input.code {
+  max-width: 140px;
+  text-align: center;
+  letter-spacing: 4px;
+  font-weight: 900;
+}
+
+@media (max-width: 800px) {
+  .twofa-setup {
+    grid-template-columns: 1fr;
+  }
+}
