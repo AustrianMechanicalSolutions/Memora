@@ -407,6 +407,43 @@ select.input option {
   color: #6b7280;
 }
 
+/* Quote Tag */
+.mention-wrap {
+  position: relative;
+}
+
+.mention-popup {
+  position: absolute;
+  top: 105%;
+  left: 0;
+  right: 0;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 6px;
+  z-index: 50;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.mention-item {
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.mention-item:hover {
+  background: #222;
+}
+
+.mention-item.active {
+  background: #2a2a2a;
+}
+
+.mention-empty {
+  padding: 10px;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .filters {

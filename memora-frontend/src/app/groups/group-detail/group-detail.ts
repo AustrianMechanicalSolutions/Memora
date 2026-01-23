@@ -36,9 +36,16 @@ export class GroupDetailComponent {
   cHappenedAt = new Date().toISOString().slice(0, 10);
   cTitle = '';
   cQuoteText = '';
+  cQuoteBy = '';
   cMediaUrl = '';
   cTags = '';
   selectedFile: File | null = null;
+  
+  // Tagging
+  showMentionPopup = false;
+  mentionQuery = '';
+  mentionResults: { userId: string; name: string; role: string }[] = [];
+  mentionIndex = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -92,6 +99,7 @@ export class GroupDetailComponent {
         type: this.cType,
         title: this.cTitle || null,
         quoteText: this.cType === 2 ? (this.cQuoteText || null) : null,
+        quoteBy: this.cQuoteBy || null,
         mediaUrl: this.cType !== 2 ? (this.cMediaUrl || null) : null,
         thumbUrl: null,
         happenedAt: new Date(this.cHappenedAt).toISOString(),
@@ -131,6 +139,7 @@ export class GroupDetailComponent {
     this.showCreate = false;
     this.cTitle = '';
     this.cQuoteText = '';
+    this.cQuoteBy = '';
     this.cMediaUrl = '';
     this.cTags = '';
     this.selectedFile = null;
@@ -152,5 +161,82 @@ export class GroupDetailComponent {
       next: (r) => this.members = r,
       error: (err) => console.error(err)
     });
+  }
+
+  // Tagging
+  private getMentionContext(text: string) {
+    const caret = text.length;
+    const before = text.slice(0, caret);
+
+    const atPos = before.lastIndexOf('@');
+    if (atPos === -1) return null;
+
+    const query = before.slice(atPos + 1);
+
+    if (query.includes(' ')) return null;
+    
+    return { atPos, query }
+  }
+
+  updateMentionPopup() {
+    const ctx = this.getMentionContext(this.cQuoteBy || '');
+    if (!ctx) {
+      this.showMentionPopup = false;
+      return;
+    }
+
+    this.mentionQuery = ctx.query.toLowerCase();
+
+    const all = this.members ?? [];
+
+    this.mentionResults = all
+      .filter(u => u.name.toLowerCase().includes(this.mentionQuery))
+      .slice(0, 8);
+
+    this.showMentionPopup = true;
+    this.mentionIndex = Math.min(this.mentionIndex, this.mentionResults.length -1);
+    if (this.mentionIndex < 0) this.mentionIndex = 0;
+  }
+
+  selectMention(u: { name: string }) {
+    const ctx = this.getMentionContext(this.cQuoteBy || '');
+    if (!ctx) return;
+
+    const beforeAt = this.cQuoteBy.slice(0, ctx.atPos);
+    this.cQuoteBy = `${beforeAt}@${u.name}`;
+    this.showMentionPopup = false;
+  }
+
+  onQuoteByKeydown(event: KeyboardEvent) {
+    if (!this.showMentionPopup) return;
+
+    if (event.key == 'ArrowDown') {
+      event.preventDefault();
+      this.mentionIndex = Math.min(this.mentionIndex + 1, this.mentionResults.length - 1);
+    }
+
+    if (event.key == 'ArrowUp') {
+      event.preventDefault();
+      this.mentionIndex = Math.max(this.mentionIndex - 1, 0);
+    }
+
+    if (event.key == 'Enter') {
+      event.preventDefault();
+      const u = this.mentionResults[this.mentionIndex];
+      if (u) this.selectMention(u);
+    }
+
+    if (event.key == 'Escape') {
+      event.preventDefault();
+      this.showMentionPopup = false;
+    }
+  }
+
+  onQuoteByInput() {
+    this.updateMentionPopup();
+  }
+
+  closeMentionPopup() {
+    this.showMentionPopup = false;
   }
 }

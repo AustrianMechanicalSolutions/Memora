@@ -125,6 +125,41 @@
         ></textarea>
       </div>
 
+      <div class="field full" *ngIf="cType === 2">
+        <label>Who said it?</label>
+        
+        <div class="mention-wrap">
+          <input
+            class="input"
+            [(ngModel)]="cQuoteBy"
+            placeholder="Type a name... or @ to tag"
+            (input)="onQuoteByInput()"
+            (keydown)="onQuoteByKeydown($event)"
+            (blur)="closeMentionPopup()"
+          />
+
+          <div class="mention-popup" *ngIf="showMentionPopup">
+            <div
+              class="mention-item"
+              *ngFor="let u of mentionResults; let i = index"
+              [class.active]="i === mentionIndex"
+              (mousedown)="selectMention(u)"
+            >
+              @{{ u.name }}
+              <span class="muted">({{ u.role }})</span>
+            </div>
+
+            <div class="mention-empty muted" *ngIf="mentionResults.length === 0">
+              No matches
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hint">
+        Tip: Type <b>@</b> to mention a member. Use ↑ ↓ and Enter to select.
+      </div>
+
       <div class="field full" *ngIf="cType !== 2">
         <label>Media URL</label>
         
@@ -203,6 +238,9 @@
 
           <div class="quote" *ngIf="m.type === 2">
             “{{ m.quoteText }}”
+            <div class="quote-by" *ngIf="m.quoteBy">
+              — {{ m.quoteBy }}
+            </div>
           </div>
 
           <div class="media" *ngIf="m.type !== 2 && m.mediaUrl">

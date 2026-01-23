@@ -21,6 +21,7 @@ export interface MemoryDto {
   type: number; // 0 Photo, 1 Video, 2 Quote
   title?: string;
   quoteText?: string;
+  quoteBy: string | null;
   mediaUrl?: string;
   thumbUrl?: string;
   happenedAt: string;

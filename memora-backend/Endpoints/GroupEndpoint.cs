@@ -110,7 +110,7 @@ public class GroupsController : ControllerBase
             .Skip((q.Page - 1) * q.PageSize)
             .Take(q.PageSize)
             .Select(x => new MemoryDto(
-                x.Id, x.GroupId, x.Type, x.Title, x.QuoteText, x.MediaUrl, x.ThumbUrl,
+                x.Id, x.GroupId, x.Type, x.Title, x.QuoteText, x.QuoteBy, x.MediaUrl, x.ThumbUrl,
                 x.HappenedAt, x.CreatedAt, x.CreatedByUserId,
                 x.Tags
                     .Any()
@@ -139,6 +139,7 @@ public class GroupsController : ControllerBase
             Type = MemoryType.Quote,
             Title = req.Title,
             QuoteText = req.QuoteText,
+            QuoteBy = req.QuoteBy,
             HappenedAt = req.HappenedAt,
             CreatedByUserId = uid
         };
@@ -160,7 +161,7 @@ public class GroupsController : ControllerBase
         var tags = m.Tags.Select(t => t.Value).ToList();
 
         return Ok(new MemoryDto(
-            m.Id, m.GroupId, m.Type, m.Title, m.QuoteText, m.MediaUrl, m.ThumbUrl,
+            m.Id, m.GroupId, m.Type, m.Title, m.QuoteText, m.QuoteBy, m.MediaUrl, m.ThumbUrl,
             m.HappenedAt, m.CreatedAt, m.CreatedByUserId,
             tags.Count == 0 ? null : tags
         ));
@@ -222,7 +223,7 @@ public class GroupsController : ControllerBase
         await _db.SaveChangesAsync();
 
         return Ok(new MemoryDto(
-            m.Id, m.GroupId, m.Type, m.Title, m.QuoteText, m.MediaUrl, m.ThumbUrl,
+            m.Id, m.GroupId, m.Type, m.Title, m.QuoteText, m.QuoteBy, m.MediaUrl, m.ThumbUrl,
             m.HappenedAt, m.CreatedAt, m.CreatedByUserId,
             m.Tags.Select(t => t.Value).ToList()
         ));

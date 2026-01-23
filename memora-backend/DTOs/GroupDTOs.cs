@@ -9,6 +9,7 @@ public record MemoryDto(
     MemoryType Type,
     string? Title,
     string? QuoteText,
+    string? QuoteBy,
     string? MediaUrl,
     string? ThumbUrl,
     DateTime HappenedAt,
@@ -35,6 +36,7 @@ public class CreateQuoteRequest
 {
     public string? Title { get; set; }
     public string QuoteText { get; set; } = "";
+    public string? QuoteBy { get; set; }
     public DateTime HappenedAt { get; set; }
     public List<string>? Tags { get; set; }
 };
