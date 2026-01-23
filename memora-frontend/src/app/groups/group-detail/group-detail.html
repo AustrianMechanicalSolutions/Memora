@@ -25,8 +25,19 @@
     </div>
   </header>
 
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="btn ghost" (click)="activeTab='timeline'">
+      Timeline
+    </button>
+
+    <button class="btn ghost" (click)="activeTab='members'">
+      Members
+    </button>
+  </div>
+
   <!-- Filters -->
-  <section class="panel">
+  <section class="panel" *ngIf="activeTab === 'timeline'">
     <div class="panel-head">
       <h2 class="panel-title">Filters</h2>
       <span class="muted">Narrow down what you want to see</span>
@@ -140,8 +151,32 @@
     </div>
   </section>
 
+  <!-- Members -->
+  <section class="panel" *ngIf="activeTab === 'members'">
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-title">Members</h2>
+        <span class="muted">{{ members.length }} total</span>
+      </div>
+    </div>
+
+    <div class="members">
+      <div class="member" *ngFor="let u of members">
+        <div class="member-name">
+          {{ u.name }}
+
+          <span *ngIf="u.userId === creatorUserId" class="creator-badge">
+            👑 Creator
+          </span>
+        </div>
+
+        <div class="muted">{{ u.role }}</div>
+      </div>
+    </div>
+  </section>
+
   <!-- Timeline -->
-  <section class="panel">
+  <section class="panel" *ngIf="activeTab === 'timeline'">
     <div class="panel-head">
       <div>
         <h2 class="panel-title">Timeline</h2>

@@ -18,6 +18,11 @@ export class GroupDetailComponent {
 
   items: MemoryDto[] = [];
 
+  activeTab: 'timeline' | 'members' = 'timeline';
+
+  members: { userId: string, name: string, role: string }[] = [];
+  creatorUserId: string | null = null;
+
   // filters
   fType: number | null = null;
   fFrom: string = '';
@@ -46,7 +51,11 @@ export class GroupDetailComponent {
     this.groupsService.groupDetail(this.groupId).subscribe({
       next: (g) => {
         this.group = g;
+
+        this.creatorUserId = (g as any).createdByUserId;
+
         this.reload();
+        this.loadMembers();
       },
       error: (err) => console.error(err)
     });
@@ -136,5 +145,12 @@ export class GroupDetailComponent {
     return (tags ?? [])
       .map(t => (t ?? '').trim())
       .filter(t => t.length > 0);
+  }
+
+  loadMembers() {
+    this.groupsService.groupMembers(this.groupId).subscribe({
+      next: (r) => this.members = r,
+      error: (err) => console.error(err)
+    });
   }
 }

@@ -101,4 +101,8 @@ export class GroupsService {
   joinGroup(inviteCode: string) {
     return this.http.post('/api/groups/join', { inviteCode });
   }
+
+  groupMembers(groupId: string) {
+    return this.http.get<{ userId: string; name: string, role: string }[]>(`/api/groups/${groupId}/members`);
+  }
 }

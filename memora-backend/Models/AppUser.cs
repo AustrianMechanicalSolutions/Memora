@@ -35,4 +35,5 @@ public class AppUser
     // TOTP
     public bool TwoFactorEnabled { get; set; }
     public string? TwoFactorSecret { get; set; } // base32 secret
+    public ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
 }

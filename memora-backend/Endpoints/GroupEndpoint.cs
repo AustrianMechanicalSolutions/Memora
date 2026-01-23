@@ -1,5 +1,6 @@
 using AuthApi.Data;
 using AuthApi.Extensions;
+using AuthApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,7 @@ public class GroupsController : ControllerBase
         _db.Add(g);
         await _db.SaveChangesAsync();
 
-        return Ok(new GroupDetailDto(g.Id, g.Name, g.InviteCode, g.Members.Count));
+        return Ok(new GroupDetailDto(g.Id, g.Name, g.InviteCode, g.Members.Count, g.CreatedByUserId));
     }
 
     [HttpPost("join")]
@@ -60,7 +61,7 @@ public class GroupsController : ControllerBase
             await _db.SaveChangesAsync();
         }
 
-        return Ok(new GroupDetailDto(g.Id, g.Name, g.InviteCode, g.Members.Count));
+        return Ok(new GroupDetailDto(g.Id, g.Name, g.InviteCode, g.Members.Count, g.CreatedByUserId));
     }
 
     [HttpGet("{groupId:guid}")]
@@ -71,7 +72,7 @@ public class GroupsController : ControllerBase
         if (!isMember) return Forbid();
 
         var g = await _db.Set<Group>().Include(x => x.Members).FirstAsync(x => x.Id == groupId);
-        return Ok(new GroupDetailDto(g.Id, g.Name, g.InviteCode, g.Members.Count));
+        return Ok(new GroupDetailDto(g.Id, g.Name, g.InviteCode, g.Members.Count, g.CreatedByUserId));
     }
 
     [HttpGet("{groupId:guid}/memories")]
@@ -225,5 +226,32 @@ public class GroupsController : ControllerBase
             m.HappenedAt, m.CreatedAt, m.CreatedByUserId,
             m.Tags.Select(t => t.Value).ToList()
         ));
+    }
+
+    [HttpGet("{groupId:guid}/members")]
+    public async Task<ActionResult<List<GroupMemberDto>>> Members(Guid groupId)
+    {
+        var uid = User.UserId();
+        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+        if (!isMember) return Forbid();
+
+        var members = await _db.Set<GroupMember>()
+            .AsNoTracking()
+            .Where(x => x.GroupId == groupId)
+            .Join(
+                _db.Set<AppUser>(),
+                gm => gm.UserId,
+                u => u.Id,
+                (gm, u) => new { gm, u }
+            )
+            .OrderBy(x => x.u.DisplayName)
+            .Select(x => new GroupMemberDto(
+                x.gm.UserId,
+                x.u.DisplayName,
+                x.gm.Role.ToString()
+            ))
+            .ToListAsync();
+
+        return Ok(members);
     }
 }
