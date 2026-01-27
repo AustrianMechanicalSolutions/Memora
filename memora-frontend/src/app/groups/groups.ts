@@ -21,6 +21,7 @@ export interface MemoryDto {
   type: number; // 0 Photo, 1 Video, 2 Quote
   title?: string;
   quoteText?: string;
+  quoteBy: string | null;
   mediaUrl?: string;
   thumbUrl?: string;
   happenedAt: string;
@@ -37,10 +38,21 @@ export interface MemoryQuery {
   sort?: 'newest' | 'oldest';
   page?: number;
   pageSize?: number;
+  albumId?: string;
 }
 
 export interface CreateGroupRequest {
   name: string;
+}
+
+export interface AlbumDto {
+  id: string;
+  groupId: string;
+  title: string;
+  description: string | null;
+  dateStart: string;
+  dateEnd: string | null;
+  memoryCount: number;
 }
 
 @Injectable({
@@ -104,5 +116,14 @@ export class GroupsService {
 
   groupMembers(groupId: string) {
     return this.http.get<{ userId: string; name: string, role: string }[]>(`/api/groups/${groupId}/members`);
+  }
+
+  // Albums
+  groupAlbums(groupId: string) {
+    return this.http.get<AlbumDto[]>(`/api/groups/${groupId}/albums`);
+  }
+
+  createAlbum(groupId: string, body: any) {
+    return this.http.post<AlbumDto>(`/api/groups/${groupId}/albums`, body);
   }
 }

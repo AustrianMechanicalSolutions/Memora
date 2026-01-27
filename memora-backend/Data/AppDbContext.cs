@@ -8,6 +8,7 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
 
     public DbSet<AppUser> Users => Set<AppUser>();
+    public DbSet<Album> Albums => Set<Album>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,5 +33,8 @@ public class AppDbContext : DbContext
             .HasMany(x => x.Memories)
             .WithOne(x => x.Group)
             .HasForeignKey(x => x.GroupId);
+
+        // Albums
+
     }
 }

@@ -9,12 +9,14 @@ public record MemoryDto(
     MemoryType Type,
     string? Title,
     string? QuoteText,
+    string? QuoteBy,
     string? MediaUrl,
     string? ThumbUrl,
     DateTime HappenedAt,
     DateTime CreatedAt,
     Guid CreatedByUserId,
-    List<string>? Tags 
+    List<string>? Tags,
+    Guid? AlbumId
 );
 
 public record CreateGroupRequest(string Name);
@@ -28,15 +30,18 @@ public record CreateMemoryRequest(
     string? ThumbUrl,
     DateTime HappenedAt,
     List<string>? Tags,
-    IFormFile? File
+    IFormFile? File,
+    Guid? AlbumId
 );
 
 public class CreateQuoteRequest
 {
     public string? Title { get; set; }
     public string QuoteText { get; set; } = "";
+    public string? QuoteBy { get; set; }
     public DateTime HappenedAt { get; set; }
     public List<string>? Tags { get; set; }
+    public Guid? AlbumId { get; set; }
 };
 
 public class MemoryQuery
@@ -48,5 +53,6 @@ public class MemoryQuery
     public string Sort { get; set; } = "newest"; // newest|oldest
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 20;
+    public Guid? AlbumId { get; set; }
 }
 

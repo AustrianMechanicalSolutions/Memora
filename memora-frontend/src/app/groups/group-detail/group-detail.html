@@ -27,12 +27,16 @@
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="btn ghost" (click)="activeTab='timeline'">
+    <button class="btn ghost tab-button" (click)="activeTab='timeline'">
       Timeline
     </button>
 
-    <button class="btn ghost" (click)="activeTab='members'">
+    <button class="btn ghost tab-button" (click)="activeTab='members'">
       Members
+    </button>
+
+    <button class="btn ghost tab-button" (click)="goToAlbums()">
+      Albums
     </button>
   </div>
 
@@ -51,6 +55,17 @@
           <option [ngValue]="0">📷 Photo</option>
           <option [ngValue]="1">🎥 Video</option>
           <option [ngValue]="2">💬 Quote</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Album</label>
+        <select class="input" [(ngModel)]="selectedAlbumId" (change)="reload()">
+          <option [ngValue]="null">All memories</option>
+
+          <option *ngFor="let a of albums" [ngValue]="a.id">
+            {{ a.title }}
+          </option>
         </select>
       </div>
 
@@ -123,6 +138,41 @@
           [(ngModel)]="cQuoteText"
           placeholder="Write the quote..."
         ></textarea>
+      </div>
+
+      <div class="field full" *ngIf="cType === 2">
+        <label>Who said it?</label>
+        
+        <div class="mention-wrap">
+          <input
+            class="input"
+            [(ngModel)]="cQuoteBy"
+            placeholder="Type a name... or @ to tag"
+            (input)="onQuoteByInput()"
+            (keydown)="onQuoteByKeydown($event)"
+            (blur)="closeMentionPopup()"
+          />
+
+          <div class="mention-popup" *ngIf="showMentionPopup">
+            <div
+              class="mention-item"
+              *ngFor="let u of mentionResults; let i = index"
+              [class.active]="i === mentionIndex"
+              (mousedown)="selectMention(u)"
+            >
+              @{{ u.name }}
+              <span class="muted">({{ u.role }})</span>
+            </div>
+
+            <div class="mention-empty muted" *ngIf="mentionResults.length === 0">
+              No matches
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hint">
+        Tip: Type <b>@</b> to mention a member. Use ↑ ↓ and Enter to select.
       </div>
 
       <div class="field full" *ngIf="cType !== 2">
@@ -203,6 +253,9 @@
 
           <div class="quote" *ngIf="m.type === 2">
             “{{ m.quoteText }}”
+            <div class="quote-by" *ngIf="m.quoteBy">
+              — {{ m.quoteBy }}
+            </div>
           </div>
 
           <div class="media" *ngIf="m.type !== 2 && m.mediaUrl">
