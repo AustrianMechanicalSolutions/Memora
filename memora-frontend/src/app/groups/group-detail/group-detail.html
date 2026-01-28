@@ -11,28 +11,66 @@
         </span>
 
         <span class="sep">•</span>
+
         <span class="meta-item">{{ g.memberCount }} members</span>
       </div>
     </div>
 
     <div class="header-actions">
-      <button class="btn ghost" (click)="goToAlbums()">
+      <button class="btn primary" (click)="goToAlbums()">
         📚 Albums
       </button>
     </div>
   </header>
 
-  <!-- Quick actions -->
-  <section class="panel quick-actions">
-    <button class="action-card" (click)="goToAlbums()">
-      <div class="action-title">Albums</div>
-      <div class="action-sub">View all memories</div>
-    </button>
+  <!-- About -->
+  <section class="panel">
+    <div class="panel-head">
+      <h2 class="panel-title">About this group</h2>
+    </div>
 
-    <button class="action-card" (click)="loadMembers()">
-      <div class="action-title">Members</div>
-      <div class="action-sub">{{ members.length }} people</div>
-    </button>
+    <p class="about-text">
+      This is a private group where members collect shared memories in albums.
+      Photos, videos and quotes all live together — organized and easy to find.
+    </p>
+
+    <div class="about-meta">
+      <div class="about-item">
+        <span class="label">Created by</span>
+        <span class="value">Group creator</span>
+      </div>
+
+      <div class="about-item">
+        <span class="label">Created on</span>
+        <span class="value">—</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent activity (placeholder) -->
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-title">Recent activity</h2>
+        <span class="muted">Coming soon</span>
+      </div>
+    </div>
+
+    <div class="activity-list">
+      <div class="activity-item muted">
+        • Someone added a memory to an album
+      </div>
+      <div class="activity-item muted">
+        • A new album was created
+      </div>
+      <div class="activity-item muted">
+        • A member joined the group
+      </div>
+    </div>
+
+    <div class="hint">
+      Activity will appear here once the group is used more ✨
+    </div>
   </section>
 
   <!-- Members -->
@@ -47,17 +85,22 @@
     <div class="members">
       <div class="member" *ngFor="let u of members">
         <div class="member-main">
-          <span class="member-name">
-            {{ u.name }}
-          </span>
+          <div class="avatar">
+            {{ u.name.charAt(0) }}
+          </div>
 
-          <span *ngIf="u.userId === creatorUserId" class="creator-badge">
-            👑 Creator
-          </span>
-        </div>
+          <div>
+            <div class="member-name">
+              {{ u.name }}
+              <span *ngIf="u.userId === creatorUserId" class="creator-badge">
+                👑 Creator
+              </span>
+            </div>
 
-        <div class="member-role">
-          {{ u.role }}
+            <div class="member-role">
+              {{ u.role }}
+            </div>
+          </div>
         </div>
       </div>
     </div>
