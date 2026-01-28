@@ -6,203 +6,37 @@
 
       <div class="meta">
         <span class="meta-item">
-          Invite Code:
+          Invite code:
           <span class="code">{{ g.inviteCode }}</span>
         </span>
 
         <span class="sep">•</span>
-
         <span class="meta-item">{{ g.memberCount }} members</span>
       </div>
     </div>
 
     <div class="header-actions">
-      <button class="btn ghost" (click)="reload()">Refresh</button>
-
-      <button class="btn primary" (click)="showCreate = !showCreate">
-        {{ showCreate ? 'Close' : '+ New Memory' }}
+      <button class="btn ghost" (click)="goToAlbums()">
+        📚 Albums
       </button>
     </div>
   </header>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="btn ghost tab-button" (click)="activeTab='timeline'">
-      Timeline
+  <!-- Quick actions -->
+  <section class="panel quick-actions">
+    <button class="action-card" (click)="goToAlbums()">
+      <div class="action-title">Albums</div>
+      <div class="action-sub">View all memories</div>
     </button>
 
-    <button class="btn ghost tab-button" (click)="activeTab='members'">
-      Members
+    <button class="action-card" (click)="loadMembers()">
+      <div class="action-title">Members</div>
+      <div class="action-sub">{{ members.length }} people</div>
     </button>
-
-    <button class="btn ghost tab-button" (click)="goToAlbums()">
-      Albums
-    </button>
-  </div>
-
-  <!-- Filters -->
-  <section class="panel" *ngIf="activeTab === 'timeline'">
-    <div class="panel-head">
-      <h2 class="panel-title">Filters</h2>
-      <span class="muted">Narrow down what you want to see</span>
-    </div>
-
-    <div class="filters">
-      <div class="field">
-        <label>Type</label>
-        <select class="input" [(ngModel)]="fType" (change)="reload()">
-          <option [ngValue]="null">All</option>
-          <option [ngValue]="0">📷 Photo</option>
-          <option [ngValue]="1">🎥 Video</option>
-          <option [ngValue]="2">💬 Quote</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Album</label>
-        <select class="input" [(ngModel)]="selectedAlbumId" (change)="reload()">
-          <option [ngValue]="null">All memories</option>
-
-          <option *ngFor="let a of albums" [ngValue]="a.id">
-            {{ a.title }}
-          </option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>From</label>
-        <input class="input" type="date" [(ngModel)]="fFrom" (change)="reload()" />
-      </div>
-
-      <div class="field">
-        <label>To</label>
-        <input class="input" type="date" [(ngModel)]="fTo" (change)="reload()" />
-      </div>
-
-      <div class="field grow">
-        <label>Search</label>
-        <div class="search-wrap">
-          <span class="search-icon">🔎</span>
-          <input
-            class="input search"
-            placeholder="Search title, quote, tags..."
-            [(ngModel)]="fSearch"
-            (keyup.enter)="reload()"
-          />
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Sort</label>
-        <select class="input" [(ngModel)]="fSort" (change)="reload()">
-          <option value="newest">Newest first</option>
-          <option value="oldest">Oldest first</option>
-        </select>
-      </div>
-    </div>
-  </section>
-
-  <!-- Create -->
-  <section class="panel create" *ngIf="showCreate">
-    <div class="panel-head">
-      <div>
-        <h2 class="panel-title">New Memory</h2>
-        <span class="muted">Add something meaningful to the timeline ✨</span>
-      </div>
-    </div>
-
-    <div class="create-grid">
-      <div class="field">
-        <label>Type</label>
-        <select class="input" [(ngModel)]="cType">
-          <option [ngValue]="0">📷 Photo</option>
-          <option [ngValue]="1">🎥 Video</option>
-          <option [ngValue]="2">💬 Quote</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Date</label>
-        <input class="input" type="date" [(ngModel)]="cHappenedAt" />
-      </div>
-
-      <div class="field full">
-        <label>Title</label>
-        <input class="input" [(ngModel)]="cTitle" placeholder="e.g. Funny moment in class" />
-      </div>
-
-      <div class="field full" *ngIf="cType === 2">
-        <label>Quote</label>
-        <textarea
-          class="input textarea"
-          [(ngModel)]="cQuoteText"
-          placeholder="Write the quote..."
-        ></textarea>
-      </div>
-
-      <div class="field full" *ngIf="cType === 2">
-        <label>Who said it?</label>
-        
-        <div class="mention-wrap">
-          <input
-            class="input"
-            [(ngModel)]="cQuoteBy"
-            placeholder="Type a name... or @ to tag"
-            (input)="onQuoteByInput()"
-            (keydown)="onQuoteByKeydown($event)"
-            (blur)="closeMentionPopup()"
-          />
-
-          <div class="mention-popup" *ngIf="showMentionPopup">
-            <div
-              class="mention-item"
-              *ngFor="let u of mentionResults; let i = index"
-              [class.active]="i === mentionIndex"
-              (mousedown)="selectMention(u)"
-            >
-              @{{ u.name }}
-              <span class="muted">({{ u.role }})</span>
-            </div>
-
-            <div class="mention-empty muted" *ngIf="mentionResults.length === 0">
-              No matches
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="hint">
-        Tip: Type <b>@</b> to mention a member. Use ↑ ↓ and Enter to select.
-      </div>
-
-      <div class="field full" *ngIf="cType !== 2">
-        <label>Media URL</label>
-        
-        <input
-          class="input"
-          type="file"
-          accept="image/*,video/*"
-          (change)="onFileSelected($event)"
-        />
-
-        <div class="hint" *ngIf="selectedFile">Selected: {{ selectedFile.name }}</div>
-      </div>
-
-      <div class="field full">
-        <label>Tags</label>
-        <input class="input" [(ngModel)]="cTags" placeholder="fun, class, discord" />
-        <div class="hint">Comma-separated (example: fun, class)</div>
-      </div>
-    </div>
-
-    <div class="actions">
-      <button class="btn" (click)="showCreate = false">Cancel</button>
-      <button class="btn primary" (click)="create()">Save Memory</button>
-    </div>
   </section>
 
   <!-- Members -->
-  <section class="panel" *ngIf="activeTab === 'members'">
+  <section class="panel">
     <div class="panel-head">
       <div>
         <h2 class="panel-title">Members</h2>
@@ -212,84 +46,20 @@
 
     <div class="members">
       <div class="member" *ngFor="let u of members">
-        <div class="member-name">
-          {{ u.name }}
+        <div class="member-main">
+          <span class="member-name">
+            {{ u.name }}
+          </span>
 
           <span *ngIf="u.userId === creatorUserId" class="creator-badge">
             👑 Creator
           </span>
         </div>
 
-        <div class="muted">{{ u.role }}</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Timeline -->
-  <section class="panel" *ngIf="activeTab === 'timeline'">
-    <div class="panel-head">
-      <div>
-        <h2 class="panel-title">Timeline</h2>
-        <span class="muted">{{ items.length }} shown</span>
-      </div>
-    </div>
-
-    <div class="timeline" *ngIf="items.length > 0; else emptyState">
-      <div class="item" *ngFor="let m of items">
-        <div class="line">
-          <div class="dot-circle"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-top">
-            <span class="type-pill" [class.photo]="m.type===0" [class.video]="m.type===1" [class.quote]="m.type===2">
-              {{ typeLabel(m.type) }}
-            </span>
-
-            <span class="date">{{ m.happenedAt | date:'dd.MM.yyyy' }}</span>
-          </div>
-
-          <div class="card-title" *ngIf="m.title">{{ m.title }}</div>
-
-          <div class="quote" *ngIf="m.type === 2">
-            “{{ m.quoteText }}”
-            <div class="quote-by" *ngIf="m.quoteBy">
-              — {{ m.quoteBy }}
-            </div>
-          </div>
-
-          <div class="media" *ngIf="m.type !== 2 && m.mediaUrl">
-            <img
-              *ngIf="m.type === 0"
-              class="media-img"
-              [src]="'http://localhost:5000' + m.mediaUrl"
-              alt="Memory photo"
-            />
-
-            <video
-              *ngIf="m.type === 1"
-              class="media-video"
-              controls
-              [src]="'http://localhost:5000' + m.mediaUrl"
-            ></video>
-
-            <a class="link media-link" [href]="'http://localhost:5000' + m.mediaUrl" target="_blank" rel="noopener noreferrer">
-              Open media →
-            </a>
-          </div>
-
-          <div class="tags" *ngIf="cleanTags(m.tags).length > 0">
-            <span class="tag" *ngFor="let t of cleanTags(m.tags)">#{{ t }}</span>
-          </div>
+        <div class="member-role">
+          {{ u.role }}
         </div>
       </div>
     </div>
-
-    <ng-template #emptyState>
-      <div class="empty">
-        <div class="empty-title">No memories yet</div>
-        <div class="empty-sub">Click “+ New Memory” to add the first one ✨</div>
-      </div>
-    </ng-template>
   </section>
 </div>

@@ -22,6 +22,7 @@ export class GroupAlbumsComponent {
   aDateStart = new Date().toISOString().slice(0, 10);
   aDateEnd = '';
   selectedAlbumId: string | null = null;
+  allMemoriesCount = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -42,7 +43,19 @@ export class GroupAlbumsComponent {
 
   reload() {
     this.groupsService.groupAlbums(this.groupId).subscribe({
-      next: (r) => this.albums = r,
+      next: (albums) => {
+        this.albums = albums;
+      },
+      error: (err) => console.error(err)
+    });
+
+    this.groupsService.memories(this.groupId, {
+      page: 1,
+      pageSize: 1
+    }).subscribe({
+      next: (r) => {
+        this.allMemoriesCount = r.total;
+      },
       error: (err) => console.error(err)
     });
   }
@@ -78,8 +91,20 @@ export class GroupAlbumsComponent {
   }
 
   openAlbum(albumId: string) {
-    this.router.navigate(['/groups', this.groupId], {
-      queryParams: { albumId }
-    });
+    this.router.navigate(['/groups', this.groupId, 'albums', albumId]);
+  }
+
+  get albumsWithAll(): AlbumDto[] {
+    const allAlbum: AlbumDto = {
+      id: 'all',
+      groupId: this.groupId,
+      title: 'All Memories',
+      description: 'Photos, videos & quotes — everything in one place',
+      dateStart: null as any,
+      dateEnd: null,
+      memoryCount: this.allMemoriesCount
+    };
+
+    return [allAlbum, ...this.albums];
   }
 }

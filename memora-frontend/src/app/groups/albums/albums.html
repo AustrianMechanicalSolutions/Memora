@@ -72,28 +72,26 @@
     </div>
 
     <div *ngIf="albums.length > 0; else emptyState" class="album-grid">
-      <div class="album-card" *ngFor="let a of albums">
-        <div class="album-card" *ngFor="let a of albums">
-          <div class="album-header">
-              <div class="album-title">{{ a.title }}</div>
-              <div class="album-pill">{{ a.memoryCount }} memories</div>
-          </div>
+      <div class="album-card" *ngFor="let a of albumsWithAll" [class.all-album]="a.id === 'all'">
+        <div class="album-header">
+          <div class="album-title">{{ a.title }}</div>
+          <div class="album-pill">{{ a.memoryCount }} memories</div>
+        </div>
 
-          <div class="album-desc" *ngIf="a.description">
-              {{ a.description }}
-          </div>
+        <div class="album-desc" *ngIf="a.description">
+          {{ a.description }}
+        </div>
 
-          <div class="album-dates">
-              <span class="date">{{ a.dateStart | date:'dd.MM.yyyy' }}</span>
-              <span class="arrow" *ngIf="a.dateEnd">→</span>
-              <span class="date" *ngIf="a.dateEnd">{{ a.dateEnd | date:'dd.MM.yyyy' }}</span>
-          </div>
+        <div class="album-dates">
+          <span class="date">{{ a.dateStart | date:'dd.MM.yyyy' }}</span>
+          <span class="arrow" *ngIf="a.dateEnd">→</span>
+          <span class="date" *ngIf="a.dateEnd">{{ a.dateEnd | date:'dd.MM.yyyy' }}</span>
+        </div>
 
-          <div class="album-actions">
-              <button class="btn ghost" (click)="openAlbum(a.id)">
-              Open →
-              </button>
-          </div>
+        <div class="album-actions">
+          <button class="btn ghost" (click)="openAlbum(a.id)">
+            Open →
+          </button>
         </div>
       </div>
     </div>

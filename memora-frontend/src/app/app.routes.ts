@@ -21,7 +21,7 @@ export const routes: Routes = [
     { path: 'groups/:id', component: GroupDetailComponent },
 
     { path: 'groups/:id/albums', component: GroupAlbumsComponent },
-    { path: 'groups/:id/albums/:albumIds', component: AlbumDetailComponent },
+    { path: 'groups/:id/albums/:albumId', component: AlbumDetailComponent },
     
     { path: 'settings', component: SettingsComponent },
 

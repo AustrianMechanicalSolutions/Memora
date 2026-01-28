@@ -18,6 +18,20 @@ export class AlbumDetailComponent {
   album?: AlbumDto;
   items: MemoryDto[] = [];
 
+  newType: number = 0;
+  newTitle = '';
+  newQuoteText = '';
+  newDate = new Date().toISOString().slice(0, 10);
+  selectedFile?: File;
+
+  // Mentioning
+  members: { userId: string, name: string; role: string }[] = [];
+  newQuoteBy = '';
+  showMentionPopup = false;
+  mentionQuery = '';
+  mentionResults: { userId: string, name: string; role: string }[] = [];
+  mentionIndex = 0;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -30,6 +44,7 @@ export class AlbumDetailComponent {
 
     this.loadAlbum();
     this.loadMemories();
+    this.loadMembers();
   }
 
   backToAlbums() {
@@ -37,7 +52,19 @@ export class AlbumDetailComponent {
   }
 
   loadAlbum() {
-    // easiest: load all albums and find the one we need
+    if (this.albumId == 'all') {
+      this.album = {
+        id: 'all',
+        groupId: this.groupId,
+        title: 'All Memories',
+        description: 'Photos, videos & quotes — everything in one place',
+        dateStart: new Date(0).toISOString(),
+        dateEnd: null,
+        memoryCount: 0
+      };
+      return;
+    }
+    
     this.groupsService.groupAlbums(this.groupId).subscribe({
       next: (albums) => {
         this.album = albums.find(a => a.id === this.albumId);
@@ -47,13 +74,23 @@ export class AlbumDetailComponent {
   }
 
   loadMemories() {
-    this.groupsService.memories(this.groupId, {
-      albumId: this.albumId,
+    const query: any = {
       sort: 'newest',
       page: 1,
       pageSize: 50
-    }).subscribe({
+    }
+
+    if (this.albumId != 'all') query.albumId = this.albumId;
+    
+    this.groupsService.memories(this.groupId, query).subscribe({
       next: (r) => this.items = r.items,
+      error: (err) => console.error(err)
+    });
+  }
+
+  loadMembers() {
+    this.groupsService.groupMembers(this.groupId).subscribe({
+      next: (r) => this.members = r,
       error: (err) => console.error(err)
     });
   }
@@ -66,5 +103,131 @@ export class AlbumDetailComponent {
     return (tags ?? [])
       .map(t => (t ?? '').trim())
       .filter(t => t.length > 0);
+  }
+
+  onFileSelected(e: any) {
+    this.selectedFile = e.target.files?.[0];
+  }
+
+  createMemory() {
+    const baseData: any = {
+      type: this.newType,
+      title: this.newTitle || null,
+      quoteText: this.newType === 2 ? this.newQuoteText : null,
+      quoteBy: this.newType === 2 ? (this.newQuoteBy || null) : null,
+      happenedAt: new Date(this.newDate).toISOString(),
+      tags: [],
+      albumId: this.albumId !== 'all' ? this.albumId : null
+    };
+
+    if (this.newType === 2) {
+      // Quote (no file)
+      this.groupsService.createMemory(this.groupId, baseData).subscribe({
+        next: () => this.afterCreate(),
+        error: err => console.error(err)
+      });
+    } else {
+      // Photo or video
+      if (!this.selectedFile) {
+        alert('Please select a file');
+        return;
+      }
+
+      this.groupsService
+        .createMemoryWithFile(this.groupId, this.selectedFile, baseData)
+        .subscribe({
+          next: () => this.afterCreate(),
+          error: err => console.error(err)
+        });
+    }
+  }
+
+  afterCreate() {
+    this.newTitle = '';
+    this.newQuoteText = '';
+    this.selectedFile = undefined;
+    this.loadMemories();
+    this.newQuoteBy = '';
+    this.showMentionPopup = false;
+  }
+
+  // Mentioning
+  private getMentionContext(text: string) {
+    const caret = text.length;
+    const before = text.slice(0, caret);
+
+    const atPos = before.lastIndexOf('@');
+    if (atPos === -1) return null;
+
+    const query = before.slice(atPos + 1);
+    if (query.includes(' ')) return null;
+
+    return { atPos, query };
+  }
+
+  updateMentionPopup() {
+    const ctx = this.getMentionContext(this.newQuoteBy || '');
+    if (!ctx) {
+      this.showMentionPopup = false;
+      return;
+    }
+
+    this.mentionQuery = ctx.query.toLowerCase();
+
+    this.mentionResults = this.members
+      .filter(u => u.name.toLowerCase().includes(this.mentionQuery))
+      .slice(0, 8);
+
+    this.showMentionPopup = true;
+    this.mentionIndex = Math.min(
+      this.mentionIndex,
+      this.mentionResults.length - 1
+    );
+    if (this.mentionIndex < 0) this.mentionIndex = 0;
+  }
+
+  selectMention(u: { name: string }) {
+    const ctx = this.getMentionContext(this.newQuoteBy || '');
+    if (!ctx) return;
+
+    const beforeAt = this.newQuoteBy.slice(0, ctx.atPos);
+    this.newQuoteBy = `${beforeAt}@${u.name}`;
+    this.showMentionPopup = false;
+  }
+
+  onQuoteByKeydown(event: KeyboardEvent) {
+    if (!this.showMentionPopup) return;
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.mentionIndex = Math.min(
+        this.mentionIndex + 1,
+        this.mentionResults.length - 1
+      );
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.mentionIndex = Math.max(this.mentionIndex - 1, 0);
+    }
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const u = this.mentionResults[this.mentionIndex];
+      if (u) this.selectMention(u);
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.showMentionPopup = false;
+    }
+  }
+
+  onQuoteByInput() {
+    this.updateMentionPopup();
+  }
+
+  closeMentionPopup() {
+    this.showMentionPopup = false;
   }
 }

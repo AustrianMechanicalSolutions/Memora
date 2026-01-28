@@ -29,6 +29,79 @@
 
   <section class="panel">
     <div class="panel-head">
+      <h2 class="panel-title">Add Memory</h2>
+    </div>
+
+    <div class="tabs">
+      <button class="tab" [class.active]="newType === 0" (click)="newType = 0">Photo</button>
+      <button class="tab" [class.active]="newType === 1" (click)="newType = 1">Video</button>
+      <button class="tab" [class.active]="newType === 2" (click)="newType = 2">Quote</button>
+    </div>
+
+    <div class="create-grid">
+      <div class="field full">
+        <label>Title</label>
+        <input class="input" [(ngModel)]="newTitle" />
+      </div>
+
+      <div class="field full" *ngIf="newType === 2">
+        <label>Quote</label>
+        <textarea class="input textarea" [(ngModel)]="newQuoteText"></textarea>
+      </div>
+
+      <div class="field full" *ngIf="newType !== 2">
+        <label>File</label>
+        <input type="file" (change)="onFileSelected($event)" />
+      </div>
+
+      <div class="field full" *ngIf="newType === 2">
+        <label>Who said it?</label>
+
+        <div class="mention-wrap">
+          <input
+            class="input"
+            [(ngModel)]="newQuoteBy"
+            placeholder="Type a name... or @ to tag"
+            (input)="onQuoteByInput()"
+            (keydown)="onQuoteByKeydown($event)"
+            (blur)="closeMentionPopup()"
+          />
+
+          <div class="mention-popup" *ngIf="showMentionPopup">
+            <div
+              class="mention-item"
+              *ngFor="let u of mentionResults; let i = index"
+              [class.active]="i === mentionIndex"
+              (mouseDown)="selectMention(u)"
+            >
+              @{{ u.name }}
+              <span class="muted">({{ u.role }})</span>
+            </div>
+
+            <div class="mention-empty muted" *ngIf="mentionResults.length === 0">
+              No matches
+            </div>
+          </div>
+        </div>
+
+        <div class="hint">
+          Tip: Type <b>@</b> to mention a member. Use ↑ ↓ and Enter to select.
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Date</label>
+        <input type="date" class="input" [(ngModel)]="newDate" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" (click)="createMemory()">Add</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
       <div>
         <h2 class="panel-title">Timeline</h2>
         <span class="muted">{{ items.length }} shown</span>
