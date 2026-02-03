@@ -1,7 +1,8 @@
 public record GroupListItemDto(Guid Id, string Name, int MemberCount);
 public record GroupDetailDto(Guid Id, string Name, string InviteCode, int MemberCount, Guid CreatedByUserId);
-
 public record GroupMemberDto(Guid UserId, string Name, string Role);
+
+public record GroupStatsDto(int memoryCount, int albumCount, DateTime timeActive);
 
 public record MemoryDto(
     Guid Id,
@@ -21,7 +22,6 @@ public record MemoryDto(
 
 public record CreateGroupRequest(string Name);
 public record JoinGroupRequest(string InviteCode);
-
 public record CreateMemoryRequest(
     MemoryType Type,
     string? Title,
@@ -56,3 +56,10 @@ public class MemoryQuery
     public Guid? AlbumId { get; set; }
 }
 
+public record GroupWeeklyActivityDto(
+    int Photos,
+    int Videos,
+    int Quotes,
+    int Albums,
+    List<string> Contributors
+);

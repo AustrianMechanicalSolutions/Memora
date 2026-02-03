@@ -261,4 +261,77 @@ public class GroupsController : ControllerBase
 
         return Ok(members);
     }
+
+    [HttpGet("{groupId:guid}/stats")]
+    public async Task<ActionResult<GroupStatsDto>> Stats(Guid groupId)
+    {
+        var uid = User.UserId();
+        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+        if (!isMember) return Forbid();
+
+        var group = await _db.Set<Group>()
+            .AsNoTracking()
+            .Where(g => g.Id == groupId)
+            .Select(g => new { g.CreatedAt })
+            .FirstOrDefaultAsync();
+
+        if (group == null) return NotFound();
+
+        var memoryCountTask = _db.Set<Memory>()
+            .AsNoTracking()
+            .CountAsync(m => m.GroupId == groupId);
+
+        var albumCountTask = _db.Set<Memory>()
+            .AsNoTracking()
+            .Where(m => m.GroupId == groupId && m.AlbumId != null)
+            .Select(m => m.AlbumId)
+            .Distinct()
+            .CountAsync();
+
+        await Task.WhenAll(memoryCountTask, albumCountTask);
+
+        return Ok(new GroupStatsDto(memoryCountTask.Result, albumCountTask.Result, group.CreatedAt));
+    }
+
+    [HttpGet("{groupId:guid}/activity/week")]
+    public async Task<ActionResult<GroupWeeklyActivityDto>> WeeklyActivity(Guid groupId)
+    {
+        var uid = User.UserId();
+        var isMember = await _db.Set<GroupMember>()
+            .AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+
+        if (!isMember) return Forbid();
+
+        var since = DateTime.UtcNow.AddDays(-7);
+
+        var memories = await _db.Set<Memory>()
+            .AsNoTracking()
+            .Where(m => m.GroupId == groupId && m.CreatedAt >= since)
+            .ToListAsync();
+
+        var photos = memories.Count(m => m.Type == MemoryType.Photo);
+        var videos = memories.Count(m => m.Type == MemoryType.Video);
+        var quotes = memories.Count(m => m.Type == MemoryType.Quote);
+
+        var albums = memories
+            .Where(m => m.AlbumId != null)
+            .Select(m => m.AlbumId)
+            .Distinct()
+            .Count();
+
+        var contributors = await _db.Set<AppUser>()
+            .Where(u => memories.Select(m => m.CreatedByUserId).Contains(u.Id))
+            .Select(u => u.DisplayName)
+            .Distinct()
+            .Take(5)
+            .ToListAsync();
+
+        return Ok(new GroupWeeklyActivityDto(
+            photos,
+            videos,
+            quotes,
+            albums,
+            contributors
+        ));
+    }
 }

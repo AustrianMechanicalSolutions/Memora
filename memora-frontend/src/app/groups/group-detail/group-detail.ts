@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { GroupsService, GroupDetailDto, MemoryDto, AlbumDto } from '../groups';
+import { GroupsService, GroupDetailDto, MemoryDto, AlbumDto, GroupStatsDto, GroupWeeklyActivityDto } from '../groups';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-group-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
+  imports: [CommonModule, FormsModule],
   templateUrl: './group-detail.html',
   styleUrls: ['./group-detail.css']
 })
@@ -58,6 +58,10 @@ export class GroupDetailComponent {
   aDateStart = new Date().toISOString().slice(0, 10);
   aDateEnd = '';
 
+  // Group stats
+  groupStats?: GroupStatsDto;
+  weeklyActivity?: GroupWeeklyActivityDto;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -75,9 +79,13 @@ export class GroupDetailComponent {
 
         this.reload();
         this.loadMembers();
+        this.loadStats();
+        this.loadActivity();
       },
       error: (err) => console.error(err)
     });
+
+
 
     this.loadAlbums();
   }
@@ -180,6 +188,20 @@ export class GroupDetailComponent {
     });
   }
 
+  loadStats() {
+    this.groupsService.groupStats(this.groupId).subscribe({
+      next: (r) => this.groupStats = r,
+      error: (err) => console.error(err)
+    });
+  }
+
+  loadActivity() {
+    this.groupsService.weeklyActivity(this.groupId).subscribe({
+      next: r => this.weeklyActivity = r,
+      error: err => console.error(err)
+    });
+  }
+
   // Tagging
   private getMentionContext(text: string) {
     const caret = text.length;
@@ -267,5 +289,36 @@ export class GroupDetailComponent {
 
   goToAlbums() {
     this.router.navigate(['/groups', this.groupId, 'albums']);
+  }
+
+  // Stats
+  timeSince(createdAt: string): string {
+    const start = new Date(createdAt);
+    const now = new Date();
+
+    let years = now.getFullYear() - start.getFullYear();
+    let months = now.getMonth() - start.getMonth();
+    let days = now.getDate() - start.getDate();
+
+    if (days < 0) {
+      months--;
+      const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+      days += prevMonth.getDate();
+    }
+
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+
+    if (years > 0) {
+      return `${years} year${years === 1 ? '' : 's'}`;
+    }
+
+    if (months > 0) {
+      return `${months} month${months === 1 ? '' : 's'}`;
+    }
+
+    return `${Math.max(days, 1)} day${days === 1 ? '' : 's'}`;
   }
 }

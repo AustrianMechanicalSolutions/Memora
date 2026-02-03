@@ -55,6 +55,20 @@ export interface AlbumDto {
   memoryCount: number;
 }
 
+export interface GroupStatsDto {
+  memoryCount: number;
+  albumCount: number;
+  timeActive: string;
+}
+
+export interface GroupWeeklyActivityDto {
+  photos: number;
+  videos: number;
+  quotes: number;
+  albums: number;
+  contributors: string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -125,5 +139,14 @@ export class GroupsService {
 
   createAlbum(groupId: string, body: any) {
     return this.http.post<AlbumDto>(`/api/groups/${groupId}/albums`, body);
+  }
+
+  // Groups page data
+  groupStats(groupId: string) {
+    return this.http.get<GroupStatsDto>(`/api/groups/${groupId}/stats`);
+  }
+
+  weeklyActivity(groupId: string) {
+    return this.http.get<GroupWeeklyActivityDto>(`/api/groups/${groupId}/activity/week`);
   }
 }
