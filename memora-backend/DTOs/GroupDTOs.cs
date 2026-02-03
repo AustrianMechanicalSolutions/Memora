@@ -63,3 +63,15 @@ public record GroupWeeklyActivityDto(
     int Albums,
     List<string> Contributors
 );
+
+public record GroupMemberActivityDto(
+    Guid UserId,
+    string Name,
+    string Role,
+    DateTime JoinedAt,
+    DateTime? LastActiveAt,
+    int TotalMemories,
+    int PhotoCount,
+    int VideoCount,
+    int QuoteCount
+);

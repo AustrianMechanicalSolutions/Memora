@@ -334,4 +334,49 @@ public class GroupsController : ControllerBase
             contributors
         ));
     }
+
+    [HttpGet("{groupId:guid}/activity/members")]
+    public async Task<ActionResult<List<GroupMemberActivityDto>>> MemberActivity(Guid groupId)
+    {
+        var uid = User.UserId();
+        var isMember = await _db.Set<GroupMember>()
+            .AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+
+        if (!isMember) return Forbid();
+
+        var members = await _db.Set<GroupMember>()
+            .AsNoTracking()
+            .Where(gm => gm.GroupId == groupId)
+            .Join(
+                _db.Set<AppUser>(),
+                gm => gm.UserId,
+                u => u.Id,
+                (gm, u) => new { gm, u}
+            )
+            .ToListAsync();
+
+        var memories = await _db.Set<Memory>()
+            .AsNoTracking()
+            .Where(m => m.GroupId == groupId)
+            .ToListAsync();
+
+        var result = members.Select(m =>
+        {
+            var userMemories = memories.Where(x => x.CreatedByUserId == m.u.Id).ToList();
+
+            return new GroupMemberActivityDto(
+                m.u.Id,
+                m.u.DisplayName,
+                m.gm.Role.ToString(),
+                m.gm.JoinedAt,
+                userMemories.Any() ? userMemories.Max(x => x.CreatedAt) : null,
+                userMemories.Count,
+                userMemories.Count(x => x.Type == MemoryType.Photo),
+                userMemories.Count(x => x.Type == MemoryType.Video),
+                userMemories.Count(x => x.Type == MemoryType.Quote)
+            );
+        }).ToList();
+
+        return Ok(result);
+    }
 }

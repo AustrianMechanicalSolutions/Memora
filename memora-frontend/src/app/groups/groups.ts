@@ -69,6 +69,18 @@ export interface GroupWeeklyActivityDto {
   contributors: string[];
 }
 
+export interface GroupMemberActivityDto {
+  userId: string;
+  name: string;
+  role: string;
+  joinedAt: string;
+  lastActiveAt: string | null;
+  totalMemories: number;
+  photoCount: number;
+  videoCount: number;
+  quoteCount: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -148,5 +160,9 @@ export class GroupsService {
 
   weeklyActivity(groupId: string) {
     return this.http.get<GroupWeeklyActivityDto>(`/api/groups/${groupId}/activity/week`);
+  }
+
+  memberActivity(groupId: string) {
+    return this.http.get<GroupMemberActivityDto[]>(`/api/groups/${groupId}/activity/members`);
   }
 }

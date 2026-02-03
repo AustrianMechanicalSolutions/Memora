@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { GroupsService, GroupDetailDto, MemoryDto, AlbumDto, GroupStatsDto, GroupWeeklyActivityDto } from '../groups';
+import { GroupsService, GroupDetailDto, MemoryDto, AlbumDto, GroupStatsDto, GroupWeeklyActivityDto, GroupMemberActivityDto } from '../groups';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -62,6 +62,12 @@ export class GroupDetailComponent {
   groupStats?: GroupStatsDto;
   weeklyActivity?: GroupWeeklyActivityDto;
 
+  memberActivity: GroupMemberActivityDto[] = [];
+  mostActiveUserId?: string;
+  topPhotoUserId?: string;
+  topVideoUserId?: string;
+  topQuoteUserId?: string;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -81,6 +87,7 @@ export class GroupDetailComponent {
         this.loadMembers();
         this.loadStats();
         this.loadActivity();
+        this.loadMemberActivity();
       },
       error: (err) => console.error(err)
     });
@@ -202,6 +209,19 @@ export class GroupDetailComponent {
     });
   }
 
+  loadMemberActivity() {
+    this.groupsService.memberActivity(this.groupId).subscribe({
+      next: r => {
+        this.memberActivity = r;
+
+        this.mostActiveUserId = r.reduce((a, b) => a.totalMemories > b.totalMemories ? a : b).userId;
+        this.topPhotoUserId = r.reduce((a, b) => a.photoCount > b.photoCount ? a : b).userId;
+        this.topVideoUserId = r.reduce((a, b) => a.videoCount > b.videoCount ? a : b).userId;
+        this.topQuoteUserId = r.reduce((a, b) => a.quoteCount > b.quoteCount ? a : b).userId;
+      }
+    });
+  }
+
   // Tagging
   private getMentionContext(text: string) {
     const caret = text.length;
@@ -293,32 +313,53 @@ export class GroupDetailComponent {
 
   // Stats
   timeSince(createdAt: string): string {
+    console.log(createdAt);
     const start = new Date(createdAt);
     const now = new Date();
+    console.log(now + " now");
 
-    let years = now.getFullYear() - start.getFullYear();
-    let months = now.getMonth() - start.getMonth();
-    let days = now.getDate() - start.getDate();
+    const diffMs = now.getTime() - start.getTime();
+    const diffSeconds = Math.floor(diffMs / 1000);
 
-    if (days < 0) {
-      months--;
-      const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-      days += prevMonth.getDate();
+    const minute = 60;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+    const week = 7 * day;
+    const month = 30 * day;
+    const year = 365 * day;
+
+    if (diffSeconds < minute) {
+      const s = Math.max(diffSeconds, 1);
+      return `${s} second${s === 1 ? '' : 's'} ago`;
     }
 
-    if (months < 0) {
-      years--;
-      months += 12;
+    // Minutes
+    if (diffSeconds < hour) {
+      const m = Math.floor(diffSeconds / minute);
+      return `${m} minute${m === 1 ? '' : 's'} ago`;
     }
 
-    if (years > 0) {
-      return `${years} year${years === 1 ? '' : 's'}`;
+    if (diffSeconds < day) {
+      const h = Math.floor(diffSeconds / hour);
+      return `${h} hour${h === 1 ? '' : 's'} ago`;
     }
 
-    if (months > 0) {
-      return `${months} month${months === 1 ? '' : 's'}`;
+    if (diffSeconds < week) {
+      const d = Math.floor(diffSeconds / day);
+      return `${d} day${d === 1 ? '' : 's'} ago`;
     }
 
-    return `${Math.max(days, 1)} day${days === 1 ? '' : 's'}`;
+    if (diffSeconds < month) {
+      const w = Math.floor(diffSeconds / week);
+      return `${w} week${w === 1 ? '' : 's'} ago`;
+    }
+
+    if (diffSeconds < year) {
+      const mo = Math.floor(diffSeconds / month);
+      return `${mo} month${mo === 1 ? '' : 's'} ago`;
+    }
+
+    const y = Math.floor(diffSeconds / year);
+    return `${y} year${y === 1 ? '' : 's'} ago`;
   }
 }

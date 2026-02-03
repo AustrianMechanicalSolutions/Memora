@@ -75,26 +75,29 @@
         <span class="sub">{{ members.length }} total</span>
 
         <div class="member-list">
-          <div class="member" *ngFor="let u of members">
+          <div class="member" *ngFor="let u of memberActivity">
             <div class="avatar big">{{ u.name.charAt(0) }}</div>
 
             <div class="member-info">
               <div class="member-name">
                 {{ u.name }}
-                <span *ngIf="u.userId === creatorUserId" class="badge">
-                  👑 Creator
-                </span>
+                <span *ngIf="u.userId === creatorUserId" class="badge">👑 Creator</span>
               </div>
 
               <div class="member-meta">
-                {{ u.role }} · Joined 2 years ago
+                {{ u.role }} · Joined {{ timeSince(u.joinedAt) }}
               </div>
 
-              <div class="member-meta">
-                Last active · 3 days ago
+              <div class="member-meta" *ngIf="u.lastActiveAt">
+                Last active · {{ timeSince(u.lastActiveAt) }}
               </div>
 
-              <span class="pill">🔥 Most active</span>
+              <div class="badges">
+                <span class="pill" *ngIf="u.userId === mostActiveUserId">🔥 Most active</span>
+                <span class="pill quote" *ngIf="u.userId === topQuoteUserId">💬 Most quotes</span>
+                <span class="pill photo" *ngIf="u.userId === topPhotoUserId">📸 Most photos</span>
+                <span class="pill video" *ngIf="u.userId === topVideoUserId">🎞️ Most videos</span>
+              </div>
             </div>
           </div>
         </div>
