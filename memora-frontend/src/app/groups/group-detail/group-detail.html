@@ -36,12 +36,12 @@
         <div class="about-meta">
           <div class="meta-item">
             <span class="label">Created by</span>
-            <strong>Group creator</strong>
+            <strong>{{ creatorName }}</strong>
           </div>
 
           <div class="meta-item">
             <span class="label">Created</span>
-            <strong>4 years ago</strong>
+            <strong *ngIf="groupStats">{{ timeSince(groupStats.timeActive) }}</strong>
           </div>
         </div>
       </section>

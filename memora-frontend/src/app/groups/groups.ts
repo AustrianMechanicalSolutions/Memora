@@ -13,6 +13,7 @@ export interface GroupDetailDto {
   name: string;
   inviteCode: string;
   memberCount: number;
+  createdByUserId: string;
 }
 
 export interface MemoryDto {
@@ -123,11 +124,11 @@ export class GroupsService {
     formData.append("title", data.title ?? "");
     formData.append("quoteText", data.quoteText ?? "");
     formData.append("happenedAt", data.happenedAt);
-    for (const tag of (data.tags ?? [])) {
-      formData.append("tags", tag);
-    }
+    for (const tag of (data.tags ?? [])) formData.append("tags", tag);
 
     formData.append("file", file);
+
+    if (data.albumId) formData.append('albumId', data.albumId);
 
     return this.http.post(`${this.baseUrl}/${groupId}/memories/upload`, formData);
   }

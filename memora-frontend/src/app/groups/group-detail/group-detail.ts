@@ -23,6 +23,7 @@ export class GroupDetailComponent {
 
   members: { userId: string, name: string, role: string }[] = [];
   creatorUserId: string | null = null;
+  creatorName = '';
 
   // filters
   fType: number | null = null;
@@ -91,8 +92,6 @@ export class GroupDetailComponent {
       },
       error: (err) => console.error(err)
     });
-
-
 
     this.loadAlbums();
   }
@@ -190,7 +189,11 @@ export class GroupDetailComponent {
 
   loadMembers() {
     this.groupsService.groupMembers(this.groupId).subscribe({
-      next: (r) => this.members = r,
+      next: (r) => {
+        this.members = r;
+
+        this.creatorName = this.members.find(m => m.userId === this.group?.createdByUserId)?.name ?? 'Unknown';
+      },
       error: (err) => console.error(err)
     });
   }
@@ -313,10 +316,8 @@ export class GroupDetailComponent {
 
   // Stats
   timeSince(createdAt: string): string {
-    console.log(createdAt);
     const start = new Date(createdAt);
     const now = new Date();
-    console.log(now + " now");
 
     const diffMs = now.getTime() - start.getTime();
     const diffSeconds = Math.floor(diffMs / 1000);
