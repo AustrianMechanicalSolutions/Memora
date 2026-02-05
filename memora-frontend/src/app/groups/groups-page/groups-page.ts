@@ -57,7 +57,7 @@ export class GroupsPageComponent {
       next: () => {
         this.newGroupName = '';
         this.creating = false;
-        this.loadGroups(); // ✅ refresh list
+        this.loadGroups(); // refresh list
       },
       error: (err) => {
         console.error(err);

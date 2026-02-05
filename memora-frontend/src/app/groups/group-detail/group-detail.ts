@@ -1,14 +1,24 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+<<<<<<< HEAD
 import { GroupsService, GroupDetailDto, MemoryDto, AlbumDto, GroupStatsDto, GroupWeeklyActivityDto, GroupMemberActivityDto } from '../groups';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+=======
+import { GroupsService, GroupDetailDto, MemoryDto } from '../groups';
+import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+>>>>>>> origin/main
 
 @Component({
   selector: 'app-group-detail',
   standalone: true,
+<<<<<<< HEAD
   imports: [CommonModule, FormsModule],
+=======
+  imports: [CommonModule, FormsModule, DatePipe],
+>>>>>>> origin/main
   templateUrl: './group-detail.html',
   styleUrls: ['./group-detail.css']
 })
@@ -19,12 +29,15 @@ export class GroupDetailComponent {
 
   items: MemoryDto[] = [];
 
+<<<<<<< HEAD
   activeTab: 'timeline' | 'members' = 'timeline';
 
   members: { userId: string, name: string, role: string }[] = [];
   creatorUserId: string | null = null;
   creatorName = '';
 
+=======
+>>>>>>> origin/main
   // filters
   fType: number | null = null;
   fFrom: string = '';
@@ -38,6 +51,7 @@ export class GroupDetailComponent {
   cHappenedAt = new Date().toISOString().slice(0, 10);
   cTitle = '';
   cQuoteText = '';
+<<<<<<< HEAD
   cQuoteBy = '';
   cMediaUrl = '';
   cTags = '';
@@ -73,6 +87,14 @@ export class GroupDetailComponent {
     private route: ActivatedRoute,
     private router: Router,
     private groupsService: GroupsService,
+=======
+  cMediaUrl = '';
+  cTags = '';
+
+  constructor(
+    private route: ActivatedRoute,
+    private groupsService: GroupsService
+>>>>>>> origin/main
   ) {}
 
   ngOnInit() {
@@ -81,6 +103,7 @@ export class GroupDetailComponent {
     this.groupsService.groupDetail(this.groupId).subscribe({
       next: (g) => {
         this.group = g;
+<<<<<<< HEAD
 
         this.creatorUserId = (g as any).createdByUserId;
 
@@ -94,6 +117,12 @@ export class GroupDetailComponent {
     });
 
     this.loadAlbums();
+=======
+        this.reload();
+      },
+      error: (err) => console.error(err)
+    });
+>>>>>>> origin/main
   }
 
   reload() {
@@ -104,14 +133,19 @@ export class GroupDetailComponent {
       search: this.fSearch ? this.fSearch : undefined,
       sort: this.fSort,
       page: 1,
+<<<<<<< HEAD
       pageSize: 50,
       albumId: this.selectedAlbumId ?? undefined,
+=======
+      pageSize: 50
+>>>>>>> origin/main
     }).subscribe({
       next: (r) => this.items = r.items,
       error: (err) => console.error(err)
     });
   }
 
+<<<<<<< HEAD
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -193,11 +227,35 @@ export class GroupDetailComponent {
         this.members = r;
 
         this.creatorName = this.members.find(m => m.userId === this.group?.createdByUserId)?.name ?? 'Unknown';
+=======
+  create() {
+    const tags = this.cTags.split(',').map(x => x.trim()).filter(Boolean);
+
+    const body = {
+      type: this.cType,
+      title: this.cTitle || null,
+      quoteText: this.cType === 2 ? (this.cQuoteText || null) : null,
+      mediaUrl: this.cType !== 2 ? (this.cMediaUrl || null) : null,
+      thumbUrl: null,
+      happenedAt: new Date(this.cHappenedAt).toISOString(),
+      tags
+    };
+
+    this.groupsService.createMemory(this.groupId, body).subscribe({
+      next: () => {
+        this.showCreate = false;
+        this.cTitle = '';
+        this.cQuoteText = '';
+        this.cMediaUrl = '';
+        this.cTags = '';
+        this.reload();
+>>>>>>> origin/main
       },
       error: (err) => console.error(err)
     });
   }
 
+<<<<<<< HEAD
   loadStats() {
     this.groupsService.groupStats(this.groupId).subscribe({
       next: (r) => this.groupStats = r,
@@ -362,5 +420,9 @@ export class GroupDetailComponent {
 
     const y = Math.floor(diffSeconds / year);
     return `${y} year${y === 1 ? '' : 's'} ago`;
+=======
+  typeLabel(t: number) {
+    return t === 0 ? 'Photo' : t === 1 ? 'Video' : 'Quote';
+>>>>>>> origin/main
   }
 }
