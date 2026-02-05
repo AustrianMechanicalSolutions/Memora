@@ -13,6 +13,7 @@ export interface GroupDetailDto {
   name: string;
   inviteCode: string;
   memberCount: number;
+  createdByUserId: string;
 }
 
 export interface MemoryDto {
@@ -38,10 +39,47 @@ export interface MemoryQuery {
   sort?: 'newest' | 'oldest';
   page?: number;
   pageSize?: number;
+  albumId?: string;
 }
 
 export interface CreateGroupRequest {
   name: string;
+}
+
+export interface AlbumDto {
+  id: string;
+  groupId: string;
+  title: string;
+  description: string | null;
+  dateStart: string;
+  dateEnd: string | null;
+  memoryCount: number;
+}
+
+export interface GroupStatsDto {
+  memoryCount: number;
+  albumCount: number;
+  timeActive: string;
+}
+
+export interface GroupWeeklyActivityDto {
+  photos: number;
+  videos: number;
+  quotes: number;
+  albums: number;
+  contributors: string[];
+}
+
+export interface GroupMemberActivityDto {
+  userId: string;
+  name: string;
+  role: string;
+  joinedAt: string;
+  lastActiveAt: string | null;
+  totalMemories: number;
+  photoCount: number;
+  videoCount: number;
+  quoteCount: number;
 }
 
 @Injectable({
@@ -105,5 +143,27 @@ export class GroupsService {
 
   groupMembers(groupId: string) {
     return this.http.get<{ userId: string; name: string, role: string }[]>(`/api/groups/${groupId}/members`);
+  }
+
+  // Albums
+  groupAlbums(groupId: string) {
+    return this.http.get<AlbumDto[]>(`/api/groups/${groupId}/albums`);
+  }
+
+  createAlbum(groupId: string, body: any) {
+    return this.http.post<AlbumDto>(`/api/groups/${groupId}/albums`, body);
+  }
+
+  // Groups page data
+  groupStats(groupId: string) {
+    return this.http.get<GroupStatsDto>(`/api/groups/${groupId}/stats`);
+  }
+
+  weeklyActivity(groupId: string) {
+    return this.http.get<GroupWeeklyActivityDto>(`/api/groups/${groupId}/activity/week`);
+  }
+
+  memberActivity(groupId: string) {
+    return this.http.get<GroupMemberActivityDto[]>(`/api/groups/${groupId}/activity/members`);
   }
 }

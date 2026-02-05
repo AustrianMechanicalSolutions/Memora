@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { GroupsService, GroupDetailDto, MemoryDto } from '../groups';
+import { GroupsService, GroupDetailDto, MemoryDto, AlbumDto, GroupStatsDto, GroupWeeklyActivityDto, GroupMemberActivityDto } from '../groups';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-group-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
+  imports: [CommonModule, FormsModule],
   templateUrl: './group-detail.html',
   styleUrls: ['./group-detail.css']
 })
@@ -22,6 +23,7 @@ export class GroupDetailComponent {
 
   members: { userId: string, name: string, role: string }[] = [];
   creatorUserId: string | null = null;
+  creatorName = '';
 
   // filters
   fType: number | null = null;
@@ -47,9 +49,30 @@ export class GroupDetailComponent {
   mentionResults: { userId: string; name: string; role: string }[] = [];
   mentionIndex = 0;
 
+  // Albums
+  albums: AlbumDto[] = [];
+  selectedAlbumId: string | null = null;
+
+  showCreateAlbum = false;
+  aTitle = '';
+  aDescription = '';
+  aDateStart = new Date().toISOString().slice(0, 10);
+  aDateEnd = '';
+
+  // Group stats
+  groupStats?: GroupStatsDto;
+  weeklyActivity?: GroupWeeklyActivityDto;
+
+  memberActivity: GroupMemberActivityDto[] = [];
+  mostActiveUserId?: string;
+  topPhotoUserId?: string;
+  topVideoUserId?: string;
+  topQuoteUserId?: string;
+
   constructor(
     private route: ActivatedRoute,
-    private groupsService: GroupsService
+    private router: Router,
+    private groupsService: GroupsService,
   ) {}
 
   ngOnInit() {
@@ -63,9 +86,14 @@ export class GroupDetailComponent {
 
         this.reload();
         this.loadMembers();
+        this.loadStats();
+        this.loadActivity();
+        this.loadMemberActivity();
       },
       error: (err) => console.error(err)
     });
+
+    this.loadAlbums();
   }
 
   reload() {
@@ -76,7 +104,8 @@ export class GroupDetailComponent {
       search: this.fSearch ? this.fSearch : undefined,
       sort: this.fSort,
       page: 1,
-      pageSize: 50
+      pageSize: 50,
+      albumId: this.selectedAlbumId ?? undefined,
     }).subscribe({
       next: (r) => this.items = r.items,
       error: (err) => console.error(err)
@@ -103,6 +132,7 @@ export class GroupDetailComponent {
         mediaUrl: this.cType !== 2 ? (this.cMediaUrl || null) : null,
         thumbUrl: null,
         happenedAt: new Date(this.cHappenedAt).toISOString(),
+        albumId: this.selectedAlbumId,
         tags
       };
 
@@ -126,6 +156,7 @@ export class GroupDetailComponent {
       title: this.cTitle || null,
       quoteText: null,
       happenedAt: new Date(this.cHappenedAt).toISOString(),
+      albumId: this.selectedAlbumId,
       tags
     };
 
@@ -158,8 +189,39 @@ export class GroupDetailComponent {
 
   loadMembers() {
     this.groupsService.groupMembers(this.groupId).subscribe({
-      next: (r) => this.members = r,
+      next: (r) => {
+        this.members = r;
+
+        this.creatorName = this.members.find(m => m.userId === this.group?.createdByUserId)?.name ?? 'Unknown';
+      },
       error: (err) => console.error(err)
+    });
+  }
+
+  loadStats() {
+    this.groupsService.groupStats(this.groupId).subscribe({
+      next: (r) => this.groupStats = r,
+      error: (err) => console.error(err)
+    });
+  }
+
+  loadActivity() {
+    this.groupsService.weeklyActivity(this.groupId).subscribe({
+      next: r => this.weeklyActivity = r,
+      error: err => console.error(err)
+    });
+  }
+
+  loadMemberActivity() {
+    this.groupsService.memberActivity(this.groupId).subscribe({
+      next: r => {
+        this.memberActivity = r;
+
+        this.mostActiveUserId = r.reduce((a, b) => a.totalMemories > b.totalMemories ? a : b).userId;
+        this.topPhotoUserId = r.reduce((a, b) => a.photoCount > b.photoCount ? a : b).userId;
+        this.topVideoUserId = r.reduce((a, b) => a.videoCount > b.videoCount ? a : b).userId;
+        this.topQuoteUserId = r.reduce((a, b) => a.quoteCount > b.quoteCount ? a : b).userId;
+      }
     });
   }
 
@@ -238,5 +300,67 @@ export class GroupDetailComponent {
 
   closeMentionPopup() {
     this.showMentionPopup = false;
+  }
+
+  // Albums
+  loadAlbums() {
+    this.groupsService.groupAlbums(this.groupId).subscribe({
+      next: (r) => this.albums = r,
+      error: (err) => console.error(err)
+    });
+  }
+
+  goToAlbums() {
+    this.router.navigate(['/groups', this.groupId, 'albums']);
+  }
+
+  // Stats
+  timeSince(createdAt: string): string {
+    const start = new Date(createdAt);
+    const now = new Date();
+
+    const diffMs = now.getTime() - start.getTime();
+    const diffSeconds = Math.floor(diffMs / 1000);
+
+    const minute = 60;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+    const week = 7 * day;
+    const month = 30 * day;
+    const year = 365 * day;
+
+    if (diffSeconds < minute) {
+      const s = Math.max(diffSeconds, 1);
+      return `${s} second${s === 1 ? '' : 's'} ago`;
+    }
+
+    // Minutes
+    if (diffSeconds < hour) {
+      const m = Math.floor(diffSeconds / minute);
+      return `${m} minute${m === 1 ? '' : 's'} ago`;
+    }
+
+    if (diffSeconds < day) {
+      const h = Math.floor(diffSeconds / hour);
+      return `${h} hour${h === 1 ? '' : 's'} ago`;
+    }
+
+    if (diffSeconds < week) {
+      const d = Math.floor(diffSeconds / day);
+      return `${d} day${d === 1 ? '' : 's'} ago`;
+    }
+
+    if (diffSeconds < month) {
+      const w = Math.floor(diffSeconds / week);
+      return `${w} week${w === 1 ? '' : 's'} ago`;
+    }
+
+    if (diffSeconds < year) {
+      const mo = Math.floor(diffSeconds / month);
+      return `${mo} month${mo === 1 ? '' : 's'} ago`;
+    }
+
+    const y = Math.floor(diffSeconds / year);
+    return `${y} year${y === 1 ? '' : 's'} ago`;
   }
 }
