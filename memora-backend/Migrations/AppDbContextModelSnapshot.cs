@@ -125,11 +125,8 @@ namespace memorabackend.Migrations
 
                     b.HasKey("GroupId", "UserId");
 
-<<<<<<< HEAD
                     b.HasIndex("UserId");
 
-=======
->>>>>>> origin/main
                     b.ToTable("GroupMember");
                 });
 
@@ -154,12 +151,9 @@ namespace memorabackend.Migrations
                     b.Property<string>("MediaUrl")
                         .HasColumnType("TEXT");
 
-<<<<<<< HEAD
                     b.Property<string>("QuoteBy")
                         .HasColumnType("TEXT");
 
-=======
->>>>>>> origin/main
                     b.Property<string>("QuoteText")
                         .HasColumnType("TEXT");
 
@@ -200,7 +194,6 @@ namespace memorabackend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-<<<<<<< HEAD
                     b.HasOne("AuthApi.Models.AppUser", "User")
                         .WithMany("GroupMembers")
                         .HasForeignKey("UserId")
@@ -210,9 +203,6 @@ namespace memorabackend.Migrations
                     b.Navigation("Group");
 
                     b.Navigation("User");
-=======
-                    b.Navigation("Group");
->>>>>>> origin/main
                 });
 
             modelBuilder.Entity("Memory", b =>
@@ -237,14 +227,11 @@ namespace memorabackend.Migrations
                     b.Navigation("Memory");
                 });
 
-<<<<<<< HEAD
             modelBuilder.Entity("AuthApi.Models.AppUser", b =>
                 {
                     b.Navigation("GroupMembers");
                 });
 
-=======
->>>>>>> origin/main
             modelBuilder.Entity("Group", b =>
                 {
                     b.Navigation("Members");
