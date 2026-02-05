@@ -1,5 +1,5 @@
-bin
-obj
-node_modules
-Migrations
-wwwroot
+/bin
+/obj
+/node_modules
+/Migrations
+/wwwroot
