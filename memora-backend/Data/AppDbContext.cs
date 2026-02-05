@@ -1,5 +1,6 @@
 using AuthApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AuthApi.Data;
 
@@ -8,6 +9,7 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
 
     public DbSet<AppUser> Users => Set<AppUser>();
+    public DbSet<Album> Albums => Set<Album>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,5 +34,22 @@ public class AppDbContext : DbContext
             .HasMany(x => x.Memories)
             .WithOne(x => x.Group)
             .HasForeignKey(x => x.GroupId);
+
+
+        var utcConverter = new ValueConverter<DateTime, DateTime>(
+            v => v,
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+        );
+
+        foreach(var entity in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entity.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime))
+                {
+                    property.SetValueConverter(utcConverter);
+                }
+            }
+        }
     }
 }

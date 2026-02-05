@@ -14,6 +14,13 @@
       [(ngModel)]="password"
     />
 
+    <div *ngIf="show2fa">
+      <label>2FA Code</label>
+      <input type="text" [(ngModel)]="twoFactorCode" placeholder="123456" maxlength="6" />
+    </div>
+
+    <p class="error" *ngIf="errorMsg">{{ errorMsg }}</p>
+
     <button (click)="login()">Login</button>
 
     <p *ngIf="error" style="color:#ffdddd; margin-top:1rem;">

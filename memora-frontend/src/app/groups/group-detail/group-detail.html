@@ -1,4 +1,163 @@
 <div class="page" *ngIf="group as g">
+<<<<<<< HEAD
+
+  <!-- Cover -->
+  <div class="group-cover">
+    <div class="cover-content">
+      <h1 class="group-title">{{ g.name }}</h1>
+
+      <div class="cover-meta">
+        <span class="code">Invite code: {{ g.inviteCode }}</span>
+        <span class="sep">•</span>
+        <span>{{ g.memberCount }} members</span>
+      </div>
+
+      <button class="btn primary cover-action" (click)="goToAlbums()">
+        📚 View albums
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="layout">
+
+    <!-- MAIN COLUMN -->
+    <div class="main">
+
+      <!-- About -->
+      <section class="card neutral">
+        <h2>About this group</h2>
+
+        <p>
+          A place to collect our shared memories — trips, moments, quotes,
+          and everything in between. This description can be edited by the
+          group creator.
+        </p>
+
+        <div class="about-meta">
+          <div class="meta-item">
+            <span class="label">Created by</span>
+            <strong>{{ creatorName }}</strong>
+          </div>
+
+          <div class="meta-item">
+            <span class="label">Created</span>
+            <strong *ngIf="groupStats">{{ timeSince(groupStats.timeActive) }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Activity -->
+      <section class="card primary" *ngIf="weeklyActivity as w">
+        <h2>This week in the group</h2>
+        <span class="sub">Activity summary</span>
+
+        <ul class="activity">
+          <li *ngIf="w.photos">📸 {{ w.photos }} photos added</li>
+          <li *ngIf="w.videos">🎞️ {{ w.videos }} videos uploaded</li>
+          <li *ngIf="w.quotes">📚 {{ w.quotes }} quotes added</li>
+          <li *ngIf="w.albums">📚 {{ w.albums }} new albums created</li>
+        </ul>
+
+        <div class="contributors" *ngIf="w.contributors.length">
+          <span class="label">Recent contributors</span>
+
+          <div class="avatars">
+            <div class="avatar" *ngFor="let c of w.contributors">
+              {{ c.charAt(0) }}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Members -->
+      <section class="card primary">
+        <h2>Members</h2>
+        <span class="sub">{{ members.length }} total</span>
+
+        <div class="member-list">
+          <div class="member" *ngFor="let u of memberActivity">
+            <div class="avatar big">{{ u.name.charAt(0) }}</div>
+
+            <div class="member-info">
+              <div class="member-name">
+                {{ u.name }}
+                <span *ngIf="u.userId === creatorUserId" class="badge">👑 Creator</span>
+              </div>
+
+              <div class="member-meta">
+                {{ u.role }} · Joined {{ timeSince(u.joinedAt) }}
+              </div>
+
+              <div class="member-meta" *ngIf="u.lastActiveAt">
+                Last active · {{ timeSince(u.lastActiveAt) }}
+              </div>
+
+              <div class="badges">
+                <span class="pill" *ngIf="u.userId === mostActiveUserId">🔥 Most active</span>
+                <span class="pill quote" *ngIf="u.userId === topQuoteUserId">💬 Most quotes</span>
+                <span class="pill photo" *ngIf="u.userId === topPhotoUserId">📸 Most photos</span>
+                <span class="pill video" *ngIf="u.userId === topVideoUserId">🎞️ Most videos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- SIDE COLUMN -->
+    <aside class="side">
+
+      <!-- Stats -->
+      <section class="card subtle">
+        <h3>Group stats</h3>
+
+        <div class="stats" *ngIf="groupStats as s">
+          <div>
+            <strong>{{ s.memoryCount }}</strong>
+            <span>Memories</span>
+          </div>
+
+          <div>
+            <strong>{{ s.albumCount }}</strong>
+            <span>Albums</span>
+          </div>
+
+          <div>
+            <strong>{{ timeSince(s.timeActive) }}</strong>
+            <span>Active</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Timeline -->
+      <section class="card">
+        <h3>Timeline</h3>
+
+        <div class="timeline">
+          <div class="event">
+            <span class="dot"></span>
+            <div>
+              <strong>Group created</strong>
+              <span class="muted">4 years ago</span>
+            </div>
+          </div>
+
+          <div class="event muted">
+            <span class="dot"></span>
+            <div>
+              <strong>First album added</strong>
+              <span>Coming soon</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </aside>
+
+  </div>
+=======
   <header class="header">
     <div>
       <h1 class="title">{{ g.name }}</h1>
@@ -153,4 +312,5 @@
       </div>
     </ng-template>
   </section>
+>>>>>>> origin/main
 </div>

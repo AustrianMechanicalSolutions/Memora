@@ -9,11 +9,21 @@ public class Memory
     public string? QuoteText { get; set; }
     public string? MediaUrl { get; set; }
     public string? ThumbUrl { get; set; }
+<<<<<<< HEAD
+    public string? QuoteBy { get; set; }
+=======
 
+>>>>>>> origin/main
     public DateTime HappenedAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public Guid CreatedByUserId { get; set; } = default!;
 
+<<<<<<< HEAD
+    public Guid? AlbumId { get; set; }
+    public Album? Album { get; set; }
+
+=======
+>>>>>>> origin/main
     public ICollection<MemoryTag> Tags { get; set; } = new List<MemoryTag>();
 }
 

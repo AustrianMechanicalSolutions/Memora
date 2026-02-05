@@ -1,11 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoginComponent } from './user/login/login';
-import { RegisterComponent } from './user/register/register';
+import { LoginComponent } from './user/auth/login/login';
+import { RegisterComponent } from './user/auth/register/register';
 import { HomeComponent } from './home/home.component';
 import { GroupsPageComponent } from './groups/groups-page/groups-page';
 import { GroupDetailComponent } from './groups/group-detail/group-detail';
 import { SettingsComponent } from './user/settings/settings';
+import { GroupAlbumsComponent } from './groups/albums/albums';
+import { AlbumDetailComponent } from './groups/albums/album-detail/album-detail';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -17,6 +19,9 @@ export const routes: Routes = [
 
     { path: 'groups', component: GroupsPageComponent },
     { path: 'groups/:id', component: GroupDetailComponent },
+
+    { path: 'groups/:id/albums', component: GroupAlbumsComponent },
+    { path: 'groups/:id/albums/:albumId', component: AlbumDetailComponent },
     
     { path: 'settings', component: SettingsComponent },
 
