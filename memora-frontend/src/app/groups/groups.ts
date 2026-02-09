@@ -1,0 +1,169 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface GroupListItemDto {
+  id: string;
+  name: string;
+  memberCount: number;
+}
+
+export interface GroupDetailDto {
+  id: string;
+  name: string;
+  inviteCode: string;
+  memberCount: number;
+  createdByUserId: string;
+}
+
+export interface MemoryDto {
+  id: string;
+  groupId: string;
+  type: number; // 0 Photo, 1 Video, 2 Quote
+  title?: string;
+  quoteText?: string;
+  quoteBy: string | null;
+  mediaUrl?: string;
+  thumbUrl?: string;
+  happenedAt: string;
+  createdAt: string;
+  createdByUserId: string;
+  tags: string[];
+}
+
+export interface MemoryQuery {
+  type?: number;
+  from?: string;
+  to?: string;
+  search?: string;
+  sort?: 'newest' | 'oldest';
+  page?: number;
+  pageSize?: number;
+  albumId?: string;
+}
+
+export interface CreateGroupRequest {
+  name: string;
+}
+
+export interface AlbumDto {
+  id: string;
+  groupId: string;
+  title: string;
+  description: string | null;
+  dateStart: string;
+  dateEnd: string | null;
+  memoryCount: number;
+}
+
+export interface GroupStatsDto {
+  memoryCount: number;
+  albumCount: number;
+  timeActive: string;
+}
+
+export interface GroupWeeklyActivityDto {
+  photos: number;
+  videos: number;
+  quotes: number;
+  albums: number;
+  contributors: string[];
+}
+
+export interface GroupMemberActivityDto {
+  userId: string;
+  name: string;
+  role: string;
+  joinedAt: string;
+  lastActiveAt: string | null;
+  totalMemories: number;
+  photoCount: number;
+  videoCount: number;
+  quoteCount: number;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GroupsService {
+  private baseUrl = 'http://localhost:5000/api/groups'; 
+  // change to your backend URL/port
+
+  constructor(private http: HttpClient) {}
+
+  myGroups(): Observable<GroupListItemDto[]> {
+    return this.http.get<GroupListItemDto[]>(this.baseUrl);
+  }
+
+  groupDetail(groupId: string): Observable<GroupDetailDto> {
+    return this.http.get<GroupDetailDto>(`${this.baseUrl}/${groupId}`);
+  }
+
+  memories(groupId: string, query: MemoryQuery) {
+    let params = new HttpParams();
+    Object.entries(query).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') {
+        params = params.set(k, String(v));
+      }
+    });
+
+    return this.http.get<{ total: number; items: MemoryDto[] }>(
+      `${this.baseUrl}/${groupId}/memories`,
+      { params }
+    );
+  }
+
+  createMemory(groupId: string, body: any) {
+    return this.http.post(`${this.baseUrl}/${groupId}/memories`, body);
+  }
+
+  createMemoryWithFile(groupId: string, file: File, data: any) {
+    const formData = new FormData();
+
+    formData.append("type", String(data.type));
+    formData.append("title", data.title ?? "");
+    formData.append("quoteText", data.quoteText ?? "");
+    formData.append("happenedAt", data.happenedAt);
+    for (const tag of (data.tags ?? [])) formData.append("tags", tag);
+
+    formData.append("file", file);
+
+    if (data.albumId) formData.append('albumId', data.albumId);
+
+    return this.http.post(`${this.baseUrl}/${groupId}/memories/upload`, formData);
+  }
+
+  createGroup(name: string) {
+    return this.http.post<GroupDetailDto>(this.baseUrl, { name });
+  }
+
+  joinGroup(inviteCode: string) {
+    return this.http.post('/api/groups/join', { inviteCode });
+  }
+
+  groupMembers(groupId: string) {
+    return this.http.get<{ userId: string; name: string, role: string }[]>(`/api/groups/${groupId}/members`);
+  }
+
+  // Albums
+  groupAlbums(groupId: string) {
+    return this.http.get<AlbumDto[]>(`/api/groups/${groupId}/albums`);
+  }
+
+  createAlbum(groupId: string, body: any) {
+    return this.http.post<AlbumDto>(`/api/groups/${groupId}/albums`, body);
+  }
+
+  // Groups page data
+  groupStats(groupId: string) {
+    return this.http.get<GroupStatsDto>(`/api/groups/${groupId}/stats`);
+  }
+
+  weeklyActivity(groupId: string) {
+    return this.http.get<GroupWeeklyActivityDto>(`/api/groups/${groupId}/activity/week`);
+  }
+
+  memberActivity(groupId: string) {
+    return this.http.get<GroupMemberActivityDto[]>(`/api/groups/${groupId}/activity/members`);
+  }
+}
