@@ -1,6 +1,6 @@
 public record GroupListItemDto(Guid Id, string Name, int MemberCount);
 public record GroupDetailDto(Guid Id, string Name, string InviteCode, int MemberCount, Guid CreatedByUserId);
-public record GroupMemberDto(Guid UserId, string Name, string Role);
+public record GroupMemberDto(Guid UserId, string Name, string Role, string? AvatarUrl);
 
 public record GroupStatsDto(int memoryCount, int albumCount, DateTime timeActive);
 

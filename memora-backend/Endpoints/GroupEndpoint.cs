@@ -255,7 +255,8 @@ public class GroupsController : ControllerBase
             .Select(x => new GroupMemberDto(
                 x.gm.UserId,
                 x.u.DisplayName,
-                x.gm.Role.ToString()
+                x.gm.Role.ToString(),
+                x.u.ProfileImageUrl
             ))
             .ToListAsync();
 

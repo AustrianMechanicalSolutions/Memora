@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { GroupsService, AlbumDto, MemoryDto } from '../../groups';
+import { GroupsService, AlbumDto, MemoryDto, AlbumPersonDto } from '../../groups';
 
 @Component({
   selector: 'app-album-detail',
@@ -25,7 +25,7 @@ export class AlbumDetailComponent {
   selectedFile?: File;
 
   // Mentioning
-  members: { userId: string, name: string; role: string }[] = [];
+  members: { userId: string, name: string; role: string; avatarUrl: string; }[] = [];
   newQuoteBy = '';
   showMentionPopup = false;
   mentionQuery = '';
@@ -38,6 +38,13 @@ export class AlbumDetailComponent {
   mediaType: 'photo' | 'video' = 'photo';
   previewUrl: string | null = null;
 
+  // Adding people
+  albumPeople: AlbumPersonDto[] = [];
+  canEditAlbum = false;
+  showAddPersonModal = false;
+  personQuery = '';
+  personResults: { userId: string; name: string; role: string; avatarUrl?: string | null }[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -49,6 +56,7 @@ export class AlbumDetailComponent {
     this.albumId = this.route.snapshot.paramMap.get('albumId')!;
 
     this.loadAlbum();
+    this.loadAlbumPeople();
     this.loadMemories();
     this.loadMembers();
   }
@@ -74,6 +82,8 @@ export class AlbumDetailComponent {
     this.groupsService.groupAlbums(this.groupId).subscribe({
       next: (albums) => {
         this.album = albums.find(a => a.id === this.albumId);
+
+        this.canEditAlbum = true;
       },
       error: (err) => console.error(err)
     });
@@ -279,5 +289,78 @@ export class AlbumDetailComponent {
   isVideo(url: string | null | undefined): boolean {
     if (!url) return false;
     return /\.(mp4|webm|mov)$/i.test(url);
+  }
+
+  // People in Album
+  loadAlbumPeople() {
+    if (this.albumId === 'all') return;
+
+    this.groupsService.albumPeople(this.groupId, this.albumId)
+      .subscribe(r => this.albumPeople = r);
+  }
+
+  openAddPerson() {
+    this.showAddPersonModal = true;
+    this.personQuery = '';
+    this.updatePersonResults();
+  }
+
+  closeAddPerson() {
+    this.showAddPersonModal = false;
+  }
+
+  updatePersonResults() {
+    const q = (this.personQuery || '').trim().toLowerCase();
+
+    // Only show group members not already in albumPeople
+    const already = new Set(this.albumPeople.map(p => p.userId));
+
+    this.personResults = this.members
+      .filter(m => !already.has(m.userId))
+      .filter(m => !q || m.name.toLowerCase().includes(q))
+      .slice(0, 20);
+  }
+
+  addPersonToAlbum(userId: string) {
+    if (this.albumId === 'all') return;
+
+    this.groupsService.addAlbumPerson(this.groupId, this.albumId, userId).subscribe({
+      next: () => {
+        this.personResults = this.personResults.filter(
+          u => u.userId !== userId
+        );
+
+        const added = this.members.find(m => m.userId === userId);
+        if (added) {
+          this.albumPeople = [
+            ...this.albumPeople,
+            {
+              userId: added.userId,
+              name: added.name,
+              role: added.role,
+              avatarUrl: added.avatarUrl ?? null
+            }
+          ];
+        }
+
+        this.loadAlbumPeople();
+      },
+      error: err => console.error(err)
+    });
+  }
+
+  removePerson(userId: string) {
+    this.groupsService
+      .removeAlbumPerson(this.groupId, this.albumId, userId)
+      .subscribe({
+        next: () => {
+          this.albumPeople = this.albumPeople.filter(
+            p => p.userId !== userId
+          );
+
+          this.updatePersonResults();
+        },
+        error: err => console.error(err)
+      });
   }
 }

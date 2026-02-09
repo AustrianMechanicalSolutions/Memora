@@ -26,6 +26,45 @@
     </div>
   </section>
 
+  <section class="album-people" *ngIf="albumId !== 'all'">
+    <div class="people-header">
+      <h3>People</h3>
+
+      <button
+        *ngIf="canEditAlbum"
+        class="btn ghost"
+        (click)="openAddPerson()">
+        + Add Person
+      </button>
+    </div>
+
+    <div class="people-row">
+      <div class="person-card" *ngFor="let p of albumPeople">
+        <div class="avatar-wrap">
+          <img
+            *ngIf="p.avatarUrl; else initials"
+            class="avatar"
+            [src]="p.avatarUrl"
+          />
+
+          <ng-template #initials>
+            <div class="avatar">{{ p.name.charAt(0) }}</div>
+          </ng-template>
+
+          <!-- remove button -->
+          <button
+            *ngIf="canEditAlbum"
+            class="remove-btn"
+            (click)="removePerson(p.userId); $event.stopPropagation()">
+            ×
+          </button>
+        </div>
+
+        <div class="name">{{ p.name }}</div>
+      </div>
+    </div>
+  </section>
+
   <!-- Memory Wall -->
   <section class="wall-section">
     <h2 class="wall-title">Memory Wall</h2>
@@ -192,6 +231,41 @@
         <div class="modal-actions">
           <button class="btn ghost" (click)="addStep='choose'">Back</button>
           <button class="btn primary" (click)="submitQuote()">Add Quote</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showAddPersonModal">
+    <div class="modal">
+      <button class="modal-close" (click)="closeAddPerson()">×</button>
+
+      <h2>Add Person</h2>
+
+      <div class="modal-body">
+        <div class="field">
+          <label>Search</label>
+          <input
+            class="input"
+            [(ngModel)]="personQuery"
+            (input)="updatePersonResults()"
+            placeholder="Type a name..."
+          />
+        </div>
+
+        <div class="list">
+          <button
+            type="button"
+            class="list-item"
+            *ngFor="let u of personResults"
+            (click)="addPersonToAlbum(u.userId)"
+          >
+            <span class="avatar">
+              {{ u.name.charAt(0) }}
+            </span>
+            <span class="name">{{ u.name }}</span>
+            <span class="muted">({{ u.role }})</span>
+          </button>
         </div>
       </div>
     </div>
