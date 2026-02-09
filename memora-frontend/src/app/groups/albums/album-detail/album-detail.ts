@@ -32,6 +32,12 @@ export class AlbumDetailComponent {
   mentionResults: { userId: string, name: string; role: string }[] = [];
   mentionIndex = 0;
 
+  // Adding a memory
+  showAddMemoryModal = false;
+  addStep: 'choose' | 'media' | 'quote' = 'choose';
+  mediaType: 'photo' | 'video' = 'photo';
+  previewUrl: string | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -105,10 +111,6 @@ export class AlbumDetailComponent {
       .filter(t => t.length > 0);
   }
 
-  onFileSelected(e: any) {
-    this.selectedFile = e.target.files?.[0];
-  }
-
   createMemory() {
     const baseData: any = {
       type: this.newType,
@@ -146,6 +148,7 @@ export class AlbumDetailComponent {
     this.newTitle = '';
     this.newQuoteText = '';
     this.selectedFile = undefined;
+    this.previewUrl = null;
     this.loadMemories();
     this.newQuoteBy = '';
     this.showMentionPopup = false;
@@ -229,5 +232,52 @@ export class AlbumDetailComponent {
 
   closeMentionPopup() {
     this.showMentionPopup = false;
+  }
+
+  openAddMemory() {
+    this.showAddMemoryModal = true;
+    this.addStep = 'choose';
+  }
+
+  onFileSelected(e: any) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    this.selectedFile = file;
+    this.previewUrl = URL.createObjectURL(file);  
+  }
+
+  submitMedia() {
+    if (!this.selectedFile) {
+      alert('Please select a file');
+      return;
+    }
+
+    this.newType = this.mediaType === 'photo' ? 0 : 1;
+
+    this.createMemory();
+    this.showAddMemoryModal = false;
+  }
+
+  submitQuote() {
+    this.newType = 2;
+
+    if (!this.newQuoteText) {
+      alert('Please write a quote');
+      return;
+    }
+
+    this.createMemory();
+    this.showAddMemoryModal = false;
+  }
+
+  isImage(url: string | null | undefined): boolean {
+    if (!url) return false;
+    return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+  }
+
+  isVideo(url: string | null | undefined): boolean {
+    if (!url) return false;
+    return /\.(mp4|webm|mov)$/i.test(url);
   }
 }
