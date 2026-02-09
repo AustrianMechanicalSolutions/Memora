@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 
 import QRCode from 'qrcode';
 import { TwoFactorService, TwoFactorSetupResponse } from './twofactor';
@@ -9,7 +10,7 @@ import { TwoFactorService, TwoFactorSetupResponse } from './twofactor';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './settings.html',
   styleUrls: ['./settings.css']
 })
