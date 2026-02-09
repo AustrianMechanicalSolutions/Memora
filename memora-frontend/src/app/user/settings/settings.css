@@ -28,6 +28,11 @@
   color: rgba(229, 231, 235, 0.75);
 }
 
+.subtitle.small {
+  margin: 0;
+  font-size: 13px;
+}
+
 .panel {
   border-radius: 18px;
   padding: 16px;

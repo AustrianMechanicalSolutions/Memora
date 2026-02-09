@@ -8,6 +8,7 @@ import { GroupDetailComponent } from './groups/group-detail/group-detail';
 import { SettingsComponent } from './user/settings/settings';
 import { GroupAlbumsComponent } from './groups/albums/albums';
 import { AlbumDetailComponent } from './groups/albums/album-detail/album-detail';
+import { UserStatsPageComponent } from './stats/user-stats/user-stats';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -22,8 +23,10 @@ export const routes: Routes = [
 
     { path: 'groups/:id/albums', component: GroupAlbumsComponent },
     { path: 'groups/:id/albums/:albumId', component: AlbumDetailComponent },
+    { path: 'groups/:id/stats', component: UserStatsPageComponent },
     
     { path: 'settings', component: SettingsComponent },
+    { path: 'stats', component: UserStatsPageComponent },
 
     { path: '**', redirectTo: 'login' },
 ];

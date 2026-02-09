@@ -1,0 +1,79 @@
+<section class="stats-page">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Memora Analytics</p>
+      <h1 class="headline">
+        {{ isGroupMode ? 'Gruppen-Stats' : 'Profil-Stats' }}
+      </h1>
+      <p class="subline">
+        <ng-container *ngIf="isGroupMode; else allGroupsInfo">
+          {{ userDisplayName }} in <strong>{{ groupName || 'dieser Gruppe' }}</strong>
+        </ng-container>
+        <ng-template #allGroupsInfo>
+          {{ userDisplayName }} ueber alle Gruppen hinweg
+        </ng-template>
+      </p>
+    </div>
+
+    <div class="hero-actions">
+      <a class="btn ghost" routerLink="/stats" *ngIf="isGroupMode">Alle Stats</a>
+      <a class="btn ghost" routerLink="/settings">Zum Profil</a>
+      <a class="btn solid" routerLink="/groups">Gruppen</a>
+    </div>
+  </header>
+
+  <section class="panel loading" *ngIf="loading">Stats werden geladen...</section>
+  <section class="panel error" *ngIf="!loading && error">{{ error }}</section>
+
+  <ng-container *ngIf="!loading && !error">
+    <section class="cards">
+      <article class="tile" *ngFor="let t of tiles">
+        <span class="tile-label">{{ t.label }}</span>
+        <strong class="tile-value">{{ t.value }}</strong>
+        <span class="tile-hint" *ngIf="t.hint">
+          {{ t.hint }}
+          <span class="dot" *ngIf="t.placeholder"></span>
+        </span>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Posting-Verteilung</h2>
+        <span class="muted">Echte Werte aus deinen Posts</span>
+      </div>
+
+      <div class="bars">
+        <div class="bar-row" *ngFor="let b of activityBars">
+          <span class="bar-label">{{ b.label }}</span>
+          <div class="bar-track">
+            <div
+              class="bar-fill"
+              [style.width.%]="
+                (b.value / (activityBars[0].value + activityBars[1].value + activityBars[2].value || 1)) * 100
+              "
+            ></div>
+          </div>
+          <span class="bar-value">{{ b.value }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" *ngIf="groupSwitchLinks.length > 0">
+      <div class="panel-head">
+        <h2>Gruppen-Ansicht wechseln</h2>
+        <span class="muted">Nur deine Stats</span>
+      </div>
+
+      <div class="group-links">
+        <a
+          class="group-link"
+          *ngFor="let g of groupSwitchLinks"
+          [routerLink]="['/groups', g.id, 'stats']"
+        >
+          {{ g.name }}
+        </a>
+      </div>
+    </section>
+  </ng-container>
+</section>
