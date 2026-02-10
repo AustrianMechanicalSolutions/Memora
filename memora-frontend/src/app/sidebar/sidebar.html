@@ -1,0 +1,38 @@
+<aside class="sidebar">
+  <nav class="nav">
+    <ul class="nav-list">
+      <li class="nav-item">
+        <a routerLink="/home" routerLinkActive="active" class="nav-link">
+          <span class="icon">🏠</span>
+          <span class="label">Home</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/groups" routerLinkActive="active" class="nav-link">
+          <span class="icon">👥</span>
+          <span class="label">Groups</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a routerLink="/stats" routerLinkActive="active-icon" class="user-button" title="View Stats">
+      <img 
+        *ngIf="userProfileImageUrl" 
+        [src]="userProfileImageUrl" 
+        alt="Profile" 
+        class="user-avatar"
+      />
+      <div *ngIf="!userProfileImageUrl" class="user-avatar-placeholder">
+        👤
+      </div>
+    </a>
+    <a routerLink="/settings" routerLinkActive="active-icon" class="settings-button" title="Settings">
+      ⚙️
+    </a>
+    <button class="logout-button" (click)="logout()" title="Logout">
+      <span>🚪</span>
+    </button>
+  </div>
+</aside>
