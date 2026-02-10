@@ -67,7 +67,11 @@ export interface GroupWeeklyActivityDto {
   videos: number;
   quotes: number;
   albums: number;
-  contributors: string[];
+  contributors: {
+    userId: string;
+    name: string;
+    avatarUrl?: string | null;
+  }[];
 }
 
 export interface GroupMemberActivityDto {
@@ -76,6 +80,7 @@ export interface GroupMemberActivityDto {
   role: string;
   joinedAt: string;
   lastActiveAt: string | null;
+  profileImageUrl?: string | null;
   totalMemories: number;
   photoCount: number;
   videoCount: number;

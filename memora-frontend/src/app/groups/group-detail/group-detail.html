@@ -61,10 +61,18 @@
         <div class="contributors" *ngIf="w.contributors.length">
           <span class="label">Recent contributors</span>
 
-          <div class="avatars">
-            <div class="avatar" *ngFor="let c of w.contributors">
-              {{ c.charAt(0) }}
-            </div>
+          <div class="avatar" *ngFor="let c of w.contributors">
+            <ng-container *ngIf="c.avatarUrl; else contributorLetter">
+              <img
+                class="avatar-img"
+                [src]="c.avatarUrl"
+                [alt]="c.name"
+              />
+            </ng-container>
+
+            <ng-template #contributorLetter>
+              {{ c.name.charAt(0) }}
+            </ng-template>
           </div>
         </div>
       </section>
@@ -76,7 +84,19 @@
 
         <div class="member-list">
           <div class="member" *ngFor="let u of memberActivity">
-            <div class="avatar big">{{ u.name.charAt(0) }}</div>
+            <div class="avatar big">
+              <ng-container *ngIf="u.profileImageUrl; else letterAvatar">
+                <img
+                  class="avatar-img"
+                  [src]="u.profileImageUrl"
+                  [alt]="u.name"
+                />
+              </ng-container>
+
+              <ng-template #letterAvatar>
+                {{ u.name.charAt(0) }}
+              </ng-template>
+            </div>
 
             <div class="member-info">
               <div class="member-name">
