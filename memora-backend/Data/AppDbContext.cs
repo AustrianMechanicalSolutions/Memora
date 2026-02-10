@@ -24,6 +24,7 @@ public class AppDbContext : DbContext
         // Groups
         modelBuilder.Entity<GroupMember>().HasKey(x => new { x.GroupId, x.UserId });
         modelBuilder.Entity<MemoryTag>().HasKey(x => new { x.MemoryId, x.Value });
+        modelBuilder.Entity<AlbumPerson>().HasKey(x => new { x.AlbumId, x.UserId });
 
         modelBuilder.Entity<Group>()
             .HasMany(x => x.Members)
@@ -35,6 +36,11 @@ public class AppDbContext : DbContext
             .WithOne(x => x.Group)
             .HasForeignKey(x => x.GroupId);
 
+        modelBuilder.Entity<AlbumPerson>()
+            .HasOne(x => x.User)
+            .WithMany()
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         var utcConverter = new ValueConverter<DateTime, DateTime>(
             v => v,

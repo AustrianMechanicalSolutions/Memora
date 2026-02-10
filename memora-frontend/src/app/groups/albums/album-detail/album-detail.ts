@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { GroupsService, AlbumDto, MemoryDto } from '../../groups';
+import { GroupsService, AlbumDto, MemoryDto, AlbumPersonDto } from '../../groups';
 
 @Component({
   selector: 'app-album-detail',
@@ -25,12 +25,25 @@ export class AlbumDetailComponent {
   selectedFile?: File;
 
   // Mentioning
-  members: { userId: string, name: string; role: string }[] = [];
+  members: { userId: string, name: string; role: string; avatarUrl: string; }[] = [];
   newQuoteBy = '';
   showMentionPopup = false;
   mentionQuery = '';
   mentionResults: { userId: string, name: string; role: string }[] = [];
   mentionIndex = 0;
+
+  // Adding a memory
+  showAddMemoryModal = false;
+  addStep: 'choose' | 'media' | 'quote' = 'choose';
+  mediaType: 'photo' | 'video' = 'photo';
+  previewUrl: string | null = null;
+
+  // Adding people
+  albumPeople: AlbumPersonDto[] = [];
+  canEditAlbum = false;
+  showAddPersonModal = false;
+  personQuery = '';
+  personResults: { userId: string; name: string; role: string; avatarUrl?: string | null }[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -43,6 +56,7 @@ export class AlbumDetailComponent {
     this.albumId = this.route.snapshot.paramMap.get('albumId')!;
 
     this.loadAlbum();
+    this.loadAlbumPeople();
     this.loadMemories();
     this.loadMembers();
   }
@@ -68,6 +82,8 @@ export class AlbumDetailComponent {
     this.groupsService.groupAlbums(this.groupId).subscribe({
       next: (albums) => {
         this.album = albums.find(a => a.id === this.albumId);
+
+        this.canEditAlbum = true;
       },
       error: (err) => console.error(err)
     });
@@ -103,10 +119,6 @@ export class AlbumDetailComponent {
     return (tags ?? [])
       .map(t => (t ?? '').trim())
       .filter(t => t.length > 0);
-  }
-
-  onFileSelected(e: any) {
-    this.selectedFile = e.target.files?.[0];
   }
 
   createMemory() {
@@ -146,6 +158,7 @@ export class AlbumDetailComponent {
     this.newTitle = '';
     this.newQuoteText = '';
     this.selectedFile = undefined;
+    this.previewUrl = null;
     this.loadMemories();
     this.newQuoteBy = '';
     this.showMentionPopup = false;
@@ -229,5 +242,125 @@ export class AlbumDetailComponent {
 
   closeMentionPopup() {
     this.showMentionPopup = false;
+  }
+
+  openAddMemory() {
+    this.showAddMemoryModal = true;
+    this.addStep = 'choose';
+  }
+
+  onFileSelected(e: any) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    this.selectedFile = file;
+    this.previewUrl = URL.createObjectURL(file);  
+  }
+
+  submitMedia() {
+    if (!this.selectedFile) {
+      alert('Please select a file');
+      return;
+    }
+
+    this.newType = this.mediaType === 'photo' ? 0 : 1;
+
+    this.createMemory();
+    this.showAddMemoryModal = false;
+  }
+
+  submitQuote() {
+    this.newType = 2;
+
+    if (!this.newQuoteText) {
+      alert('Please write a quote');
+      return;
+    }
+
+    this.createMemory();
+    this.showAddMemoryModal = false;
+  }
+
+  isImage(url: string | null | undefined): boolean {
+    if (!url) return false;
+    return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+  }
+
+  isVideo(url: string | null | undefined): boolean {
+    if (!url) return false;
+    return /\.(mp4|webm|mov)$/i.test(url);
+  }
+
+  // People in Album
+  loadAlbumPeople() {
+    if (this.albumId === 'all') return;
+
+    this.groupsService.albumPeople(this.groupId, this.albumId)
+      .subscribe(r => this.albumPeople = r);
+  }
+
+  openAddPerson() {
+    this.showAddPersonModal = true;
+    this.personQuery = '';
+    this.updatePersonResults();
+  }
+
+  closeAddPerson() {
+    this.showAddPersonModal = false;
+  }
+
+  updatePersonResults() {
+    const q = (this.personQuery || '').trim().toLowerCase();
+
+    // Only show group members not already in albumPeople
+    const already = new Set(this.albumPeople.map(p => p.userId));
+
+    this.personResults = this.members
+      .filter(m => !already.has(m.userId))
+      .filter(m => !q || m.name.toLowerCase().includes(q))
+      .slice(0, 20);
+  }
+
+  addPersonToAlbum(userId: string) {
+    if (this.albumId === 'all') return;
+
+    this.groupsService.addAlbumPerson(this.groupId, this.albumId, userId).subscribe({
+      next: () => {
+        this.personResults = this.personResults.filter(
+          u => u.userId !== userId
+        );
+
+        const added = this.members.find(m => m.userId === userId);
+        if (added) {
+          this.albumPeople = [
+            ...this.albumPeople,
+            {
+              userId: added.userId,
+              name: added.name,
+              role: added.role,
+              avatarUrl: added.avatarUrl ?? null
+            }
+          ];
+        }
+
+        this.loadAlbumPeople();
+      },
+      error: err => console.error(err)
+    });
+  }
+
+  removePerson(userId: string) {
+    this.groupsService
+      .removeAlbumPerson(this.groupId, this.albumId, userId)
+      .subscribe({
+        next: () => {
+          this.albumPeople = this.albumPeople.filter(
+            p => p.userId !== userId
+          );
+
+          this.updatePersonResults();
+        },
+        error: err => console.error(err)
+      });
   }
 }

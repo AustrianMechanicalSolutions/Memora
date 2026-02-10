@@ -67,7 +67,11 @@ export interface GroupWeeklyActivityDto {
   videos: number;
   quotes: number;
   albums: number;
-  contributors: string[];
+  contributors: {
+    userId: string;
+    name: string;
+    avatarUrl?: string | null;
+  }[];
 }
 
 export interface GroupMemberActivityDto {
@@ -76,10 +80,18 @@ export interface GroupMemberActivityDto {
   role: string;
   joinedAt: string;
   lastActiveAt: string | null;
+  profileImageUrl?: string | null;
   totalMemories: number;
   photoCount: number;
   videoCount: number;
   quoteCount: number;
+}
+
+export interface AlbumPersonDto {
+  userId: string;
+  avatarUrl: string;
+  name: string;
+  role: string;
 }
 
 @Injectable({
@@ -142,7 +154,7 @@ export class GroupsService {
   }
 
   groupMembers(groupId: string) {
-    return this.http.get<{ userId: string; name: string, role: string }[]>(`/api/groups/${groupId}/members`);
+    return this.http.get<{ userId: string; name: string, role: string; avatarUrl: string; }[]>(`/api/groups/${groupId}/members`);
   }
 
   // Albums
@@ -165,5 +177,23 @@ export class GroupsService {
 
   memberActivity(groupId: string) {
     return this.http.get<GroupMemberActivityDto[]>(`/api/groups/${groupId}/activity/members`);
+  }
+
+  // People in album
+  albumPeople(groupId: string, albumId: string) {
+    return this.http.get<AlbumPersonDto[]>(`/api/groups/${groupId}/albums/${albumId}/people`);
+  }
+
+  addAlbumPerson(groupId: string, albumId: string, userId: string) {
+    return this.http.post(
+      `/api/groups/${groupId}/albums/${albumId}/people/${userId}`,
+      null
+    );
+  }
+
+  removeAlbumPerson(groupId: string, albumId: string, userId: string) {
+    return this.http.delete(
+      `/api/groups/${groupId}/albums/${albumId}/people/${userId}`
+    );
   }
 }
