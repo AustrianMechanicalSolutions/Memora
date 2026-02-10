@@ -253,6 +253,27 @@ label {
   font-weight: 900;
 }
 
+/* Avatar */
+.avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ddd;
+}
+
+.avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 @media (max-width: 800px) {
   .twofa-setup {
     grid-template-columns: 1fr;
