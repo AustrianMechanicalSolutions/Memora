@@ -53,7 +53,7 @@ export class GroupDetailComponent {
   albums: AlbumDto[] = [];
   selectedAlbumId: string | null = null;
 
-  showCreateAlbum = false;
+  showCreagroupStatsteAlbum = false;
   aTitle = '';
   aDescription = '';
   aDateStart = new Date().toISOString().slice(0, 10);

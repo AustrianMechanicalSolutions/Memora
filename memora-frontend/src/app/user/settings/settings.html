@@ -45,7 +45,39 @@
 
       <div class="field">
         <label>Profile picture URL</label>
-        <input class="input" [(ngModel)]="profile.profileImageUrl" placeholder="https://..." />
+        
+        <div class="avatar-row">
+          <img
+            class="avatar"
+            [src]="profile.profileImageUrl || '/profilePictures/Avatar_Placeholder.png'"
+            alt="Profile picture"
+          />
+
+          <div class="avatar-actions">
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              #fileInput
+              (change)="onProfileImageSelected($event)"
+            />
+
+            <button class="btn secondary" type="button" (click)="fileInput.click()">
+              Change
+            </button>
+
+            <button
+              class="btn danger"
+              type="button"
+              *ngIf="profile.profileImageUrl"
+              (click)="removeProfileImage()"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+
+        <div class="hint">PNG / JPG, max 2MB</div>
       </div>
 
       <div class="field full">
