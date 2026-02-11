@@ -1,0 +1,98 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 16px 96px;
+  color: #f8fafc;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.panel {
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 14px;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
+}
+
+.hero {
+  background:
+    radial-gradient(800px 400px at 90% -10%, rgba(255, 255, 255, 0.14), transparent 50%),
+    rgba(15, 23, 42, 0.45);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(241, 245, 249, 0.72);
+}
+
+.title {
+  margin: 8px 0 0;
+  font-size: 34px;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  margin: 12px 0 0;
+  color: rgba(241, 245, 249, 0.78);
+  max-width: 64ch;
+}
+
+.panel-title {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.provider p {
+  margin: 0 0 4px;
+  color: rgba(241, 245, 249, 0.85);
+}
+
+.team {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+}
+
+.team li {
+  color: rgba(241, 245, 249, 0.9);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.card {
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.card h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.card p {
+  margin: 0 0 6px;
+  color: rgba(241, 245, 249, 0.78);
+}
+
+@media (max-width: 720px) {
+  .title {
+    font-size: 28px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
