@@ -3,8 +3,9 @@
     <ul class="nav-list">
       <li class="nav-item">
         <a routerLink="/home" routerLinkActive="active" class="nav-link">
-          <span class="icon">🏠</span>
-          <span class="label">Home</span>
+          <img src="assets/logo.png" alt="Memora Logo" class="logo-icon" (error)="$event.target.style.display='none'" />
+          <span class="logo-fallback">🏠</span>
+          <span class="label">Your Memora</span>
         </a>
       </li>
       <li class="nav-item">
@@ -17,17 +18,20 @@
   </nav>
 
   <div class="sidebar-footer">
-    <a routerLink="/stats" routerLinkActive="active-icon" class="user-button" title="View Stats">
-      <img 
-        *ngIf="userProfileImageUrl" 
-        [src]="userProfileImageUrl" 
-        alt="Profile" 
-        class="user-avatar"
-      />
-      <div *ngIf="!userProfileImageUrl" class="user-avatar-placeholder">
-        👤
-      </div>
-    </a>
+    <div class="user-button-wrapper">
+      <a routerLink="/stats" routerLinkActive="active-icon" class="user-button" title="View Stats">
+        <img 
+          *ngIf="userProfileImageUrl" 
+          [src]="userProfileImageUrl" 
+          alt="Profile" 
+          class="user-avatar"
+        />
+        <div *ngIf="!userProfileImageUrl" class="user-avatar-placeholder">
+          👤
+        </div>
+      </a>
+      <span class="label">{{ currentUser?.displayName }}</span>
+    </div>
     <a routerLink="/settings" routerLinkActive="active-icon" class="settings-button" title="Settings">
       ⚙️
     </a>

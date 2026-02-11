@@ -72,6 +72,21 @@
   display: block;
 }
 
+.logo-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.logo-fallback {
+  font-size: 24px;
+  display: none;
+}
+
+.logo-icon[style*="display: none"] ~ .logo-fallback {
+  display: block;
+}
+
 .label {
   font-size: 10px;
   font-weight: 500;
@@ -87,12 +102,34 @@
   margin-top: auto;
 }
 
+.user-button-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.user-button-wrapper .label {
+  font-size: 10px;
+  word-wrap: break-word;
+  word-break: break-word;
+  text-align: center;
+  max-width: 84px;
+  line-height: 1.2;
+  color: #888;
+}
+
 .user-button {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 12px;
   background: rgba(79, 70, 229, 0.1);
   border: 1px solid rgba(79, 70, 229, 0.2);
@@ -101,6 +138,7 @@
   padding: 0;
   overflow: hidden;
   text-decoration: none;
+  flex-shrink: 0;
 }
 
 .user-button:hover {
