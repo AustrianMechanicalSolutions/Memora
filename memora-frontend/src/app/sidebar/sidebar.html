@@ -1,24 +1,33 @@
 <aside class="sidebar">
+  <div class="sidebar-header">
+    <a routerLink="/home" routerLinkActive="active" class="nav-link logo-link">
+      <img src="/memora-logo.png" alt="Memora Logo" class="logo-icon" (error)="$event.target.onerror=null; $event.target.src='/memora-logo.ico'" />
+      <span class="logo-fallback">🏠</span>
+      <span class="label">Your Memora</span>
+    </a>
+  </div>
+
   <nav class="nav">
     <ul class="nav-list">
       <li class="nav-item">
-        <a routerLink="/home" routerLinkActive="active" class="nav-link">
-          <img src="assets/logo.png" alt="Memora Logo" class="logo-icon" (error)="$event.target.style.display='none'" />
-          <span class="logo-fallback">🏠</span>
-          <span class="label">Your Memora</span>
-        </a>
-      </li>
-      <li class="nav-item">
         <a routerLink="/groups" routerLinkActive="active" class="nav-link">
-          <span class="icon">👥</span>
+          <span class="icon">⧉</span>
           <span class="label">Groups</span>
         </a>
+        <ul class="groups-sublist" *ngIf="groups.length > 0">
+          <li class="group-subitem" *ngFor="let group of groups">
+            <a [routerLink]="['/groups', group.id]" routerLinkActive="active" class="group-link">
+              <span class="group-indicator">└</span>
+              <span class="group-name">{{ group.name }}</span>
+            </a>
+          </li>
+        </ul>
       </li>
     </ul>
   </nav>
 
   <div class="sidebar-footer">
-    <div class="user-button-wrapper">
+    <div class="stats-item">
       <a routerLink="/stats" routerLinkActive="active-icon" class="user-button" title="View Stats">
         <img 
           *ngIf="userProfileImageUrl" 
@@ -29,14 +38,8 @@
         <div *ngIf="!userProfileImageUrl" class="user-avatar-placeholder">
           👤
         </div>
+        <span class="label">{{ currentUser?.displayName }}</span>
       </a>
-      <span class="label">{{ currentUser?.displayName }}</span>
     </div>
-    <a routerLink="/settings" routerLinkActive="active-icon" class="settings-button" title="Settings">
-      ⚙️
-    </a>
-    <button class="logout-button" (click)="logout()" title="Logout">
-      <span>🚪</span>
-    </button>
   </div>
 </aside>

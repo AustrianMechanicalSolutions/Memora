@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService, CurrentUser } from '../user/auth.service';
 import { Router } from '@angular/router';
+import { GroupsService, GroupListItemDto } from '../groups/groups';
 
 @Component({
   selector: 'app-sidebar',
@@ -14,11 +15,13 @@ import { Router } from '@angular/router';
 export class SidebarComponent implements OnInit {
   userProfileImageUrl: string | null = null;
   currentUser: CurrentUser | null = null;
+  groups: GroupListItemDto[] = [];
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router, private groupsService: GroupsService) {}
 
   ngOnInit() {
     this.loadUserProfile();
+    this.loadGroups();
   }
 
   loadUserProfile() {
@@ -29,6 +32,17 @@ export class SidebarComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load user profile:', err);
+      }
+    });
+  }
+
+  loadGroups() {
+    this.groupsService.myGroups().subscribe({
+      next: (groups) => {
+        this.groups = groups.slice(0, 5);
+      },
+      error: (err) => {
+        console.error('Failed to load groups:', err);
       }
     });
   }
