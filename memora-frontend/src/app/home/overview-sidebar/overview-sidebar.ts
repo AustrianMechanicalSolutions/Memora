@@ -27,6 +27,17 @@ import { catchError, map, switchMap } from 'rxjs/operators';
     </aside>
   `,
   styles: [`
+    @keyframes fadeInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
     .home-sidebar {
       width: 260px;
       height: 100%;
@@ -34,6 +45,8 @@ import { catchError, map, switchMap } from 'rxjs/operators';
       padding: 12px 16px;
       box-sizing: border-box;
       overflow-y: auto;
+      animation: fadeInLeft 0.6s ease-out 0.3s forwards;
+      opacity: 0;
     }
 
     .home-sidebar h2 {
@@ -45,10 +58,21 @@ import { catchError, map, switchMap } from 'rxjs/operators';
     .overview-item {
       padding: 12px 0;
       border-bottom: 1px solid #2a2a2e;
+      animation: fadeInLeft 0.5s ease-out forwards;
+      opacity: 0;
     }
 
     .overview-item:first-child {
       padding-top: 24px;
+      animation-delay: 0.5s;
+    }
+
+    .overview-item:nth-child(2) {
+      animation-delay: 0.6s;
+    }
+
+    .overview-item:nth-child(3) {
+      animation-delay: 0.7s;
     }
 
     .overview-item:last-child {
