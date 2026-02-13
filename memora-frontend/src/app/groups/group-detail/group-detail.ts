@@ -76,24 +76,26 @@ export class GroupDetailComponent {
   ) {}
 
   ngOnInit() {
-    this.groupId = this.route.snapshot.paramMap.get('id')!;
+    this.route.paramMap.subscribe(params => {
+      this.groupId = params.get('id')!;
 
-    this.groupsService.groupDetail(this.groupId).subscribe({
-      next: (g) => {
-        this.group = g;
+      this.groupsService.groupDetail(this.groupId).subscribe({
+        next: (g) => {
+          this.group = g;
 
-        this.creatorUserId = (g as any).createdByUserId;
+          this.creatorUserId = (g as any).createdByUserId;
 
-        this.reload();
-        this.loadMembers();
-        this.loadStats();
-        this.loadActivity();
-        this.loadMemberActivity();
-      },
-      error: (err) => console.error(err)
+          this.reload();
+          this.loadMembers();
+          this.loadStats();
+          this.loadActivity();
+          this.loadMemberActivity();
+        },
+        error: (err) => console.error(err)
+      });
+
+      this.loadAlbums();
     });
-
-    this.loadAlbums();
   }
 
   reload() {
