@@ -1,18 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
-import { GroupsPage } from './groups-page';
+import { GroupsPageComponent } from './groups-page';
+import { GroupsService } from '../groups';
 
-describe('GroupsPage', () => {
-  let component: GroupsPage;
-  let fixture: ComponentFixture<GroupsPage>;
+describe('GroupsPageComponent', () => {
+  let component: GroupsPageComponent;
+  let fixture: ComponentFixture<GroupsPageComponent>;
+  let mockGroupsService: jasmine.SpyObj<GroupsService>;
 
   beforeEach(async () => {
+    mockGroupsService = jasmine.createSpyObj('GroupsService', ['myGroups', 'createGroup', 'joinGroup']);
+    mockGroupsService.myGroups.and.returnValue(of([]));
+
     await TestBed.configureTestingModule({
-      imports: [GroupsPage]
+      imports: [GroupsPageComponent],
+      providers: [
+        { provide: GroupsService, useValue: mockGroupsService }
+      ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(GroupsPage);
+    fixture = TestBed.createComponent(GroupsPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
