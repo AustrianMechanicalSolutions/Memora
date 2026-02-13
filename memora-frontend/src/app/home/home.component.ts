@@ -20,20 +20,24 @@ import { OverviewSidebarComponent } from './overview-sidebar/overview-sidebar';
   styles: [`
     .home {
       display: flex;
-      gap: 24px;
-      padding: 3rem;
+      gap: 0;
       align-items: stretch;
-      min-height: 100vh;
+      height: 100vh;
     }
 
     .home-main {
       flex: 1;
       text-align: center;
+      padding: 3rem;
     }
 
     @media (max-width: 900px) {
       .home {
         flex-direction: column;
+      }
+
+      .home-main {
+        padding: 3rem;
       }
     }
   `]

@@ -29,10 +29,11 @@ import { catchError, map, switchMap } from 'rxjs/operators';
   styles: [`
     .home-sidebar {
       width: 260px;
+      height: 100%;
       border-left: 1px solid #2a2a2e;
       padding: 12px 16px;
       box-sizing: border-box;
-      align-self: stretch;
+      overflow-y: auto;
     }
 
     .home-sidebar h2 {
