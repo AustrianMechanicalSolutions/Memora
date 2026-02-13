@@ -299,18 +299,24 @@
 }
 
 .user-avatar {
-  width: 100%;
-  height: 100%;
+  width: 48px;
+  height: 48px;
   object-fit: cover;
   display: block;
+  border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .user-avatar-placeholder {
-  font-size: 24px;
+  width: 48px;
+  height: 48px;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #4f46e5;
+  border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .logout-button {
@@ -358,7 +364,9 @@
   }
 
   .user-avatar-placeholder {
-    font-size: 20px;
+    width: 48px;
+    height: 48px;
+    font-size: 12px;
   }
 
   .settings-button {

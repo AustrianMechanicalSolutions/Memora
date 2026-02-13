@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService, CurrentUser } from '../user/auth.service';
 import { Router } from '@angular/router';
 import { GroupsService, GroupListItemDto } from '../groups/groups';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
@@ -12,16 +13,23 @@ import { GroupsService, GroupListItemDto } from '../groups/groups';
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   userProfileImageUrl: string | null = null;
   currentUser: CurrentUser | null = null;
   groups: GroupListItemDto[] = [];
+  private subscriptions: Subscription = new Subscription();
 
   constructor(private auth: AuthService, private router: Router, private groupsService: GroupsService) {}
 
   ngOnInit() {
     this.loadUserProfile();
     this.loadGroups();
+    
+    this.subscriptions.add(
+      this.groupsService.groupsChanged$.subscribe(() => {
+        this.loadGroups();
+      })
+    );
   }
 
   loadUserProfile() {
@@ -52,5 +60,9 @@ export class SidebarComponent implements OnInit {
       this.auth.logout();
       this.router.navigate(['/login']);
     }
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 }
