@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 export interface GroupListItemDto {
   id: string;
@@ -99,7 +100,8 @@ export interface AlbumPersonDto {
 })
 export class GroupsService {
   private baseUrl = 'http://localhost:5000/api/groups'; 
-  // change to your backend URL/port
+  private groupsChangedSource = new Subject<void>();
+  groupsChanged$ = this.groupsChangedSource.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -146,11 +148,15 @@ export class GroupsService {
   }
 
   createGroup(name: string) {
-    return this.http.post<GroupDetailDto>(this.baseUrl, { name });
+    return this.http.post<GroupDetailDto>(this.baseUrl, { name }).pipe(
+      tap(() => this.groupsChangedSource.next())
+    );
   }
 
   joinGroup(inviteCode: string) {
-    return this.http.post('/api/groups/join', { inviteCode });
+    return this.http.post('/api/groups/join', { inviteCode }).pipe(
+      tap(() => this.groupsChangedSource.next())
+    );
   }
 
   groupMembers(groupId: string) {
