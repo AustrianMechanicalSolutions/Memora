@@ -1,0 +1,28 @@
+<div class="home">
+  <div class="home-main">
+    <div class="welcome-section">
+      <h1>Welcome, <span class="username">{{ username }}</span></h1>
+    </div>
+    <div class="section-header">
+      <h2>Your Groups</h2>
+      <p>Shared memory collections</p>
+    </div>
+    <div class="groups-dashboard">
+      <div class="group-card" *ngFor="let group of groups" [routerLink]="['/groups', group.id]">
+        <div class="group-header">
+          <h3>{{ group.name }}</h3>
+        </div>
+        <div class="group-preview" *ngIf="group.imagePreview.length > 0">
+          <img *ngFor="let img of group.imagePreview" [src]="img" alt="Memory preview" />
+        </div>
+        <div class="group-footer">
+          <div class="group-stats">
+            <span class="stat">{{ group.memberCount }} members</span>
+            <span class="stat">{{ group.memoryCount }} memories</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-overview-sidebar></app-overview-sidebar>
+</div>

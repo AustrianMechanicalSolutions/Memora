@@ -1,0 +1,72 @@
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.home-sidebar {
+  width: 260px;
+  height: 100%;
+  border-left: 1px solid #2a2a2e;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  animation: fadeInLeft 0.6s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+.home-sidebar h2 {
+  margin: 0 0 12px 0;
+  font-size: 22px;
+  color: #e5e5e5;
+}
+
+.overview-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #2a2a2e;
+  animation: fadeInLeft 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+.overview-item:first-child {
+  padding-top: 24px;
+  animation-delay: 0.5s;
+}
+
+.overview-item:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+.overview-item:nth-child(3) {
+  animation-delay: 0.7s;
+}
+
+.overview-item:last-child {
+  border-bottom: none;
+}
+
+.overview-value {
+  font-size: 20px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.overview-label {
+  font-size: 16px;
+  color: #888;
+  margin-top: 4px;
+}
+
+@media (max-width: 900px) {
+  .home-sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #2a2a2e;
+    padding-top: 16px;
+  }
+}
