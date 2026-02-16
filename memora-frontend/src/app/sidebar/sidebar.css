@@ -88,7 +88,7 @@
 }
 
 .group-indicator {
-  color: #4f46e5;
+  color: #a855f7;
   font-size: 24px;
   flex-shrink: 0;
   line-height: 1;
@@ -106,8 +106,8 @@
 }
 
 .group-link.active {
-  color: #4f46e5;
-  background: rgba(79, 70, 229, 0.1);
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.1);
 }
 
 .nav-link {
@@ -138,9 +138,9 @@
 }
 
 .nav-link.active {
-  color: #4f46e5;
-  background: rgba(79, 70, 229, 0.1);
-  box-shadow: inset 3px 0 0 #4f46e5;
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.1);
+  box-shadow: inset 3px 0 0 #a855f7;
 }
 
 .nav-link.logo-link.active {
@@ -150,9 +150,9 @@
 }
 
 .nav-link:not(.logo-link).active {
-  background: rgba(79, 70, 229, 0.2);
-  border: 1px solid rgba(79, 70, 229, 0.2);
-  box-shadow: 0 0 8px rgba(79, 70, 229, 0.3);
+  background: rgba(168, 85, 247, 0.2);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
   border-radius: 12px;
 }
 
@@ -257,14 +257,14 @@
 }
 
 .user-button:hover {
-  background: rgba(79, 70, 229, 0.15);
-  border-color: #4f46e5;
+  background: rgba(168, 85, 247, 0.15);
+  border-color: #a855f7;
 }
 
 .user-button.active-icon {
-  background: rgba(79, 70, 229, 0.2);
-  border-color: #4f46e5;
-  box-shadow: 0 0 8px rgba(79, 70, 229, 0.3);
+  background: rgba(168, 85, 247, 0.2);
+  border-color: #a855f7;
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
 }
 
 .settings-button {
@@ -287,15 +287,15 @@
 
 .settings-button:hover {
   color: #fff;
-  border-color: #4f46e5;
-  background: rgba(79, 70, 229, 0.05);
+  border-color: #a855f7;
+  background: rgba(168, 85, 247, 0.05);
 }
 
 .settings-button.active-icon {
-  color: #4f46e5;
-  border-color: #4f46e5;
-  background: rgba(79, 70, 229, 0.1);
-  box-shadow: 0 0 8px rgba(79, 70, 229, 0.3);
+  color: #a855f7;
+  border-color: #a855f7;
+  background: rgba(168, 85, 247, 0.1);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
 }
 
 .user-avatar {
@@ -314,7 +314,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4f46e5;
+  color: #a855f7;
   border-radius: 4px;
   flex-shrink: 0;
 }
