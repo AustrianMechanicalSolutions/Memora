@@ -70,7 +70,6 @@ export class SettingsComponent {
         this.profile.youtubeUrl = data.youtubeUrl ?? '';
         this.profile.websiteUrl = data.websiteUrl ?? '';
 
-        // OPTIONAL: if backend returns it
         this.twoFaEnabled = data.twoFactorEnabled ?? false;
 
         this.loading = false;
