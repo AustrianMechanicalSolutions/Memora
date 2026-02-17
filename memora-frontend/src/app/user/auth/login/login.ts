@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../auth.service';
 
 @Component({
@@ -22,7 +22,8 @@ export class LoginComponent {
 
   constructor(
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   login() {
@@ -30,10 +31,9 @@ export class LoginComponent {
 
     this.auth.login(this.email, this.password, this.show2fa ? this.twoFactorCode : undefined)
       .subscribe({
-        next: (res) => {
-          localStorage.setItem('token', res.token);
-
-          this.router.navigate(['home']);
+        next: () => {
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/home';
+          this.router.navigateByUrl(returnUrl);
         },
         error: (e) => {
           const err = e?.error?.error;
