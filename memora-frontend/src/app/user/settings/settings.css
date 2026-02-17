@@ -5,11 +5,8 @@
   min-height: 100vh;
 
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color: #e5e7eb;
-
-  background: radial-gradient(1200px 600px at 20% 0%, rgba(255,255,255,0.08), transparent 55%),
-              radial-gradient(900px 500px at 80% 20%, rgba(255,255,255,0.06), transparent 55%),
-              linear-gradient(135deg, #3b4cc0 0%, #6d28d9 55%, #0f172a 100%);
+  color: var(--text-secondary);
+  background: var(--page-gradient);
 }
 
 .header {
@@ -20,12 +17,12 @@
   margin: 0;
   font-size: 26px;
   letter-spacing: -0.5px;
-  color: #f9fafb;
+  color: var(--text-primary);
 }
 
 .subtitle {
   margin: 6px 0 0 0;
-  color: rgba(229, 231, 235, 0.75);
+  color: var(--text-muted);
 }
 
 .subtitle.small {
@@ -38,9 +35,9 @@
   padding: 16px;
   margin-bottom: 14px;
 
-  background: rgba(15, 23, 42, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  background: var(--bg-panel-soft);
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 10px 30px var(--shadow-soft);
   backdrop-filter: blur(12px);
 }
 
@@ -55,7 +52,7 @@
 .panel-title {
   margin: 0;
   font-size: 16px;
-  color: #f9fafb;
+  color: var(--text-primary);
 }
 
 .grid {
@@ -76,27 +73,27 @@
 
 label {
   font-size: 12px;
-  color: rgba(229, 231, 235, 0.75);
+  color: var(--text-muted);
 }
 
 .hint {
   font-size: 12px;
-  color: rgba(229, 231, 235, 0.55);
+  color: var(--text-subtle);
 }
 
 .input {
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--border-soft);
   border-radius: 12px;
   padding: 10px 12px;
   outline: none;
 
-  background: rgba(15, 23, 42, 0.55);
-  color: #f9fafb;
+  background: var(--bg-input);
+  color: var(--text-primary);
 }
 
 .input:focus {
-  border-color: rgba(255, 255, 255, 0.28);
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.10);
+  border-color: var(--border);
+  box-shadow: 0 0 0 4px var(--hover-bg);
 }
 
 .textarea {
@@ -105,67 +102,72 @@ label {
 }
 
 .btn {
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--border-soft);
   border-radius: 12px;
   padding: 10px 12px;
-  background: rgba(15, 23, 42, 0.55);
-  color: #f9fafb;
+  background: var(--bg-panel);
+  color: var(--text-primary);
   cursor: pointer;
   font-weight: 650;
 }
 
 .btn.primary {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.btn.toggle {
+  background: var(--bg-card);
+  border-color: var(--border-soft);
 }
 
 .msg {
-  color: #bbf7d0;
+  color: var(--success);
   font-weight: 700;
 }
 
 .err {
-  color: #fecaca;
+  color: var(--danger);
   font-weight: 700;
 }
 
 .twofa {
   padding: 12px;
   border-radius: 14px;
-  border: 1px dashed rgba(255, 255, 255, 0.22);
-  background: rgba(15, 23, 42, 0.25);
+  border: 1px dashed var(--border-soft);
+  background: var(--bg-panel-soft);
 }
 
 .twofa-title {
   font-weight: 800;
-  color: #f9fafb;
+  color: var(--text-primary);
 }
 
 .twofa-sub {
   margin-top: 4px;
-  color: rgba(229, 231, 235, 0.75);
+  color: var(--text-muted);
 }
 
 .state {
   font-size: 12px;
   padding: 6px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(15, 23, 42, 0.35);
-  color: rgba(229, 231, 235, 0.85);
+  border: 1px solid var(--border-soft);
+  background: var(--bg-panel-soft);
+  color: var(--text-secondary);
   font-weight: 800;
 }
 
 .state.on {
-  background: rgba(34, 197, 94, 0.15);
-  border-color: rgba(34, 197, 94, 0.25);
-  color: #bbf7d0;
+  background: var(--success-soft);
+  border-color: var(--success-soft-border);
+  color: var(--success);
 }
 
 .state.off {
-  background: rgba(239, 68, 68, 0.12);
-  border-color: rgba(239, 68, 68, 0.25);
-  color: #fecaca;
+  background: var(--danger-soft);
+  border-color: var(--danger-soft-border);
+  color: var(--danger);
 }
 
 .twofa-box {
@@ -176,7 +178,7 @@ label {
 
 .twofa-text {
   margin: 0;
-  color: rgba(229, 231, 235, 0.75);
+  color: var(--text-muted);
 }
 
 .twofa-actions {
@@ -186,8 +188,8 @@ label {
 }
 
 .btn.danger {
-  background: rgba(239, 68, 68, 0.12);
-  border-color: rgba(239, 68, 68, 0.25);
+  background: var(--danger-soft);
+  border-color: var(--danger-soft-border);
 }
 
 .twofa-setup {
@@ -201,8 +203,8 @@ label {
 .qr-wrap {
   padding: 12px;
   border-radius: 16px;
-  background: rgba(15, 23, 42, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--bg-panel-soft);
+  border: 1px solid var(--border-soft);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -222,20 +224,20 @@ label {
 
 .setup-title {
   font-weight: 850;
-  color: #f9fafb;
+  color: var(--text-primary);
 }
 
 .setup-sub {
-  color: rgba(229, 231, 235, 0.75);
+  color: var(--text-muted);
 }
 
 .secret {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(15, 23, 42, 0.55);
-  color: #f9fafb;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-panel);
+  color: var(--text-primary);
   word-break: break-all;
 }
 
@@ -265,7 +267,7 @@ label {
   height: 96px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
 }
 
 .avatar-actions {

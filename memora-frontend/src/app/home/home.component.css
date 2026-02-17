@@ -32,12 +32,12 @@
 .welcome-section h1 {
   font-size: 36px;
   margin: 0;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .username {
   font-weight: 700;
-  color: #a855f7;
+  color: var(--accent);
 }
 
 .section-header {
@@ -49,13 +49,13 @@
 .section-header h2 {
   font-size: 24px;
   margin: 0 0 4px 0;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .section-header p {
   font-size: 14px;
   margin: 0;
-  color: #888;
+  color: var(--text-subtle);
 }
 
 .groups-dashboard {
@@ -65,8 +65,8 @@
 }
 
 .group-card {
-  background: #111113;
-  border: 1px solid #2a2a2e;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
@@ -86,27 +86,27 @@
 .group-card:nth-child(n+7) { animation-delay: 0.8s; }
 
 .group-card:hover {
-  border-color: #4f46e5;
-  box-shadow: 0 0 12px rgba(79, 70, 229, 0.2);
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 12px var(--accent-glow);
   transform: translateY(-2px);
 }
 
 .group-header {
   padding: 16px;
-  border-bottom: 1px solid #2a2a2e;
+  border-bottom: 1px solid var(--border);
 }
 
 .group-header h3 {
   margin: 0;
   font-size: 18px;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .group-preview {
   display: flex;
   gap: 1px;
   height: 100px;
-  background: #0a0a0c;
+  background: var(--bg-muted);
   overflow: hidden;
 }
 
@@ -118,14 +118,14 @@
 
 .group-footer {
   padding: 16px;
-  border-top: 1px solid #2a2a2e;
+  border-top: 1px solid var(--border);
 }
 
 .group-stats {
   display: flex;
   gap: 12px;
   font-size: 13px;
-  color: #888;
+  color: var(--text-subtle);
 }
 
 @media (max-width: 900px) {
