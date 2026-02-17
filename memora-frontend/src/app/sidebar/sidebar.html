@@ -47,5 +47,9 @@
         <span class="label">{{ currentUser?.displayName }}</span>
       </a>
     </div>
+    <button class="logout-button" type="button" (click)="logout()">
+      <span class="logout-icon" aria-hidden="true">&#x21AA;</span>
+      <span class="logout-label">Log out</span>
+    </button>
   </div>
 </aside>
