@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 export interface GroupListItemDto {
   id: string;
@@ -98,8 +99,9 @@ export interface AlbumPersonDto {
   providedIn: 'root'
 })
 export class GroupsService {
-  private baseUrl = 'http://localhost:5000/api/groups'; 
-  // change to your backend URL/port
+  private baseUrl = '/api/groups';
+  private groupsChangedSource = new Subject<void>();
+  groupsChanged$ = this.groupsChangedSource.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -146,37 +148,61 @@ export class GroupsService {
   }
 
   createGroup(name: string) {
-    return this.http.post<GroupDetailDto>(this.baseUrl, { name });
+    return this.http.post<GroupDetailDto>(this.baseUrl, { name }).pipe(
+      tap(() => this.groupsChangedSource.next())
+    );
   }
 
   joinGroup(inviteCode: string) {
-    return this.http.post('/api/groups/join', { inviteCode });
+    return this.http.post(`${this.baseUrl}/join`, { inviteCode }).pipe(
+      tap(() => this.groupsChangedSource.next())
+    );
   }
 
   groupMembers(groupId: string) {
-    return this.http.get<{ userId: string; name: string, role: string; avatarUrl: string; }[]>(`/api/groups/${groupId}/members`);
+    return this.http.get<{ userId: string; name: string, role: string; avatarUrl: string; }[]>(
+      `${this.baseUrl}/${groupId}/members`
+    );
   }
 
   // Albums
   groupAlbums(groupId: string) {
-    return this.http.get<AlbumDto[]>(`/api/groups/${groupId}/albums`);
+    return this.http.get<AlbumDto[]>(`${this.baseUrl}/${groupId}/albums`);
   }
 
   createAlbum(groupId: string, body: any) {
-    return this.http.post<AlbumDto>(`/api/groups/${groupId}/albums`, body);
+    return this.http.post<AlbumDto>(`${this.baseUrl}/${groupId}/albums`, body);
   }
 
   // Groups page data
   groupStats(groupId: string) {
-    return this.http.get<GroupStatsDto>(`/api/groups/${groupId}/stats`);
+    return this.http.get<GroupStatsDto>(`${this.baseUrl}/${groupId}/stats`);
   }
 
   weeklyActivity(groupId: string) {
-    return this.http.get<GroupWeeklyActivityDto>(`/api/groups/${groupId}/activity/week`);
+    return this.http.get<GroupWeeklyActivityDto>(`${this.baseUrl}/${groupId}/activity/week`);
   }
 
   memberActivity(groupId: string) {
-    return this.http.get<GroupMemberActivityDto[]>(`/api/groups/${groupId}/activity/members`);
+    return this.http.get<GroupMemberActivityDto[]>(`${this.baseUrl}/${groupId}/activity/members`);
+  }
+
+  // People in album
+  albumPeople(groupId: string, albumId: string) {
+    return this.http.get<AlbumPersonDto[]>(`${this.baseUrl}/${groupId}/albums/${albumId}/people`);
+  }
+
+  addAlbumPerson(groupId: string, albumId: string, userId: string) {
+    return this.http.post(
+      `${this.baseUrl}/${groupId}/albums/${albumId}/people/${userId}`,
+      null
+    );
+  }
+
+  removeAlbumPerson(groupId: string, albumId: string, userId: string) {
+    return this.http.delete(
+      `${this.baseUrl}/${groupId}/albums/${albumId}/people/${userId}`
+    );
   }
 
   // People in album

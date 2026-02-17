@@ -9,6 +9,7 @@ import { SettingsComponent } from './user/settings/settings';
 import { GroupAlbumsComponent } from './groups/albums/albums';
 import { AlbumDetailComponent } from './groups/albums/album-detail/album-detail';
 import { UserStatsPageComponent } from './stats/user-stats/user-stats';
+import { ImpressumComponent } from './legal/impressum/impressum';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -27,6 +28,7 @@ export const routes: Routes = [
     
     { path: 'settings', component: SettingsComponent },
     { path: 'stats', component: UserStatsPageComponent },
+    { path: 'impressum', component: ImpressumComponent },
 
     { path: '**', redirectTo: 'login' },
 ];

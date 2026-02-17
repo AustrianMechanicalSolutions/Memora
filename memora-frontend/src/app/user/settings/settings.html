@@ -4,6 +4,26 @@
       <h1>Account Settings</h1>
       <p>Customize your profile and security settings.</p>
     </div>
+  </header>
+
+  <div class="panel appearance-panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Appearance</h2>
+      <button class="btn toggle" type="button" (click)="toggleTheme()">
+        {{ themeMode === 'dark' ? 'Switch to Light' : 'Switch to Dark' }}
+      </button>
+    </div>
+    <p class="subtitle small">Purple stays. Everything else adapts.</p>
+  </div>
+
+  <div class="panel stats-link-panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Meine Stats</h2>
+      <a class="btn primary" routerLink="/stats">Stats ansehen</a>
+    </div>
+    <p class="subtitle small">
+      Hier findest du gruppenuebergreifende Statistiken und kannst in Gruppen-Stats wechseln.
+    </p>
   </div>
 
   <!-- PROFILE -->
@@ -32,25 +52,41 @@
         <input class="input" type="date" [(ngModel)]="profile.birthDate" />
       </div>
 
-      <div class="form-group">
-        <label>Profile picture</label>
+      <div class="field">
+        <label>Profile picture URL</label>
+        
         <div class="avatar-row">
           <img
             class="avatar"
             [src]="profile.profileImageUrl || '/profilePictures/Avatar_Placeholder.png'"
+            alt="Profile picture"
           />
+
           <div class="avatar-actions">
-            <input type="file" hidden #fileInput (change)="onProfileImageSelected($event)" />
-            <button class="btn secondary" (click)="fileInput.click()">Change</button>
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              #fileInput
+              (change)="onProfileImageSelected($event)"
+            />
+
+            <button class="btn secondary" type="button" (click)="fileInput.click()">
+              Change
+            </button>
+
             <button
-              *ngIf="profile.profileImageUrl"
               class="btn danger"
+              type="button"
+              *ngIf="profile.profileImageUrl"
               (click)="removeProfileImage()"
             >
               Remove
             </button>
           </div>
         </div>
+
+        <div class="hint">PNG / JPG, max 2MB</div>
       </div>
 
       <div class="form-group full">

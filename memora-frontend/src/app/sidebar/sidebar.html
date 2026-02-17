@@ -1,0 +1,51 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <a routerLink="/home" routerLinkActive="active" class="nav-link logo-link">
+      <img src="/memora-logo.png" alt="Memora Logo" class="logo-icon" (error)="$event.target.onerror=null; $event.target.src='/memora-logo.ico'" />
+      <span class="logo-fallback">🏠</span>
+      <span class="label">Your Memora</span>
+    </a>
+  </div>
+
+  <nav class="nav">
+    <ul class="nav-list">
+      <li class="nav-item">
+        <a routerLink="/groups" routerLinkActive="active" class="nav-link">
+          <span class="icon">⧉</span>
+          <span class="label">Groups</span>
+        </a>
+        <ul class="groups-sublist" *ngIf="groups.length > 0">
+          <li class="group-subitem" *ngFor="let group of groups">
+            <a [routerLink]="['/groups', group.id]" routerLinkActive="active" class="group-link">
+              <span class="group-indicator">└</span>
+              <span class="group-name">{{ group.name }}</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="theme-toggle" type="button" (click)="toggleTheme()">
+      <span class="label">Theme</span>
+      <span class="switch" [class.on]="themeMode === 'dark'">
+        <span class="switch-thumb"></span>
+      </span>
+    </button>
+    <div class="stats-item">
+      <a routerLink="/stats" routerLinkActive="active-icon" class="user-button" title="View Stats">
+        <img 
+          *ngIf="userProfileImageUrl" 
+          [src]="userProfileImageUrl" 
+          alt="Profile" 
+          class="user-avatar"
+        />
+        <div *ngIf="!userProfileImageUrl" class="user-avatar-placeholder">
+          👤
+        </div>
+        <span class="label">{{ currentUser?.displayName }}</span>
+      </a>
+    </div>
+  </div>
+</aside>
