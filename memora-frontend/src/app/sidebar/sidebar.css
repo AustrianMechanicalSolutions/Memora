@@ -95,9 +95,11 @@
 }
 
 .group-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
 }
 
 .group-link:hover {
@@ -397,6 +399,7 @@
   background: var(--danger-soft-bg);
 }
 
+
 @media (max-width: 768px) {
   .sidebar {
     width: 80px;
@@ -429,3 +432,4 @@
     font-size: 16px;
   }
 }
+
