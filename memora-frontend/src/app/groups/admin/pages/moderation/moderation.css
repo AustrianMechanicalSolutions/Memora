@@ -1,0 +1,18 @@
+.ga-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ga-note { opacity: 0.8; padding: 10px 0; }
+.ga-error { color: #a30000; padding: 10px 0; }
+button {
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  cursor: pointer;
+}
+button:hover { background: #fafafa; }

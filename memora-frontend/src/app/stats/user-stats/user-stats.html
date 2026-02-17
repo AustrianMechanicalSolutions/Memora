@@ -22,6 +22,23 @@
     </div>
   </header>
 
+  <section class="panel" *ngIf="groupSwitchLinks.length > 0">
+    <div class="panel-head">
+      <h2>Gruppen-Ansicht wechseln</h2>
+      <span class="muted">Nur deine Stats</span>
+    </div>
+
+    <div class="group-links">
+      <a
+        class="group-link"
+        *ngFor="let g of groupSwitchLinks"
+        [routerLink]="['/groups', g.id, 'stats']"
+      >
+        {{ g.name }}
+      </a>
+    </div>
+  </section>
+
   <section class="panel loading" *ngIf="loading">Stats werden geladen...</section>
   <section class="panel error" *ngIf="!loading && error">{{ error }}</section>
 
@@ -40,7 +57,6 @@
     <section class="panel">
       <div class="panel-head">
         <h2>Posting-Verteilung</h2>
-        <span class="muted">Echte Werte aus deinen Posts</span>
       </div>
 
       <div class="bars">
@@ -56,23 +72,6 @@
           </div>
           <span class="bar-value">{{ b.value }}</span>
         </div>
-      </div>
-    </section>
-
-    <section class="panel" *ngIf="groupSwitchLinks.length > 0">
-      <div class="panel-head">
-        <h2>Gruppen-Ansicht wechseln</h2>
-        <span class="muted">Nur deine Stats</span>
-      </div>
-
-      <div class="group-links">
-        <a
-          class="group-link"
-          *ngFor="let g of groupSwitchLinks"
-          [routerLink]="['/groups', g.id, 'stats']"
-        >
-          {{ g.name }}
-        </a>
       </div>
     </section>
   </ng-container>

@@ -1,0 +1,39 @@
+.ga-card {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.ga-form {
+  display: grid;
+  grid-template-columns: 1.4fr 1.6fr 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.ga-form input {
+  padding: 9px 10px;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+}
+
+.ga-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ga-album-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.ga-pill {
+  font-size: 12px;
+  padding: 3px 8px;
+  border: 1px solid #e6e6e6;
+  border-radius: 999px;
+  opacity: 0.9;
+}
+
+.ga-meta { margin-top: 8px; display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; opacity: 0.8; }
+.ga-note.small { font-size: 12px; opacity: 0.8; margin-top: 6px; }

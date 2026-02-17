@@ -1,0 +1,47 @@
+.ga-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ga-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ga-card {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.ga-span-2 { grid-column: span 2; }
+
+.ga-kv {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.ga-kv div { display: flex; justify-content: space-between; gap: 10px; }
+.ga-kv span { opacity: 0.75; }
+
+.ga-sub { margin-top: 12px; }
+.ga-list { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 6px; }
+
+.ga-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid #e6e6e6;
+}
+
+.ga-row { display: inline-flex; align-items: center; gap: 8px; }
+
+.ga-table-wrap { overflow: auto; }
+.ga-table { width: 100%; border-collapse: collapse; }
+.ga-table th, .ga-table td { padding: 10px; border-bottom: 1px solid #f0f0f0; text-align: left; }

@@ -25,6 +25,8 @@ export const routes: Routes = [
     { path: 'groups/:id/albums', component: GroupAlbumsComponent },
     { path: 'groups/:id/albums/:albumId', component: AlbumDetailComponent },
     { path: 'groups/:id/stats', component: UserStatsPageComponent },
+    { path: 'groups/:id/admin', loadChildren: () => import('./groups/admin/admin.routes')
+        .then(m => m.ADMIN_ROUTES)},
     
     { path: 'settings', component: SettingsComponent },
     { path: 'stats', component: UserStatsPageComponent },
