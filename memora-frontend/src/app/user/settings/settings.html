@@ -6,6 +6,16 @@
     </div>
   </header>
 
+  <div class="panel appearance-panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Appearance</h2>
+      <button class="btn toggle" type="button" (click)="toggleTheme()">
+        {{ themeMode === 'dark' ? 'Switch to Light' : 'Switch to Dark' }}
+      </button>
+    </div>
+    <p class="subtitle small">Purple stays. Everything else adapts.</p>
+  </div>
+
   <div class="panel stats-link-panel">
     <div class="panel-head">
       <h2 class="panel-title">Meine Stats</h2>
