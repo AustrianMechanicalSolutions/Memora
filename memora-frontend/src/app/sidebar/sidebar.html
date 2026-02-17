@@ -27,6 +27,12 @@
   </nav>
 
   <div class="sidebar-footer">
+    <button class="theme-toggle" type="button" (click)="toggleTheme()">
+      <span class="label">Theme</span>
+      <span class="switch" [class.on]="themeMode === 'dark'">
+        <span class="switch-thumb"></span>
+      </span>
+    </button>
     <div class="stats-item">
       <a routerLink="/stats" routerLinkActive="active-icon" class="user-button" title="View Stats">
         <img 

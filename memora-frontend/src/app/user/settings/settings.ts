@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 
 import QRCode from 'qrcode';
 import { TwoFactorService, TwoFactorSetupResponse } from './twofactor';
+import { ThemeService } from '../../theme.service';
 
 @Component({
   selector: 'app-settings',
@@ -52,8 +53,17 @@ export class SettingsComponent {
 
   constructor(
     private http: HttpClient,
-    private twoFactor: TwoFactorService
+    private twoFactor: TwoFactorService,
+    private theme: ThemeService
   ) {}
+
+  get themeMode() {
+    return this.theme.current;
+  }
+
+  toggleTheme() {
+    this.theme.toggleTheme();
+  }
 
   ngOnInit() {
     this.http.get<any>(`${this.api}/me`).subscribe({
