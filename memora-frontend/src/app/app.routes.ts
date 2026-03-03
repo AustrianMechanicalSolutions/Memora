@@ -10,17 +10,19 @@ import { GroupAlbumsComponent } from './groups/albums/albums';
 import { AlbumDetailComponent } from './groups/albums/album-detail/album-detail';
 import { UserStatsPageComponent } from './stats/user-stats/user-stats';
 import { ImpressumComponent } from './legal/impressum/impressum';
+import { authGuard } from './user/auth.guard';
+import { guestGuard } from './user/guest.guard';
 
 export const routes: Routes = [
-    { path: '', redirectTo: 'login', pathMatch: 'full' },
+    { path: '', redirectTo: 'home', pathMatch: 'full' },
 
-    { path: 'login', component: LoginComponent },
-    { path: 'register', component: RegisterComponent },
+    { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
+    { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
 
-    { path: 'home', component: HomeComponent },
+    { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
-    { path: 'groups', component: GroupsPageComponent },
-    { path: 'groups/:id', component: GroupDetailComponent },
+    { path: 'groups', component: GroupsPageComponent, canActivate: [authGuard] },
+    { path: 'groups/:id', component: GroupDetailComponent, canActivate: [authGuard] },
 
     { path: 'groups/:id/albums', component: GroupAlbumsComponent },
     { path: 'groups/:id/albums/:albumId', component: AlbumDetailComponent },
@@ -28,11 +30,11 @@ export const routes: Routes = [
     { path: 'groups/:id/admin', loadChildren: () => import('./groups/admin/admin.routes')
         .then(m => m.ADMIN_ROUTES)},
     
-    { path: 'settings', component: SettingsComponent },
-    { path: 'stats', component: UserStatsPageComponent },
+    { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
+    { path: 'stats', component: UserStatsPageComponent, canActivate: [authGuard] },
     { path: 'impressum', component: ImpressumComponent },
 
-    { path: '**', redirectTo: 'login' },
+    { path: '**', redirectTo: 'home' },
 ];
 
 @NgModule({
