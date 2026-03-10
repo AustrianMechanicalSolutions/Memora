@@ -3,7 +3,7 @@ const path = require("path");
 
 const app = express();
 
-const distPath = path.join(__dirname, "../memora-frontend/dist/memora-frontend")
+const distPath = path.join(__dirname, "../memora-frontend/dist/memora-frontend/browser")
 
 app.use(express.static(distPath));
 
