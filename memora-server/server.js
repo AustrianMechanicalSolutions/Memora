@@ -3,11 +3,15 @@ const path = require("path");
 
 const app = express();
 
-app.use(express.static(path.join(__dirname, "../memora-frontend/dist/memora-frontend")));
+const distPath = path.join(__dirname, "../memora-frontend/dist/memora-frontend")
 
-app.get("/*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../memora-frontend/dist/memora-frontend/src/index.html"))
+app.use(express.static(distPath));
+
+app.get((req, res) => {
+    res.sendFile(distPath, "/src/index.html")
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT);
+app.listen(PORT, () => {
+  console.log("Server running on port " + PORT);
+});
