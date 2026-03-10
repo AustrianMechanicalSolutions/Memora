@@ -9,8 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "build": "npx ng build",
-    "heroku-postbuild": "npx ng build"
+    "build": "cd memora-frontend && npx ng build",
+    "heroku-postbuild": "cd memora-frontend && npx ng build"
   },
   "dependencies": {
     "express": "^5.2.1"
