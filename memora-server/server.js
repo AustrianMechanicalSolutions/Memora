@@ -5,7 +5,7 @@ const app = express();
 
 app.use(express.static(path.join(__dirname, "../memora-frontend/dist/memora-frontend")));
 
-app.get("*", (req, res) => {
+app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, "../memora-frontend/dist/memora-frontend/src/index.html"))
 });
 
