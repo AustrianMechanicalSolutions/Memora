@@ -8,7 +8,9 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "ng build",
+    "heroku-postbuild": "ng build"
   },
   "dependencies": {
     "express": "^5.2.1"
