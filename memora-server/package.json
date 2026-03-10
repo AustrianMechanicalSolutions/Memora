@@ -9,10 +9,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "build": "ng build",
-    "heroku-postbuild": "ng build"
+    "build": "npx ng build",
+    "heroku-postbuild": "npx ng build"
   },
   "dependencies": {
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@angular/cli": "^21.2.1"
   }
 }
