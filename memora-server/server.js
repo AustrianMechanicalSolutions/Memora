@@ -3,8 +3,7 @@ const path = require("path");
 
 const app = express();
 
-const distPath = path.join(__dirname, "dist", "browser");
-
+const distPath = path.join(__dirname, "dist", "memora-frontend", "browser");
 console.log("Serving Angular from:", distPath);
 
 app.use(express.static(distPath));
