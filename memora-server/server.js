@@ -8,7 +8,7 @@ const distPath = path.join(__dirname, "../memora-frontend/dist/memora-frontend")
 app.use(express.static(distPath));
 
 app.get((req, res) => {
-    res.sendFile(distPath, "/src/index.html")
+    res.sendFile(path.join(distPath, "/src/index.html"))
 });
 
 const PORT = process.env.PORT || 8080;
