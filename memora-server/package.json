@@ -1,8 +1,7 @@
 {
   "name": "memora-server",
   "scripts": {
-    "start": "node server.js",
-    "heroku-postbuild": "cd ../memora-frontend && npm install && ng build --configuration production"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^5.2.1"
