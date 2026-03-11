@@ -84,16 +84,6 @@ app.MapGet("/api/me", (System.Security.Claims.ClaimsPrincipal user) =>
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    var path = db.Database.GetDbConnection().DataSource;
-    Console.WriteLine("DB path: " + path);
-
-    if (File.Exists(path))
-    {
-        File.Delete(path);
-        Console.WriteLine("Deleted existing SQLite database");
-    }
-
     db.Database.Migrate();
 }
 
