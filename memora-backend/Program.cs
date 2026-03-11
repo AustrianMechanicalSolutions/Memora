@@ -53,7 +53,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200", "https://austrianms.at", "https://www.austrianms.at")
+            .WithOrigins("http://localhost:4200", "https://austrianms.at", "https://www.austrianms.at", "https://memora.austrianms.at")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
