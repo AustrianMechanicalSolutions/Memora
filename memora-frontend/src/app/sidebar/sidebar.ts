@@ -22,7 +22,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   constructor(
     private auth: AuthService,
-    private router: Router,
+    public router: Router,
     private groupsService: GroupsService,
     private theme: ThemeService
   ) {}
@@ -78,5 +78,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+  }
+
+  isGroupActive(groupId: string): boolean {
+    return this.router.url.startsWith(`/groups/${groupId}`);
   }
 }

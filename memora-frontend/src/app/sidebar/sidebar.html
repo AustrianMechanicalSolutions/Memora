@@ -16,10 +16,66 @@
         </a>
         <ul class="groups-sublist" *ngIf="groups.length > 0">
           <li class="group-subitem" *ngFor="let group of groups">
-            <a [routerLink]="['/groups', group.id]" routerLinkActive="active" class="group-link">
+            
+            <!-- GROUP LINK -->
+            <a [routerLink]="['/groups', group.id]"
+              routerLinkActive="active"
+              class="group-link">
               <span class="group-indicator">└</span>
               <span class="group-name">{{ group.name }}</span>
             </a>
+
+            <!-- ADMIN SUBMENU (only when inside that group) -->
+            <ul class="groups-sublist"
+                *ngIf="router.url.startsWith('/groups/' + group.id + '/admin')">
+              
+              <li class="group-subitem">
+                <a [routerLink]="['/groups', group.id, 'admin', 'dashboard']"
+                  routerLinkActive="active"
+                  class="group-link">
+                  <span class="group-indicator">├</span>
+                  <span class="group-name">Dashboard</span>
+                </a>
+              </li>
+
+              <li class="group-subitem">
+                <a [routerLink]="['/groups', group.id, 'admin', 'members']"
+                  routerLinkActive="active"
+                  class="group-link">
+                  <span class="group-indicator">├</span>
+                  <span class="group-name">Members</span>
+                </a>
+              </li>
+
+              <li class="group-subitem">
+                <a [routerLink]="['/groups', group.id, 'admin', 'memories']"
+                  routerLinkActive="active"
+                  class="group-link">
+                  <span class="group-indicator">├</span>
+                  <span class="group-name">Memories</span>
+                </a>
+              </li>
+
+              <li class="group-subitem">
+                <a [routerLink]="['/groups', group.id, 'admin', 'albums']"
+                  routerLinkActive="active"
+                  class="group-link">
+                  <span class="group-indicator">├</span>
+                  <span class="group-name">Albums</span>
+                </a>
+              </li>
+
+              <li class="group-subitem">
+                <a [routerLink]="['/groups', group.id, 'admin', 'settings']"
+                  routerLinkActive="active"
+                  class="group-link">
+                  <span class="group-indicator">└</span>
+                  <span class="group-name">Settings</span>
+                </a>
+              </li>
+
+            </ul>
+
           </li>
         </ul>
       </li>

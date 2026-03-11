@@ -107,6 +107,7 @@
   border-radius: 20px;
   padding: 16px;
   margin-top: 12px;
+  margin-bottom: 12px;
   border: 1px solid var(--stats-border-strong);
   background: var(--stats-panel-bg);
 }
