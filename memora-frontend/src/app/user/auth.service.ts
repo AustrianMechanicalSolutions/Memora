@@ -25,8 +25,8 @@ export interface CurrentUser {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly apiUrl = 'http://localhost:5000/api/auth';
-  private readonly accountUrl = 'http://localhost:5000/api/account';
+  private readonly apiUrl = 'https://api.austrianms.at/api/auth';
+  private readonly accountUrl = 'https://api.austrianms.at/api/account';
   private loggedInSubject = new BehaviorSubject<boolean>(!!this.token);
   loggedIn$ = this.loggedInSubject.asObservable();
 

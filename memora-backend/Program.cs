@@ -52,7 +52,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200")
+            .WithOrigins("http://localhost:4200", "https://austrianms.at", "https://www.austrianms.at")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });

@@ -8,7 +8,7 @@ export interface TwoFactorSetupResponse {
 
 @Injectable({ providedIn: 'root' })
 export class TwoFactorService {
-    private api = 'http://localhost:5000/api/2fa';
+    private api = 'https://api.austrianms.at/api/2fa';
 
     constructor(private http: HttpClient) {}
 

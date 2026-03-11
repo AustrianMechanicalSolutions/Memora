@@ -16,7 +16,7 @@ import { ThemeService } from '../../theme.service';
   styleUrls: ['./settings.css']
 })
 export class SettingsComponent {
-  private api = 'http://localhost:5000/api/account';
+  private api = 'https://api.austrianms.at/api/account';
 
   loading = true;
   saving = false;
