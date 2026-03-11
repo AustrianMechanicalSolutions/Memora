@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, tap } from 'rxjs';
+import { environment } from '../../environment';
 
 interface AuthResponse {
   token: string;
@@ -25,8 +26,8 @@ export interface CurrentUser {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly apiUrl = 'https://api.austrianms.at/api/auth';
-  private readonly accountUrl = 'https://api.austrianms.at/api/account';
+  private readonly apiUrl = environment.apiUrl + '/api/auth';
+  private readonly accountUrl = environment.apiUrl + '/api/account';
   private loggedInSubject = new BehaviorSubject<boolean>(!!this.token);
   loggedIn$ = this.loggedInSubject.asObservable();
 
