@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Data.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,5 +80,11 @@ app.MapGet("/api/me", (System.Security.Claims.ClaimsPrincipal user) =>
         email = user.FindFirst("email")?.Value
     });
 }).RequireAuthorization();
+
+using ( var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.Run();
