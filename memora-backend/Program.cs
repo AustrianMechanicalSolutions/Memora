@@ -84,6 +84,8 @@ app.MapGet("/api/me", (System.Security.Claims.ClaimsPrincipal user) =>
 using ( var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    db.Database.EnsureDeleted();
     db.Database.Migrate();
 }
 
