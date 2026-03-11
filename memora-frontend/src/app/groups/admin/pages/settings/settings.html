@@ -1,0 +1,30 @@
+<div class="ga-page">
+  <div class="ga-page-header">
+    <h2>Einstellungen</h2>
+    <button (click)="load()">Refresh</button>
+  </div>
+
+  <div *ngIf="loading" class="ga-note">Lade...</div>
+  <div *ngIf="error" class="ga-error">{{ error }}</div>
+
+  <div class="ga-card" *ngIf="!loading && !error && group">
+    <h3>Gruppe</h3>
+
+    <div class="ga-kv">
+      <div><span>Name</span><strong>{{ group.name }}</strong></div>
+      <div><span>Invite Code</span><strong>{{ group.inviteCode }}</strong></div>
+      <div><span>Mitglieder</span><strong>{{ group.memberCount }}</strong></div>
+      <div><span>Owner (UserId)</span><strong>{{ group.createdByUserId }}</strong></div>
+    </div>
+
+    <div class="ga-actions">
+      <button (click)="renameGroup()">Name ändern (Placeholder)</button>
+      <button (click)="regenerateInvite()">Invite neu generieren (Placeholder)</button>
+      <button class="danger" (click)="deleteGroup()">Gruppe löschen (Placeholder)</button>
+    </div>
+
+    <div class="ga-note small">
+      ⚠️ Diese Aktionen sind PLACEHOLDER, weil Backend-Endpunkte (Update/Regenerate/Delete) noch fehlen.
+    </div>
+  </div>
+</div>
