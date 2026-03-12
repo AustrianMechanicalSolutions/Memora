@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 
 import QRCode from 'qrcode';
 import { TwoFactorService, TwoFactorSetupResponse } from './twofactor';
+import { ThemeService } from '../../theme.service';
 
 @Component({
   selector: 'app-settings',
@@ -44,7 +45,7 @@ export class SettingsComponent {
 
   // ===== 2FA UI state =====
   twoFaLoading = false;
-  twoFaEnabled = false; // will be set from /me if you add it there
+  twoFaEnabled = false;
   twoFaSecret = '';
   twoFaOtpAuthUrl = '';
   twoFaQrDataUrl = '';
@@ -52,8 +53,17 @@ export class SettingsComponent {
 
   constructor(
     private http: HttpClient,
-    private twoFactor: TwoFactorService
+    private twoFactor: TwoFactorService,
+    private theme: ThemeService
   ) {}
+
+  get themeMode() {
+    return this.theme.current;
+  }
+
+  toggleTheme() {
+    this.theme.toggleTheme();
+  }
 
   ngOnInit() {
     this.http.get<any>(`${this.api}/me`).subscribe({
@@ -70,7 +80,6 @@ export class SettingsComponent {
         this.profile.youtubeUrl = data.youtubeUrl ?? '';
         this.profile.websiteUrl = data.websiteUrl ?? '';
 
-        // OPTIONAL: if backend returns it
         this.twoFaEnabled = data.twoFactorEnabled ?? false;
 
         this.loading = false;
@@ -214,5 +223,29 @@ export class SettingsComponent {
         this.twoFaLoading = false;
       }
     });
+  }
+
+  // Profile image
+  onProfileImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+
+    if (!file.type.startsWith('image/')) {
+      this.err = 'Please select an image file.';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.profile.profileImageUrl = reader.result as string;
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  removeProfileImage() {
+    this.profile.profileImageUrl = '';
   }
 }

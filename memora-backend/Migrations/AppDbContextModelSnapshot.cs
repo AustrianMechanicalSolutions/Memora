@@ -17,6 +17,59 @@ namespace memorabackend.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.6");
 
+            modelBuilder.Entity("Album", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DateEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateStart")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("Albums");
+                });
+
+            modelBuilder.Entity("AlbumPerson", b =>
+                {
+                    b.Property<Guid>("AlbumId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("AlbumId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AlbumPerson");
+                });
+
             modelBuilder.Entity("AuthApi.Models.AppUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -29,7 +82,7 @@ namespace memorabackend.Migrations
                     b.Property<DateTime?>("BirthDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DiscordTag")
@@ -125,6 +178,8 @@ namespace memorabackend.Migrations
 
                     b.HasKey("GroupId", "UserId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("GroupMember");
                 });
 
@@ -132,6 +187,9 @@ namespace memorabackend.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("AlbumId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
@@ -149,6 +207,9 @@ namespace memorabackend.Migrations
                     b.Property<string>("MediaUrl")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("QuoteBy")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("QuoteText")
                         .HasColumnType("TEXT");
 
@@ -162,6 +223,8 @@ namespace memorabackend.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AlbumId");
 
                     b.HasIndex("GroupId");
 
@@ -181,6 +244,36 @@ namespace memorabackend.Migrations
                     b.ToTable("MemoryTag");
                 });
 
+            modelBuilder.Entity("Album", b =>
+                {
+                    b.HasOne("Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("AlbumPerson", b =>
+                {
+                    b.HasOne("Album", "Album")
+                        .WithMany("People")
+                        .HasForeignKey("AlbumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AuthApi.Models.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Album");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("GroupMember", b =>
                 {
                     b.HasOne("Group", "Group")
@@ -189,16 +282,30 @@ namespace memorabackend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("AuthApi.Models.AppUser", "User")
+                        .WithMany("GroupMembers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Group");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Memory", b =>
                 {
+                    b.HasOne("Album", "Album")
+                        .WithMany("Memories")
+                        .HasForeignKey("AlbumId");
+
                     b.HasOne("Group", "Group")
                         .WithMany("Memories")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Album");
 
                     b.Navigation("Group");
                 });
@@ -212,6 +319,18 @@ namespace memorabackend.Migrations
                         .IsRequired();
 
                     b.Navigation("Memory");
+                });
+
+            modelBuilder.Entity("Album", b =>
+                {
+                    b.Navigation("Memories");
+
+                    b.Navigation("People");
+                });
+
+            modelBuilder.Entity("AuthApi.Models.AppUser", b =>
+                {
+                    b.Navigation("GroupMembers");
                 });
 
             modelBuilder.Entity("Group", b =>

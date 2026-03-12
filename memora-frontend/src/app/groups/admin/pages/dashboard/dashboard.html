@@ -1,0 +1,77 @@
+<div class="ga-page">
+  <div class="ga-page-header">
+    <h2>Dashboard</h2>
+    <button (click)="load()">Refresh</button>
+  </div>
+
+  <div *ngIf="loading" class="ga-note">Lade...</div>
+  <div *ngIf="error" class="ga-error">{{ error }}</div>
+
+  <div class="ga-grid" *ngIf="!loading && !error">
+    <section class="ga-card">
+      <h3>Statistik</h3>
+      <div class="ga-kv">
+        <div><span>Erinnerungen</span><strong>{{ stats?.memoryCount }}</strong></div>
+        <div><span>Alben</span><strong>{{ stats?.albumCount }}</strong></div>
+        <div><span>Erstellt am</span><strong>{{ stats?.createdAt | date:'mediumDate' }}</strong></div>
+      </div>
+    </section>
+
+    <section class="ga-card">
+      <h3>Letzte 7 Tage</h3>
+      <div class="ga-kv">
+        <div><span>Fotos</span><strong>{{ weekly?.photos }}</strong></div>
+        <div><span>Videos</span><strong>{{ weekly?.videos }}</strong></div>
+        <div><span>Zitate</span><strong>{{ weekly?.quotes }}</strong></div>
+        <div><span>Alben</span><strong>{{ weekly?.albums }}</strong></div>
+      </div>
+
+      <div class="ga-sub" *ngIf="weekly?.contributors?.length">
+        <h4>Top Contributors</h4>
+        <ul class="ga-list">
+          <li *ngFor="let c of weekly?.contributors">
+            <img *ngIf="c.profileImageUrl" class="ga-avatar" [src]="c.profileImageUrl" />
+            <span>{{ c.displayName }}</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="ga-card ga-span-2">
+      <h3>Mitglieder Aktivität</h3>
+      <div class="ga-table-wrap">
+        <table class="ga-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Rolle</th>
+              <th>Joined</th>
+              <th>Letzter Post</th>
+              <th>Total</th>
+              <th>Fotos</th>
+              <th>Videos</th>
+              <th>Zitate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of memberActivity">
+              <td>
+                <span class="ga-row">
+                  <img *ngIf="m.profileImageUrl" class="ga-avatar" [src]="m.profileImageUrl" />
+                  {{ m.displayName }}
+                </span>
+              </td>
+              <td>{{ m.role }}</td>
+              <td>{{ m.joinedAt | date:'mediumDate' }}</td>
+              <td>{{ m.lastPostAt ? (m.lastPostAt | date:'mediumDate') : '—' }}</td>
+              <td>{{ m.totalMemories }}</td>
+              <td>{{ m.photos }}</td>
+              <td>{{ m.videos }}</td>
+              <td>{{ m.quotes }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>

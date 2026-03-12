@@ -14,4 +14,6 @@ public class Album
 
     public Group Group { get; set; } = null!;
     public List<Memory> Memories { get; set; } = new();
+
+    public ICollection<AlbumPerson> People { get; set; } = new List<AlbumPerson>();
 }

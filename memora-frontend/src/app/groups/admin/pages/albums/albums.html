@@ -1,0 +1,40 @@
+<div class="ga-page">
+  <div class="ga-page-header">
+    <h2>Alben</h2>
+    <button (click)="load()">Refresh</button>
+  </div>
+
+  <div class="ga-card">
+    <h3>Neues Album</h3>
+
+    <div class="ga-form">
+      <input placeholder="Titel" [formControl]="form.controls.title" />
+      <input placeholder="Beschreibung (optional)" [formControl]="form.controls.description" />
+      <input type="date" [formControl]="form.controls.dateStart" />
+      <input type="date" [formControl]="form.controls.dateEnd" />
+      <button (click)="create()">Erstellen</button>
+    </div>
+
+    <div class="ga-error" *ngIf="form.controls.title.touched && form.controls.title.invalid">
+      Titel ist erforderlich (min 2 Zeichen).
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="ga-note">Lade...</div>
+  <div *ngIf="error" class="ga-error">{{ error }}</div>
+
+  <div class="ga-grid" *ngIf="!loading && !error">
+    <section class="ga-card" *ngFor="let a of albums">
+      <div class="ga-album-head">
+        <strong>{{ a.title }}</strong>
+        <span class="ga-pill">{{ a.memoriesCount }} Memories</span>
+      </div>
+      <div class="ga-note small" *ngIf="a.description">{{ a.description }}</div>
+      <div class="ga-meta">
+        <span>{{ a.dateStart | date:'mediumDate' }}</span>
+        <span *ngIf="a.dateEnd">→ {{ a.dateEnd | date:'mediumDate' }}</span>
+      </div>
+      <div class="ga-note small">AlbumId: {{ a.id }}</div>
+    </section>
+  </div>
+</div>
