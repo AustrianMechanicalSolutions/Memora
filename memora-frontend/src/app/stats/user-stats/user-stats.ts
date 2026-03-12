@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { GroupsService, MemoryDto } from '../../groups/groups';
+import { Router } from '@angular/router';
 
 interface UserMeDto {
   id: string;
@@ -51,13 +52,26 @@ export class UserStatsPageComponent {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly http: HttpClient,
-    private readonly groupsService: GroupsService
+    private readonly groupsService: GroupsService,
+    private readonly router: Router
   ) {}
 
   ngOnInit() {
     this.groupId = this.route.snapshot.paramMap.get('id');
     this.isGroupMode = !!this.groupId;
     this.load();
+  }
+
+  switchGroup(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const id = select.value;
+
+    if (!id) {
+      this.router.navigate(['/stats']);
+      return;
+    }
+
+    this.router.navigate(['/groups', id, 'stats']);
   }
 
   private load() {
@@ -164,9 +178,15 @@ export class UserStatsPageComponent {
       { label: `Likes gesamt ${scopeLabel}`, value: `${likesTotal}`, hint: 'Placeholder', placeholder: true },
       { label: 'Likes/Post Ratio', value: likesPerPost.toFixed(2), hint: 'Placeholder', placeholder: true },
       { label: 'Photos', value: `${photoCount}` },
-      { label: 'Videos', value: `${videoCount}` },
-      { label: 'Anteil deiner Posts', value: `${contributionShare.toFixed(1)}%` }
+      { label: 'Videos', value: `${videoCount}` }
     ];
+
+    if (isGroup) {
+      tiles.push({
+        label: 'Anteil deiner Posts',
+        value: `${contributionShare.toFixed(1)}%`
+      });
+    }
 
     const bars = [
       { label: 'Quotes', value: quoteCount },

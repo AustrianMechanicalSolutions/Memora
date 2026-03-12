@@ -22,6 +22,40 @@
     </div>
   </header>
 
+  <section class="panel" *ngIf="groupSwitchLinks.length > 0">
+    <div class="panel-head">
+      <h2>Gruppe auswählen</h2>
+    </div>
+
+    <select class="group-select" (change)="switchGroup($event)">
+      <option value="">Alle Gruppen</option>
+      <option
+        *ngFor="let g of groupSwitchLinks"
+        [value]="g.id"
+        [selected]="g.id === groupId"
+      >
+        {{ g.name }}
+      </option>
+    </select>
+  </section>
+
+  <section class="panel" *ngIf="groupSwitchLinks.length > 0">
+    <div class="panel-head">
+      <h2>Gruppen-Ansicht wechseln</h2>
+      <span class="muted">Nur deine Stats</span>
+    </div>
+
+    <div class="group-links">
+      <a
+        class="group-link"
+        *ngFor="let g of groupSwitchLinks"
+        [routerLink]="['/groups', g.id, 'stats']"
+      >
+        {{ g.name }}
+      </a>
+    </div>
+  </section>
+
   <section class="panel loading" *ngIf="loading">Stats werden geladen...</section>
   <section class="panel error" *ngIf="!loading && error">{{ error }}</section>
 
