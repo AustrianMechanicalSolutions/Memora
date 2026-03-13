@@ -1,0 +1,96 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 16px 96px;
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.panel {
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 14px;
+  background: var(--bg-panel-soft);
+  border: 1px solid var(--border-soft);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 30px var(--shadow-soft);
+}
+
+.hero {
+  background: var(--page-gradient);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.title {
+  margin: 8px 0 0;
+  font-size: 34px;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  margin: 12px 0 0;
+  color: var(--text-muted);
+  max-width: 64ch;
+}
+
+.panel-title {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.provider p {
+  margin: 0 0 4px;
+  color: var(--text-secondary);
+}
+
+.team {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+}
+
+.team li {
+  color: var(--text-secondary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.card {
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-panel);
+}
+
+.card h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.card p {
+  margin: 0 0 6px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 720px) {
+  .title {
+    font-size: 28px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

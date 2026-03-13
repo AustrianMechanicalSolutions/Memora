@@ -79,4 +79,77 @@ public class AlbumEndpoint : ControllerBase
             0
         ));
     }
+
+    [HttpGet("{albumId:guid}/people")]
+    public async Task<ActionResult<List<GroupMemberDto>>> AlbumPeople(Guid groupId, Guid albumId)
+    {
+        var uid = User.UserId();
+
+        var album = await _db.Set<Album>()
+            .Include(a => a.People)
+            .ThenInclude(p => p.User)
+            .FirstOrDefaultAsync(a => a.Id == albumId && a.GroupId == groupId);
+
+        if (album == null) return NotFound();
+
+        return Ok(album.People.Select(p =>
+            new GroupMemberDto(
+                p.UserId,
+                p.User.DisplayName,
+                "Album",
+                p.User.ProfileImageUrl
+            )
+        ));
+    }
+
+    [HttpPost("{albumId:guid}/people/{userId}")]
+    public async Task<IActionResult> AddPerson(Guid groupId, Guid albumId, Guid userId)
+    {
+        var uid = User.UserId();
+        if (!await CanEditAlbum(albumId, uid)) return Forbid();
+
+        var exists = await _db.Set<AlbumPerson>()
+            .AnyAsync(x => x.AlbumId == albumId && x.UserId == userId);
+
+        if (!exists)
+        {
+            _db.Add(new AlbumPerson
+            {
+                AlbumId = albumId,
+                UserId = userId
+            });
+
+            await _db.SaveChangesAsync();
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete("{albumId:guid}/people/{userId}")]
+    public async Task<IActionResult> RemovePerson(Guid groupId, Guid albumId, Guid userId)
+    {
+        var uid = User.UserId();
+        if (!await CanEditAlbum(albumId, uid)) return Forbid();
+
+        var entry = await _db.Set<AlbumPerson>()
+            .FirstOrDefaultAsync(x => x.AlbumId == albumId && x.UserId == userId);
+
+        if (entry == null) return NotFound();
+
+        _db.Remove(entry);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+}
+
+    private async Task<bool> CanEditAlbum(Guid albumId, Guid userId)
+    {
+        return await _db.Set<Album>()
+            .AnyAsync(a => 
+                a.Id == albumId &&
+                (a.CreatedByUserId == userId ||
+                 a.Group.CreatedByUserId == userId ||
+                 a.Group.Members.Any(m => m.UserId == userId && m.Role == GroupRole.Admin))
+            );
+    }
 }

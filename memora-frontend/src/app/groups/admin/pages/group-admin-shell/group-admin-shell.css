@@ -1,0 +1,41 @@
+.ga-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 0px);
+}
+
+.ga-sidebar {
+  padding: 16px;
+  border-right: 1px solid #e6e6e6;
+  background: #fff;
+}
+
+.ga-brand { margin-bottom: 18px; }
+.ga-title { font-size: 18px; font-weight: 700; }
+.ga-subtitle { margin-top: 6px; font-size: 14px; opacity: 0.9; }
+.ga-meta { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+.ga-chip {
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid #e6e6e6;
+  border-radius: 999px;
+}
+
+.ga-nav { display: grid; gap: 8px; }
+.ga-nav a {
+  padding: 10px 10px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid transparent;
+}
+.ga-nav a.active {
+  border-color: #e6e6e6;
+  background: #fafafa;
+}
+
+.ga-main {
+  padding: 16px;
+  background: #fafafa;
+}

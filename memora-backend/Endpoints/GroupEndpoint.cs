@@ -255,7 +255,8 @@ public class GroupsController : ControllerBase
             .Select(x => new GroupMemberDto(
                 x.gm.UserId,
                 x.u.DisplayName,
-                x.gm.Role.ToString()
+                x.gm.Role.ToString(),
+                x.u.ProfileImageUrl
             ))
             .ToListAsync();
 
@@ -319,11 +320,20 @@ public class GroupsController : ControllerBase
             .Distinct()
             .Count();
 
-        var contributors = await _db.Set<AppUser>()
-            .Where(u => memories.Select(m => m.CreatedByUserId).Contains(u.Id))
-            .Select(u => u.DisplayName)
+        var contributorIds = memories
+            .Select(m => m.CreatedByUserId)
             .Distinct()
             .Take(5)
+            .ToList();
+
+        var contributors = await _db.Set<AppUser>()
+            .AsNoTracking()
+            .Where(u => contributorIds.Contains(u.Id))
+            .Select(u => new GroupWeeklyContributorDto(
+                u.Id,
+                u.DisplayName,
+                u.ProfileImageUrl
+            ))
             .ToListAsync();
 
         return Ok(new GroupWeeklyActivityDto(
@@ -370,6 +380,7 @@ public class GroupsController : ControllerBase
                 m.gm.Role.ToString(),
                 m.gm.JoinedAt,
                 userMemories.Any() ? userMemories.Max(x => x.CreatedAt) : null,
+                m.u.ProfileImageUrl,
                 userMemories.Count,
                 userMemories.Count(x => x.Type == MemoryType.Photo),
                 userMemories.Count(x => x.Type == MemoryType.Video),

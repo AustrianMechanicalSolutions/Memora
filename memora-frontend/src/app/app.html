@@ -1,3 +1,9 @@
-<div class="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center p-6">
-  <router-outlet></router-outlet>
+<div class="app-container">
+  <app-sidebar *ngIf="isLoggedIn()"></app-sidebar>
+  <main class="main-content" [class.no-sidebar]="!isLoggedIn()">
+    <router-outlet></router-outlet>
+    <a class="impressum-link" routerLink="/impressum">
+      Impressum
+    </a>
+  </main>
 </div>

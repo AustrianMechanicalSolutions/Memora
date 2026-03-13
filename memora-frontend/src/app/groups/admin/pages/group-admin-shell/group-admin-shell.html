@@ -1,0 +1,25 @@
+<div class="ga-shell">
+  <aside class="ga-sidebar">
+    <div class="ga-brand">
+      <div class="ga-title">Group Admin</div>
+      <div class="ga-subtitle">{{ group?.name || '...' }}</div>
+      <div class="ga-meta" *ngIf="group">
+        <span class="ga-chip">Invite: {{ group.inviteCode }}</span>
+        <span class="ga-chip">{{ group.memberCount }} Mitglieder</span>
+      </div>
+    </div>
+
+    <nav class="ga-nav">
+      <a [routerLink]="['/groups', groupId, 'admin', 'dashboard']" routerLinkActive="active">Dashboard</a>
+      <a [routerLink]="['/groups', groupId, 'admin', 'members']" routerLinkActive="active">Mitglieder</a>
+      <a [routerLink]="['/groups', groupId, 'admin', 'memories']" routerLinkActive="active">Erinnerungen</a>
+      <a [routerLink]="['/groups', groupId, 'admin', 'albums']" routerLinkActive="active">Alben</a>
+      <a [routerLink]="['/groups', groupId, 'admin', 'settings']" routerLinkActive="active">Einstellungen</a>
+      <a [routerLink]="['/groups', groupId, 'admin', 'moderation']" routerLinkActive="active">Moderation</a>
+    </nav>
+  </aside>
+
+  <main class="ga-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>

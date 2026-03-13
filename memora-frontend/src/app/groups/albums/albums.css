@@ -2,8 +2,8 @@
 .page {
   min-height: 100vh;
   padding: 22px;
-  background: #0b0b0b;
-  color: #fff;
+  background: var(--bg-app);
+  color: var(--text-primary);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
@@ -59,12 +59,12 @@
 
 /* panels */
 .panel {
-  background: #111;
-  border: 1px solid #2a2a2a;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: 18px;
   padding: 16px;
   margin-bottom: 16px;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 22px var(--shadow-strong);
 }
 
 .panel-head {
@@ -102,14 +102,14 @@
   width: 100%;
   padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid #333;
-  background: #0d0d0d;
-  color: #fff;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-surface-alt);
+  color: var(--text-primary);
   outline: none;
 }
 
 .input:focus {
-  border-color: #4f46e5;
+  border-color: var(--accent-strong);
 }
 
 .textarea {
@@ -119,9 +119,9 @@
 
 /* buttons */
 .btn {
-  border: 1px solid #333;
+  border: 1px solid var(--border-strong);
   background: transparent;
-  color: #fff;
+  color: var(--text-primary);
   padding: 10px 14px;
   border-radius: 12px;
   cursor: pointer;
@@ -129,16 +129,16 @@
 }
 
 .btn:hover {
-  background: #1b1b1b;
+  background: var(--hover-bg);
 }
 
 .btn.primary {
-  background: #4f46e5;
-  border-color: #4f46e5;
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
 }
 
 .btn.primary:hover {
-  background: #4338ca;
+  background: var(--accent);
 }
 
 .btn.ghost {
@@ -159,17 +159,17 @@
 }
 
 .album-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid #2a2a2a;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 18px;
   padding: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 25px var(--shadow-strong);
   transition: transform 140ms ease, border-color 140ms ease;
 }
 
 .album-card:hover {
   transform: translateY(-2px);
-  border-color: #3a3a3a;
+  border-color: var(--border-strong);
 }
 
 .album-header {
@@ -189,8 +189,8 @@
   font-size: 12px;
   padding: 6px 10px;
   border-radius: 999px;
-  border: 1px solid #333;
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card-strong);
   white-space: nowrap;
   opacity: 0.9;
 }
@@ -243,9 +243,9 @@
 .tab {
   padding: 10px 16px;
   border-radius: 999px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-strong);
   background: transparent;
-  color: #fff;
+  color: var(--text-primary);
   cursor: pointer;
   font-weight: 600;
   opacity: 0.7;
@@ -253,21 +253,22 @@
 
 .tab:hover {
   opacity: 1;
-  background: #1b1b1b;
+  background: var(--hover-bg);
 }
 
 .tab.active {
-  background: #4f46e5;
-  border-color: #4f46e5;
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--text-on-accent);
   opacity: 1;
 }
 
 .album-card.all-album {
-  border-color: #4f46e5;
+  border-color: var(--accent-strong);
   background: linear-gradient(
     135deg,
-    rgba(79, 70, 229, 0.15),
-    rgba(255, 255, 255, 0.03)
+    var(--accent-soft),
+    var(--bg-card)
   );
 }
 

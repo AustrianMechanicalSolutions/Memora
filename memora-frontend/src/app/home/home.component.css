@@ -1,0 +1,143 @@
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home {
+  display: flex;
+  gap: 0;
+  align-items: stretch;
+  height: 100vh;
+}
+
+.home-main {
+  flex: 1;
+  padding: 3rem;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.welcome-section {
+  margin-bottom: 3rem;
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.welcome-section h1 {
+  font-size: 36px;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.username {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.section-header {
+  margin-bottom: 2rem;
+  animation: fadeInUp 0.6s ease-out 0.1s forwards;
+  opacity: 0;
+}
+
+.section-header h2 {
+  font-size: 24px;
+  margin: 0 0 4px 0;
+  color: var(--text-primary);
+}
+
+.section-header p {
+  font-size: 14px;
+  margin: 0;
+  color: var(--text-subtle);
+}
+
+.groups-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.group-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  animation: fadeInUp 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+.group-card:nth-child(1) { animation-delay: 0.2s; }
+.group-card:nth-child(2) { animation-delay: 0.3s; }
+.group-card:nth-child(3) { animation-delay: 0.4s; }
+.group-card:nth-child(4) { animation-delay: 0.5s; }
+.group-card:nth-child(5) { animation-delay: 0.6s; }
+.group-card:nth-child(6) { animation-delay: 0.7s; }
+.group-card:nth-child(n+7) { animation-delay: 0.8s; }
+
+.group-card:hover {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 12px var(--accent-glow);
+  transform: translateY(-2px);
+}
+
+.group-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.group-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.group-preview {
+  display: flex;
+  gap: 1px;
+  height: 100px;
+  background: var(--bg-muted);
+  overflow: hidden;
+}
+
+.group-preview img {
+  flex: 1;
+  object-fit: cover;
+  object-position: center;
+}
+
+.group-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.group-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+@media (max-width: 900px) {
+  .home {
+    flex-direction: column;
+  }
+
+  .home-main {
+    padding: 3rem;
+  }
+
+  .groups-dashboard {
+    grid-template-columns: 1fr;
+  }
+}

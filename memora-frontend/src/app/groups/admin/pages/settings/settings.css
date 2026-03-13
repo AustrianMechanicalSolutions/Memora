@@ -1,0 +1,20 @@
+.ga-card {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.ga-kv {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+.ga-kv div { display: flex; justify-content: space-between; gap: 10px; }
+.ga-kv span { opacity: 0.75; }
+
+.ga-actions { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+button.danger { border: 1px solid #f0b0b0; }
+
+.ga-note.small { margin-top: 10px; font-size: 12px; opacity: 0.8; }
