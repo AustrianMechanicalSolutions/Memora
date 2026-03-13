@@ -1,6 +1,5 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { environment } from "../../../environment";
 
 export interface TwoFactorSetupResponse {
     secret: string;
@@ -9,7 +8,7 @@ export interface TwoFactorSetupResponse {
 
 @Injectable({ providedIn: 'root' })
 export class TwoFactorService {
-    private api = environment.apiUrl + '/api/2fa';
+    private api = 'http://localhost:5000/api/2fa';
 
     constructor(private http: HttpClient) {}
 

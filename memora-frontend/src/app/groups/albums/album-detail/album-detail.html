@@ -76,14 +76,14 @@
           <img
             *ngIf="m.type === 0 && isImage(m.mediaUrl)"
             class="wall-media"
-            [src]="'https://api.austrianms.at' + m.mediaUrl"
+            [src]="'http://localhost:5000' + m.mediaUrl"
           />
 
           <video
             *ngIf="m.type === 1 && isVideo(m.mediaUrl)"
             class="wall-media"
             controls
-            [src]="'https://api.austrianms.at' + m.mediaUrl"
+            [src]="'http://localhost:5000' + m.mediaUrl"
           ></video>
 
           <div *ngIf="m.type === 0 && !isImage(m.mediaUrl)" class="media-error">Unsupported image file</div>

@@ -8,7 +8,7 @@ interface AuthResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly apiUrl = 'https://api.austrianms.at/api/auth';
+  private readonly apiUrl = 'https://localhost:5000/api/auth';
 
   constructor(private http: HttpClient) {}
 
