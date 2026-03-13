@@ -1,10 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-<<<<<<< HEAD
-import { environment } from '../../../../environment';
-=======
->>>>>>> origin/main
 
 export type MemoryType = 'Photo' | 'Video' | 'Quote' | number; // backend uses enum; we accept string/number
 
@@ -107,11 +103,7 @@ export interface CreateAlbumRequest {
 
 @Injectable({ providedIn: 'root' })
 export class GroupAdminService {
-<<<<<<< HEAD
-  private base = environment.apiUrl + '/api/groups';
-=======
   private base = '/api/groups';
->>>>>>> origin/main
 
   constructor(private http: HttpClient) {}
 

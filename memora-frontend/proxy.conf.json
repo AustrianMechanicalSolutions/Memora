@@ -1,12 +1,12 @@
 {
     "/api": {
-        "target": "https://api.austrianms.at",
+        "target": "http://localhost:5000",
         "secure": false,
         "changeOrigin": true,
         "logLevel": "debug"
     },
     "/uploads": {
-        "target": "https://api.austrianms.at",
+        "target": "http://localhost:5000",
         "secure": false,
         "changeOrigin": true,
         "logLevel": "debug"
