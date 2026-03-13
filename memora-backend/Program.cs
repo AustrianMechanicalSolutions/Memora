@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Data.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,7 +52,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200", "https://austrianms.at", "https://www.austrianms.at", "https://memora.austrianms.at")
+            .WithOrigins("http://localhost:4200")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -80,11 +79,5 @@ app.MapGet("/api/me", (System.Security.Claims.ClaimsPrincipal user) =>
         email = user.FindFirst("email")?.Value
     });
 }).RequireAuthorization();
-
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-}
 
 app.Run();

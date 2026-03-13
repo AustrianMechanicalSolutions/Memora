@@ -7,7 +7,6 @@ import { RouterModule } from '@angular/router';
 import QRCode from 'qrcode';
 import { TwoFactorService, TwoFactorSetupResponse } from './twofactor';
 import { ThemeService } from '../../theme.service';
-import { environment } from '../../../environment';
 
 @Component({
   selector: 'app-settings',
@@ -17,7 +16,7 @@ import { environment } from '../../../environment';
   styleUrls: ['./settings.css']
 })
 export class SettingsComponent {
-  private api = environment.apiUrl + '/api/account';
+  private api = 'http://localhost:5000/api/account';
 
   loading = true;
   saving = false;
