@@ -60,11 +60,10 @@ public class CreateQuoteRequest
     public Guid? AlbumId { get; set; }
 };
 
-public class CreateCommentRequest
-{
-    public string Content { get; set; } = "";
-    public Guid? ParentCommentId { get; set; }
-}
+public record CreateCommentRequest(
+    string Content,
+    Guid? ParentCommentId
+);
 
 public class MemoryQuery
 {

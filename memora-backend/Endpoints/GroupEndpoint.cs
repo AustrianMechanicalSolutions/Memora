@@ -287,19 +287,23 @@ public class GroupsController : ControllerBase
         var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
         if (!isMember) return Forbid();
 
-        var exists = await _db.Set<Memory>()
-            .AnyAsync(m => m.Id == memoryId && m.GroupId == groupId);
-        if (!exists) return NotFound();
+        var memoryExists = await _db.Set<Memory>().AnyAsync(x => x.Id == memoryId && x.GroupId == groupId);
+        if (!memoryExists) return NotFound();
 
-        var already = await _db.Set<MemoryLike>()
-            .AnyAsync(l => l.MemoryId == memoryId && l.UserId == uid);
-        if (!already)
+        var exists = await _db.Set<MemoryLike>()
+            .AnyAsync(x => x.MemoryId == memoryId && x.UserId == uid);
+
+        if (!exists)
         {
-            _db.Add(new MemoryLike { MemoryId = memoryId, UserId = uid });
+            _db.Add(new MemoryLike
+            {
+                MemoryId = memoryId,
+                UserId = uid
+            });
             await _db.SaveChangesAsync();
         }
 
-        return Ok();
+        return NoContent();
     }
 
     [HttpDelete("{groupId:guid}/memories/{memoryId:guid}/likes")]
@@ -309,13 +313,18 @@ public class GroupsController : ControllerBase
         var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
         if (!isMember) return Forbid();
 
-        var like = await _db.Set<MemoryLike>()
-            .FirstOrDefaultAsync(l => l.MemoryId == memoryId && l.UserId == uid);
-        if (like == null) return Ok();
+        var memoryExists = await _db.Set<Memory>().AnyAsync(x => x.Id == memoryId && x.GroupId == groupId);
+        if (!memoryExists) return NotFound();
 
-        _db.Remove(like);
+        var entry = await _db.Set<MemoryLike>()
+            .FirstOrDefaultAsync(x => x.MemoryId == memoryId && x.UserId == uid);
+
+        if (entry == null) return NotFound();
+
+        _db.Remove(entry);
         await _db.SaveChangesAsync();
-        return Ok();
+
+        return NoContent();
     }
 
     [HttpGet("{groupId:guid}/memories/{memoryId:guid}/comments")]
@@ -325,9 +334,8 @@ public class GroupsController : ControllerBase
         var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
         if (!isMember) return Forbid();
 
-        var exists = await _db.Set<Memory>()
-            .AnyAsync(m => m.Id == memoryId && m.GroupId == groupId);
-        if (!exists) return NotFound();
+        var memoryExists = await _db.Set<Memory>().AnyAsync(x => x.Id == memoryId && x.GroupId == groupId);
+        if (!memoryExists) return NotFound();
 
         var comments = await _db.Set<MemoryComment>()
             .AsNoTracking()
@@ -348,8 +356,8 @@ public class GroupsController : ControllerBase
                 x.c.Content,
                 x.c.CreatedAt,
                 x.c.ParentCommentId,
-                _db.Set<MemoryCommentLike>().Count(l => l.CommentId == x.c.Id),
-                _db.Set<MemoryCommentLike>().Any(l => l.CommentId == x.c.Id && l.UserId == uid)
+                _db.Set<CommentLike>().Count(l => l.CommentId == x.c.Id),
+                _db.Set<CommentLike>().Any(l => l.CommentId == x.c.Id && l.UserId == uid)
             ))
             .ToListAsync();
 
@@ -363,17 +371,16 @@ public class GroupsController : ControllerBase
         var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
         if (!isMember) return Forbid();
 
-        var memory = await _db.Set<Memory>()
-            .FirstOrDefaultAsync(m => m.Id == memoryId && m.GroupId == groupId);
-        if (memory == null) return NotFound();
+        var memoryExists = await _db.Set<Memory>().AnyAsync(x => x.Id == memoryId && x.GroupId == groupId);
+        if (!memoryExists) return NotFound();
 
         var content = (req.Content ?? string.Empty).Trim();
-        if (string.IsNullOrWhiteSpace(content)) return BadRequest("Content is required.");
+        if (string.IsNullOrWhiteSpace(content)) return BadRequest("Comment cannot be empty.");
 
         if (req.ParentCommentId.HasValue)
         {
             var parentExists = await _db.Set<MemoryComment>()
-                .AnyAsync(c => c.Id == req.ParentCommentId.Value && c.MemoryId == memoryId);
+                .AnyAsync(x => x.Id == req.ParentCommentId && x.MemoryId == memoryId);
             if (!parentExists) return BadRequest("Parent comment not found.");
         }
 
@@ -389,7 +396,11 @@ public class GroupsController : ControllerBase
         _db.Add(comment);
         await _db.SaveChangesAsync();
 
-        var user = await _db.Set<AppUser>().FirstAsync(u => u.Id == uid);
+        var user = await _db.Set<AppUser>()
+            .AsNoTracking()
+            .Where(u => u.Id == uid)
+            .Select(u => new { u.DisplayName, u.ProfileImageUrl })
+            .FirstAsync();
 
         return Ok(new CommentDto(
             comment.Id,
@@ -412,20 +423,32 @@ public class GroupsController : ControllerBase
         var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
         if (!isMember) return Forbid();
 
-        var exists = await _db.Set<MemoryComment>()
-            .Join(_db.Set<Memory>(), c => c.MemoryId, m => m.Id, (c, m) => new { c, m })
-            .AnyAsync(x => x.c.Id == commentId && x.m.GroupId == groupId);
-        if (!exists) return NotFound();
+        var comment = await _db.Set<MemoryComment>()
+            .AsNoTracking()
+            .Join(
+                _db.Set<Memory>(),
+                c => c.MemoryId,
+                m => m.Id,
+                (c, m) => new { c, m }
+            )
+            .FirstOrDefaultAsync(x => x.c.Id == commentId && x.m.GroupId == groupId);
 
-        var already = await _db.Set<MemoryCommentLike>()
-            .AnyAsync(l => l.CommentId == commentId && l.UserId == uid);
-        if (!already)
+        if (comment == null) return NotFound();
+
+        var exists = await _db.Set<CommentLike>()
+            .AnyAsync(x => x.CommentId == commentId && x.UserId == uid);
+
+        if (!exists)
         {
-            _db.Add(new MemoryCommentLike { CommentId = commentId, UserId = uid });
+            _db.Add(new CommentLike
+            {
+                CommentId = commentId,
+                UserId = uid
+            });
             await _db.SaveChangesAsync();
         }
 
-        return Ok();
+        return NoContent();
     }
 
     [HttpDelete("{groupId:guid}/comments/{commentId:guid}/likes")]
@@ -435,13 +458,27 @@ public class GroupsController : ControllerBase
         var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
         if (!isMember) return Forbid();
 
-        var like = await _db.Set<MemoryCommentLike>()
-            .FirstOrDefaultAsync(l => l.CommentId == commentId && l.UserId == uid);
-        if (like == null) return Ok();
+        var commentInGroup = await _db.Set<MemoryComment>()
+            .AsNoTracking()
+            .Join(
+                _db.Set<Memory>(),
+                c => c.MemoryId,
+                m => m.Id,
+                (c, m) => new { c, m }
+            )
+            .AnyAsync(x => x.c.Id == commentId && x.m.GroupId == groupId);
 
-        _db.Remove(like);
+        if (!commentInGroup) return NotFound();
+
+        var entry = await _db.Set<CommentLike>()
+            .FirstOrDefaultAsync(x => x.CommentId == commentId && x.UserId == uid);
+
+        if (entry == null) return NotFound();
+
+        _db.Remove(entry);
         await _db.SaveChangesAsync();
-        return Ok();
+
+        return NoContent();
     }
 
     [HttpGet("{groupId:guid}/members")]

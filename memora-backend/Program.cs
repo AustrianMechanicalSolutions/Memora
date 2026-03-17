@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS MemoryComments (
     ParentCommentId TEXT NULL
 );");
     db.Database.ExecuteSqlRaw(@"
-CREATE TABLE IF NOT EXISTS MemoryCommentLikes (
+CREATE TABLE IF NOT EXISTS CommentLikes (
     CommentId TEXT NOT NULL,
     UserId TEXT NOT NULL,
     CreatedAt TEXT NOT NULL,

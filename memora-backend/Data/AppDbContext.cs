@@ -12,7 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<Album> Albums => Set<Album>();
     public DbSet<MemoryLike> MemoryLikes => Set<MemoryLike>();
     public DbSet<MemoryComment> MemoryComments => Set<MemoryComment>();
-    public DbSet<MemoryCommentLike> MemoryCommentLikes => Set<MemoryCommentLike>();
+    public DbSet<CommentLike> CommentLikes => Set<CommentLike>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,7 +29,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<MemoryTag>().HasKey(x => new { x.MemoryId, x.Value });
         modelBuilder.Entity<AlbumPerson>().HasKey(x => new { x.AlbumId, x.UserId });
         modelBuilder.Entity<MemoryLike>().HasKey(x => new { x.MemoryId, x.UserId });
-        modelBuilder.Entity<MemoryCommentLike>().HasKey(x => new { x.CommentId, x.UserId });
+        modelBuilder.Entity<CommentLike>().HasKey(x => new { x.CommentId, x.UserId });
 
         modelBuilder.Entity<Group>()
             .HasMany(x => x.Members)
@@ -40,6 +40,30 @@ public class AppDbContext : DbContext
             .HasMany(x => x.Memories)
             .WithOne(x => x.Group)
             .HasForeignKey(x => x.GroupId);
+
+        modelBuilder.Entity<MemoryComment>()
+            .HasOne(x => x.Memory)
+            .WithMany()
+            .HasForeignKey(x => x.MemoryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MemoryComment>()
+            .HasOne(x => x.ParentComment)
+            .WithMany()
+            .HasForeignKey(x => x.ParentCommentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<MemoryLike>()
+            .HasOne(x => x.Memory)
+            .WithMany()
+            .HasForeignKey(x => x.MemoryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CommentLike>()
+            .HasOne(x => x.Comment)
+            .WithMany()
+            .HasForeignKey(x => x.CommentId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AlbumPerson>()
             .HasOne(x => x.User)
