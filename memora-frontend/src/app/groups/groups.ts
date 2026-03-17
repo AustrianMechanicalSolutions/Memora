@@ -30,6 +30,22 @@ export interface MemoryDto {
   createdAt: string;
   createdByUserId: string;
   tags: string[];
+  likeCount?: number;
+  commentCount?: number;
+  isLiked?: boolean;
+}
+
+export interface CommentDto {
+  id: string;
+  memoryId: string;
+  userId: string;
+  userName: string;
+  avatarUrl?: string | null;
+  content: string;
+  createdAt: string;
+  parentCommentId?: string | null;
+  likeCount: number;
+  isLiked: boolean;
 }
 
 export interface MemoryQuery {
@@ -125,6 +141,35 @@ export class GroupsService {
       `${this.baseUrl}/${groupId}/memories`,
       { params }
     );
+  }
+
+  likeMemory(groupId: string, memoryId: string) {
+    return this.http.post(`${this.baseUrl}/${groupId}/memories/${memoryId}/likes`, null);
+  }
+
+  unlikeMemory(groupId: string, memoryId: string) {
+    return this.http.delete(`${this.baseUrl}/${groupId}/memories/${memoryId}/likes`);
+  }
+
+  memoryComments(groupId: string, memoryId: string) {
+    return this.http.get<CommentDto[]>(
+      `${this.baseUrl}/${groupId}/memories/${memoryId}/comments`
+    );
+  }
+
+  addComment(groupId: string, memoryId: string, body: { content: string; parentCommentId?: string | null }) {
+    return this.http.post<CommentDto>(
+      `${this.baseUrl}/${groupId}/memories/${memoryId}/comments`,
+      body
+    );
+  }
+
+  likeComment(groupId: string, commentId: string) {
+    return this.http.post(`${this.baseUrl}/${groupId}/comments/${commentId}/likes`, null);
+  }
+
+  unlikeComment(groupId: string, commentId: string) {
+    return this.http.delete(`${this.baseUrl}/${groupId}/comments/${commentId}/likes`);
   }
 
   createMemory(groupId: string, body: any) {

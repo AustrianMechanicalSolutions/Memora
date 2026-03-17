@@ -6,6 +6,7 @@ import { GroupsService, GroupListItemDto } from '../groups/groups';
 import { OverviewSidebarComponent } from './overview-sidebar/overview-sidebar';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
+import { TranslatePipe } from '../translate.pipe';
 
 interface GroupCardData extends GroupListItemDto {
   imagePreview: string[];
@@ -15,7 +16,7 @@ interface GroupCardData extends GroupListItemDto {
 @Component({
   standalone: true,
   selector: 'app-home',
-  imports: [CommonModule, RouterLink, OverviewSidebarComponent],
+  imports: [CommonModule, RouterLink, OverviewSidebarComponent, TranslatePipe],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })

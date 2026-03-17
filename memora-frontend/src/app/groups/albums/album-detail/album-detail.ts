@@ -2,21 +2,34 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { GroupsService, AlbumDto, MemoryDto, AlbumPersonDto } from '../../groups';
+import { GroupsService, AlbumDto, MemoryDto, AlbumPersonDto, CommentDto } from '../../groups';
+import { TranslatePipe } from '../../../translate.pipe';
+import { I18nService } from '../../../i18n.service';
 
 @Component({
   selector: 'app-album-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
+  imports: [CommonModule, FormsModule, DatePipe, TranslatePipe],
   templateUrl: './album-detail.html',
   styleUrls: ['./album-detail.css']
 })
 export class AlbumDetailComponent {
+  private readonly backendOrigin = `${window.location.protocol}//${window.location.hostname}:5000`;
   groupId!: string;
   albumId!: string;
 
   album?: AlbumDto;
   items: MemoryDto[] = [];
+
+  // Memory viewer + comments
+  showMemoryModal = false;
+  activeMemory: MemoryDto | null = null;
+  comments: CommentDto[] = [];
+  topLevelComments: CommentDto[] = [];
+  replyMap: { [key: string]: CommentDto[] } = {};
+  commentText = '';
+  replyTo: CommentDto | null = null;
+  commentsLoading = false;
 
   newType: number = 0;
   newTitle = '';
@@ -26,6 +39,8 @@ export class AlbumDetailComponent {
 
   // Mentioning
   members: { userId: string, name: string; role: string; avatarUrl: string; }[] = [];
+  memberById: { [key: string]: { name: string; avatarUrl?: string | null } } = {};
+  activeUploader: { name: string; avatarUrl?: string | null } | null = null;
   newQuoteBy = '';
   showMentionPopup = false;
   mentionQuery = '';
@@ -37,6 +52,7 @@ export class AlbumDetailComponent {
   addStep: 'choose' | 'media' | 'quote' = 'choose';
   mediaType: 'photo' | 'video' = 'photo';
   previewUrl: string | null = null;
+  failedMedia = new Set<string>();
 
   // Adding people
   albumPeople: AlbumPersonDto[] = [];
@@ -48,7 +64,8 @@ export class AlbumDetailComponent {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private groupsService: GroupsService
+    private groupsService: GroupsService,
+    private i18n: I18nService
   ) {}
 
   ngOnInit() {
@@ -70,8 +87,8 @@ export class AlbumDetailComponent {
       this.album = {
         id: 'all',
         groupId: this.groupId,
-        title: 'All Memories',
-        description: 'Photos, videos & quotes — everything in one place',
+        title: this.i18n.translate('albums.allMemories'),
+        description: this.i18n.translate('albums.collections'),
         dateStart: new Date(0).toISOString(),
         dateEnd: null,
         memoryCount: 0
@@ -106,9 +123,182 @@ export class AlbumDetailComponent {
 
   loadMembers() {
     this.groupsService.groupMembers(this.groupId).subscribe({
-      next: (r) => this.members = r,
+      next: (r) => {
+        this.members = r;
+        this.memberById = r.reduce((acc, m) => {
+          acc[m.userId] = { name: m.name, avatarUrl: m.avatarUrl ?? null };
+          return acc;
+        }, {} as { [key: string]: { name: string; avatarUrl?: string | null } });
+        this.updateActiveUploader();
+      },
       error: (err) => console.error(err)
     });
+  }
+
+  openMemory(m: MemoryDto) {
+    this.activeMemory = m;
+    this.updateActiveUploader();
+    this.showMemoryModal = true;
+    this.commentText = '';
+    this.replyTo = null;
+    this.loadComments();
+  }
+
+  closeMemory() {
+    this.showMemoryModal = false;
+    this.activeMemory = null;
+    this.activeUploader = null;
+    this.comments = [];
+    this.topLevelComments = [];
+    this.replyMap = {};
+    this.commentText = '';
+    this.replyTo = null;
+    this.commentsLoading = false;
+  }
+
+  private updateActiveUploader() {
+    if (!this.activeMemory) {
+      this.activeUploader = null;
+      return;
+    }
+
+    const found = this.memberById[this.activeMemory.createdByUserId];
+    this.activeUploader = found
+      ? { name: found.name, avatarUrl: found.avatarUrl ?? null }
+      : { name: this.i18n.translate('album.unknownUser'), avatarUrl: null };
+  }
+
+  loadComments() {
+    if (!this.activeMemory) return;
+
+    this.commentsLoading = true;
+    this.groupsService.memoryComments(this.groupId, this.activeMemory.id).subscribe({
+      next: (r) => {
+        this.comments = r;
+        this.rebuildCommentTree();
+        this.commentsLoading = false;
+        this.activeMemory!.commentCount = this.comments.length;
+      },
+      error: (err) => {
+        console.error(err);
+        this.commentsLoading = false;
+      }
+    });
+  }
+
+  private rebuildCommentTree() {
+    const top: CommentDto[] = [];
+    const map: { [key: string]: CommentDto[] } = {};
+    const byId = new Map<string, CommentDto>();
+
+    for (const c of this.comments) {
+      byId.set(c.id, c);
+    }
+
+    const rootIdFor = (comment: CommentDto): string => {
+      let current: CommentDto = comment;
+      const seen = new Set<string>();
+
+      while (current.parentCommentId && byId.has(current.parentCommentId)) {
+        if (seen.has(current.parentCommentId)) break;
+        seen.add(current.parentCommentId);
+        current = byId.get(current.parentCommentId)!;
+      }
+
+      return current.id;
+    };
+
+    for (const c of this.comments) {
+      if (c.parentCommentId) {
+        const rootId = rootIdFor(c);
+        if (!map[rootId]) map[rootId] = [];
+        map[rootId].push(c);
+      } else {
+        top.push(c);
+      }
+    }
+
+    const byDate = (a: CommentDto, b: CommentDto) =>
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+
+    top.sort(byDate);
+    Object.keys(map).forEach(k => map[k].sort(byDate));
+
+    this.topLevelComments = top;
+    this.replyMap = map;
+  }
+
+  submitComment() {
+    if (!this.activeMemory) return;
+
+    const content = (this.commentText || '').trim();
+    if (!content) return;
+
+    this.groupsService.addComment(this.groupId, this.activeMemory.id, {
+      content,
+      parentCommentId: this.replyTo?.id ?? null
+    }).subscribe({
+      next: (comment) => {
+        this.comments = [...this.comments, comment];
+        this.rebuildCommentTree();
+        this.commentText = '';
+        this.replyTo = null;
+        this.activeMemory!.commentCount = (this.activeMemory!.commentCount || 0) + 1;
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  setReply(target: CommentDto) {
+    this.replyTo = target;
+  }
+
+  cancelReply() {
+    this.replyTo = null;
+  }
+
+  toggleMemoryLike(m: MemoryDto, event?: Event) {
+    if (event) event.stopPropagation();
+
+    if (m.isLiked) {
+      this.groupsService.unlikeMemory(this.groupId, m.id).subscribe({
+        next: () => {
+          m.isLiked = false;
+          m.likeCount = Math.max(0, (m.likeCount || 0) - 1);
+        },
+        error: (err) => console.error(err)
+      });
+    } else {
+      this.groupsService.likeMemory(this.groupId, m.id).subscribe({
+        next: () => {
+          m.isLiked = true;
+          m.likeCount = (m.likeCount || 0) + 1;
+        },
+        error: (err) => console.error(err)
+      });
+    }
+  }
+
+  toggleCommentLike(c: CommentDto, event?: Event) {
+    if (event) event.stopPropagation();
+
+    if (c.isLiked) {
+      this.groupsService.unlikeComment(this.groupId, c.id).subscribe({
+        next: () => {
+          c.isLiked = false;
+          c.likeCount = Math.max(0, (c.likeCount || 0) - 1);
+        },
+        error: (err) => console.error(err)
+      });
+    } else {
+      this.groupsService.likeComment(this.groupId, c.id).subscribe({
+        next: () => {
+          c.isLiked = true;
+          c.likeCount = (c.likeCount || 0) + 1;
+        },
+        error: (err) => console.error(err)
+      });
+    }
   }
 
   typeLabel(t: number) {
@@ -141,7 +331,7 @@ export class AlbumDetailComponent {
     } else {
       // Photo or video
       if (!this.selectedFile) {
-        alert('Please select a file');
+        alert(this.i18n.translate('album.selectFile'));
         return;
       }
 
@@ -259,7 +449,7 @@ export class AlbumDetailComponent {
 
   submitMedia() {
     if (!this.selectedFile) {
-      alert('Please select a file');
+      alert(this.i18n.translate('album.selectFile'));
       return;
     }
 
@@ -273,7 +463,7 @@ export class AlbumDetailComponent {
     this.newType = 2;
 
     if (!this.newQuoteText) {
-      alert('Please write a quote');
+      alert(this.i18n.translate('album.writeQuote'));
       return;
     }
 
@@ -289,6 +479,21 @@ export class AlbumDetailComponent {
   isVideo(url: string | null | undefined): boolean {
     if (!url) return false;
     return /\.(mp4|webm|mov)$/i.test(url);
+  }
+
+  mediaSrc(url: string | null | undefined): string | null {
+    if (!url) return null;
+    if (/^https?:\/\//i.test(url)) return url;
+    const normalizedUrl = url.startsWith('/') ? url : `/${url}`;
+    return `${this.backendOrigin}${normalizedUrl}`;
+  }
+
+  mediaFailed(url: string | null | undefined): boolean {
+    return !!url && this.failedMedia.has(url);
+  }
+
+  onMediaError(url: string | null | undefined) {
+    if (url) this.failedMedia.add(url);
   }
 
   // People in Album

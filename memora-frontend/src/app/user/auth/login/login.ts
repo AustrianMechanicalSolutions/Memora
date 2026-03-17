@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../auth.service';
+import { TranslatePipe } from '../../../translate.pipe';
+import { I18nService } from '../../../i18n.service';
 
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
@@ -22,7 +24,9 @@ export class LoginComponent {
 
   constructor(
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
+    private i18n: I18nService
   ) {}
 
   login() {
@@ -30,26 +34,25 @@ export class LoginComponent {
 
     this.auth.login(this.email, this.password, this.show2fa ? this.twoFactorCode : undefined)
       .subscribe({
-        next: (res) => {
-          localStorage.setItem('token', res.token);
-
-          this.router.navigate(['home']);
+        next: () => {
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/home';
+          this.router.navigateByUrl(returnUrl);
         },
         error: (e) => {
           const err = e?.error?.error;
 
           if (err === '2fa_required') {
             this.show2fa = true;
-            this.errorMsg = 'Enter your 2FA code from Microsoft Authenticator.';
+            this.errorMsg = this.i18n.translate('auth.login.twoFactorHelp');
             return;
           }
 
           if (err === '2fa_invalid') {
-            this.errorMsg = 'Invalid 2FA code.';
+            this.errorMsg = this.i18n.translate('auth.login.twoFactorInvalid');
             return;
           }
 
-          this.errorMsg = 'Login failed.';
+          this.errorMsg = this.i18n.translate('auth.login.failed');
         }
       });
   }
