@@ -4,11 +4,12 @@ import { GroupsService, GroupDetailDto, MemoryDto, AlbumDto, GroupStatsDto, Grou
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslatePipe } from '../../translate.pipe';
 
 @Component({
   selector: 'app-group-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './group-detail.html',
   styleUrls: ['./group-detail.css']
 })

@@ -11,7 +11,13 @@ using Microsoft.EntityFrameworkCore;
 public class GroupsController : ControllerBase
 {
     private readonly AppDbContext _db;
-    public GroupsController(AppDbContext db) => _db = db;
+    private readonly IWebHostEnvironment _environment;
+
+    public GroupsController(AppDbContext db, IWebHostEnvironment environment)
+    {
+        _db = db;
+        _environment = environment;
+    }
 
     [HttpGet]
     public async Task<ActionResult<List<GroupListItemDto>>> MyGroups()
@@ -184,7 +190,8 @@ public class GroupsController : ControllerBase
 
         if (req.File != null && req.File.Length > 0)
         {
-            var uploadsFolder = Path.Combine("wwwroot", "uploads");
+            var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+            var uploadsFolder = Path.Combine(webRootPath, "uploads");
             Directory.CreateDirectory(uploadsFolder);
 
             var ext = Path.GetExtension(req.File.FileName);

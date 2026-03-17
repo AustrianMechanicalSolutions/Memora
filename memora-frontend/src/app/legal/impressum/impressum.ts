@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { TranslatePipe } from '../../translate.pipe';
 
 @Component({
   selector: 'app-impressum',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './impressum.html',
   styleUrls: ['./impressum.css']
 })
