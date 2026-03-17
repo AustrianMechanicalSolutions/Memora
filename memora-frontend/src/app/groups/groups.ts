@@ -204,22 +204,4 @@ export class GroupsService {
       `${this.baseUrl}/${groupId}/albums/${albumId}/people/${userId}`
     );
   }
-
-  // People in album
-  albumPeople(groupId: string, albumId: string) {
-    return this.http.get<AlbumPersonDto[]>(`/api/groups/${groupId}/albums/${albumId}/people`);
-  }
-
-  addAlbumPerson(groupId: string, albumId: string, userId: string) {
-    return this.http.post(
-      `/api/groups/${groupId}/albums/${albumId}/people/${userId}`,
-      null
-    );
-  }
-
-  removeAlbumPerson(groupId: string, albumId: string, userId: string) {
-    return this.http.delete(
-      `/api/groups/${groupId}/albums/${albumId}/people/${userId}`
-    );
-  }
 }
