@@ -88,6 +88,9 @@ public class GroupsController : ControllerBase
         var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
         if (!isMember) return Forbid();
 
+        var page = q.Page < 1 ? 1 : q.Page;
+        var pageSize = q.PageSize < 1 ? 20 : Math.Min(q.PageSize, 200);
+
         var query = _db.Set<Memory>()
             .AsNoTracking()
             .Include(x => x.Tags)
@@ -113,22 +116,51 @@ public class GroupsController : ControllerBase
             : query.OrderByDescending(x => x.HappenedAt).ThenByDescending(x => x.CreatedAt);
 
         var total = await query.CountAsync();
-        var items = await query
-            .Skip((q.Page - 1) * q.PageSize)
-            .Take(q.PageSize)
-            .Select(x => new MemoryDto(
+        var pageItems = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var memoryIds = pageItems.Select(x => x.Id).ToList();
+
+        var likeCounts = await _db.Set<MemoryLike>()
+            .AsNoTracking()
+            .Where(l => memoryIds.Contains(l.MemoryId))
+            .GroupBy(l => l.MemoryId)
+            .Select(g => new { MemoryId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.MemoryId, x => x.Count);
+
+        var commentCounts = await _db.Set<MemoryComment>()
+            .AsNoTracking()
+            .Where(c => memoryIds.Contains(c.MemoryId))
+            .GroupBy(c => c.MemoryId)
+            .Select(g => new { MemoryId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.MemoryId, x => x.Count);
+
+        var likedIds = await _db.Set<MemoryLike>()
+            .AsNoTracking()
+            .Where(l => memoryIds.Contains(l.MemoryId) && l.UserId == uid)
+            .Select(l => l.MemoryId)
+            .ToListAsync();
+        var likedSet = likedIds.ToHashSet();
+
+        var items = pageItems.Select(x =>
+        {
+            var tags = x.Tags?
+                .Select(t => t.Value)
+                .Where(v => !string.IsNullOrWhiteSpace(v))
+                .ToList();
+
+            return new MemoryDto(
                 x.Id, x.GroupId, x.Type, x.Title, x.QuoteText, x.QuoteBy, x.MediaUrl, x.ThumbUrl,
                 x.HappenedAt, x.CreatedAt, x.CreatedByUserId,
-                x.Tags
-                    .Any()
-                    ? x.Tags
-                        .Select(t => t.Value)
-                        .Where(v => !string.IsNullOrWhiteSpace(v))
-                        .ToList()
-                    : null,
-                x.AlbumId
-            ))
-            .ToListAsync();
+                tags != null && tags.Count > 0 ? tags : null,
+                x.AlbumId,
+                likeCounts.TryGetValue(x.Id, out var likeCount) ? likeCount : 0,
+                commentCounts.TryGetValue(x.Id, out var commentCount) ? commentCount : 0,
+                likedSet.Contains(x.Id)
+            );
+        }).ToList();
 
         return Ok(new { total, items });
     }
@@ -173,7 +205,10 @@ public class GroupsController : ControllerBase
             m.Id, m.GroupId, m.Type, m.Title, m.QuoteText, m.QuoteBy, m.MediaUrl, m.ThumbUrl,
             m.HappenedAt, m.CreatedAt, m.CreatedByUserId,
             tags.Count == 0 ? null : tags,
-            m.AlbumId
+            m.AlbumId,
+            0,
+            0,
+            false
         ));
     }
 
@@ -238,8 +273,175 @@ public class GroupsController : ControllerBase
             m.Id, m.GroupId, m.Type, m.Title, m.QuoteText, m.QuoteBy, m.MediaUrl, m.ThumbUrl,
             m.HappenedAt, m.CreatedAt, m.CreatedByUserId,
             m.Tags.Select(t => t.Value).ToList(),
-            m.AlbumId
+            m.AlbumId,
+            0,
+            0,
+            false
         ));
+    }
+
+    [HttpPost("{groupId:guid}/memories/{memoryId:guid}/likes")]
+    public async Task<IActionResult> LikeMemory(Guid groupId, Guid memoryId)
+    {
+        var uid = User.UserId();
+        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+        if (!isMember) return Forbid();
+
+        var exists = await _db.Set<Memory>()
+            .AnyAsync(m => m.Id == memoryId && m.GroupId == groupId);
+        if (!exists) return NotFound();
+
+        var already = await _db.Set<MemoryLike>()
+            .AnyAsync(l => l.MemoryId == memoryId && l.UserId == uid);
+        if (!already)
+        {
+            _db.Add(new MemoryLike { MemoryId = memoryId, UserId = uid });
+            await _db.SaveChangesAsync();
+        }
+
+        return Ok();
+    }
+
+    [HttpDelete("{groupId:guid}/memories/{memoryId:guid}/likes")]
+    public async Task<IActionResult> UnlikeMemory(Guid groupId, Guid memoryId)
+    {
+        var uid = User.UserId();
+        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+        if (!isMember) return Forbid();
+
+        var like = await _db.Set<MemoryLike>()
+            .FirstOrDefaultAsync(l => l.MemoryId == memoryId && l.UserId == uid);
+        if (like == null) return Ok();
+
+        _db.Remove(like);
+        await _db.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpGet("{groupId:guid}/memories/{memoryId:guid}/comments")]
+    public async Task<ActionResult<List<CommentDto>>> MemoryComments(Guid groupId, Guid memoryId)
+    {
+        var uid = User.UserId();
+        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+        if (!isMember) return Forbid();
+
+        var exists = await _db.Set<Memory>()
+            .AnyAsync(m => m.Id == memoryId && m.GroupId == groupId);
+        if (!exists) return NotFound();
+
+        var comments = await _db.Set<MemoryComment>()
+            .AsNoTracking()
+            .Where(c => c.MemoryId == memoryId)
+            .Join(
+                _db.Set<AppUser>(),
+                c => c.UserId,
+                u => u.Id,
+                (c, u) => new { c, u }
+            )
+            .OrderBy(x => x.c.CreatedAt)
+            .Select(x => new CommentDto(
+                x.c.Id,
+                x.c.MemoryId,
+                x.c.UserId,
+                x.u.DisplayName,
+                x.u.ProfileImageUrl,
+                x.c.Content,
+                x.c.CreatedAt,
+                x.c.ParentCommentId,
+                _db.Set<MemoryCommentLike>().Count(l => l.CommentId == x.c.Id),
+                _db.Set<MemoryCommentLike>().Any(l => l.CommentId == x.c.Id && l.UserId == uid)
+            ))
+            .ToListAsync();
+
+        return Ok(comments);
+    }
+
+    [HttpPost("{groupId:guid}/memories/{memoryId:guid}/comments")]
+    public async Task<ActionResult<CommentDto>> AddComment(Guid groupId, Guid memoryId, [FromBody] CreateCommentRequest req)
+    {
+        var uid = User.UserId();
+        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+        if (!isMember) return Forbid();
+
+        var memory = await _db.Set<Memory>()
+            .FirstOrDefaultAsync(m => m.Id == memoryId && m.GroupId == groupId);
+        if (memory == null) return NotFound();
+
+        var content = (req.Content ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(content)) return BadRequest("Content is required.");
+
+        if (req.ParentCommentId.HasValue)
+        {
+            var parentExists = await _db.Set<MemoryComment>()
+                .AnyAsync(c => c.Id == req.ParentCommentId.Value && c.MemoryId == memoryId);
+            if (!parentExists) return BadRequest("Parent comment not found.");
+        }
+
+        var comment = new MemoryComment
+        {
+            Id = Guid.NewGuid(),
+            MemoryId = memoryId,
+            UserId = uid,
+            Content = content,
+            ParentCommentId = req.ParentCommentId
+        };
+
+        _db.Add(comment);
+        await _db.SaveChangesAsync();
+
+        var user = await _db.Set<AppUser>().FirstAsync(u => u.Id == uid);
+
+        return Ok(new CommentDto(
+            comment.Id,
+            comment.MemoryId,
+            comment.UserId,
+            user.DisplayName,
+            user.ProfileImageUrl,
+            comment.Content,
+            comment.CreatedAt,
+            comment.ParentCommentId,
+            0,
+            false
+        ));
+    }
+
+    [HttpPost("{groupId:guid}/comments/{commentId:guid}/likes")]
+    public async Task<IActionResult> LikeComment(Guid groupId, Guid commentId)
+    {
+        var uid = User.UserId();
+        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+        if (!isMember) return Forbid();
+
+        var exists = await _db.Set<MemoryComment>()
+            .Join(_db.Set<Memory>(), c => c.MemoryId, m => m.Id, (c, m) => new { c, m })
+            .AnyAsync(x => x.c.Id == commentId && x.m.GroupId == groupId);
+        if (!exists) return NotFound();
+
+        var already = await _db.Set<MemoryCommentLike>()
+            .AnyAsync(l => l.CommentId == commentId && l.UserId == uid);
+        if (!already)
+        {
+            _db.Add(new MemoryCommentLike { CommentId = commentId, UserId = uid });
+            await _db.SaveChangesAsync();
+        }
+
+        return Ok();
+    }
+
+    [HttpDelete("{groupId:guid}/comments/{commentId:guid}/likes")]
+    public async Task<IActionResult> UnlikeComment(Guid groupId, Guid commentId)
+    {
+        var uid = User.UserId();
+        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+        if (!isMember) return Forbid();
+
+        var like = await _db.Set<MemoryCommentLike>()
+            .FirstOrDefaultAsync(l => l.CommentId == commentId && l.UserId == uid);
+        if (like == null) return Ok();
+
+        _db.Remove(like);
+        await _db.SaveChangesAsync();
+        return Ok();
     }
 
     [HttpGet("{groupId:guid}/members")]

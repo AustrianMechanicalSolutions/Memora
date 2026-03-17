@@ -9,6 +9,7 @@ import { TwoFactorService, TwoFactorSetupResponse } from './twofactor';
 import { ThemeService } from '../../theme.service';
 import { TranslatePipe } from '../../translate.pipe';
 import { AppLanguage, I18nService } from '../../i18n.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-settings',
@@ -57,7 +58,8 @@ export class SettingsComponent {
     private http: HttpClient,
     private twoFactor: TwoFactorService,
     private theme: ThemeService,
-    private i18n: I18nService
+    private i18n: I18nService,
+    private auth: AuthService
   ) {}
 
   get themeMode() {
@@ -132,6 +134,7 @@ export class SettingsComponent {
       next: () => {
         this.msg = this.i18n.translate('settings.profileSaved');
         this.saving = false;
+        this.auth.notifyProfileChanged();
       },
       error: (e) => {
         console.error(e);

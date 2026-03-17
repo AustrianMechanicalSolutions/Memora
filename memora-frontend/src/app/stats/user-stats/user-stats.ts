@@ -148,7 +148,14 @@ export class UserStatsPageComponent {
       pageSize,
       sort: 'newest'
     }).pipe(
+      catchError((err) => {
+        console.error('Failed to load group memories', err);
+        return of([]);
+      }),
       switchMap((first) => {
+        if (!('total' in first)) {
+          return of(first as MemoryDto[]);
+        }
         const totalPages = Math.max(1, Math.ceil(first.total / pageSize));
         if (totalPages === 1) {
           return of(first.items);

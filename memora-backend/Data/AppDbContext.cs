@@ -10,6 +10,9 @@ public class AppDbContext : DbContext
 
     public DbSet<AppUser> Users => Set<AppUser>();
     public DbSet<Album> Albums => Set<Album>();
+    public DbSet<MemoryLike> MemoryLikes => Set<MemoryLike>();
+    public DbSet<MemoryComment> MemoryComments => Set<MemoryComment>();
+    public DbSet<MemoryCommentLike> MemoryCommentLikes => Set<MemoryCommentLike>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -25,6 +28,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<GroupMember>().HasKey(x => new { x.GroupId, x.UserId });
         modelBuilder.Entity<MemoryTag>().HasKey(x => new { x.MemoryId, x.Value });
         modelBuilder.Entity<AlbumPerson>().HasKey(x => new { x.AlbumId, x.UserId });
+        modelBuilder.Entity<MemoryLike>().HasKey(x => new { x.MemoryId, x.UserId });
+        modelBuilder.Entity<MemoryCommentLike>().HasKey(x => new { x.CommentId, x.UserId });
 
         modelBuilder.Entity<Group>()
             .HasMany(x => x.Members)

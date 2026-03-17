@@ -76,6 +76,35 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/uploads"
 });
 
+// ---- Ensure interaction tables exist (SQLite, no migrations) ----
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.ExecuteSqlRaw(@"
+CREATE TABLE IF NOT EXISTS MemoryLikes (
+    MemoryId TEXT NOT NULL,
+    UserId TEXT NOT NULL,
+    CreatedAt TEXT NOT NULL,
+    PRIMARY KEY (MemoryId, UserId)
+);");
+    db.Database.ExecuteSqlRaw(@"
+CREATE TABLE IF NOT EXISTS MemoryComments (
+    Id TEXT NOT NULL PRIMARY KEY,
+    MemoryId TEXT NOT NULL,
+    UserId TEXT NOT NULL,
+    Content TEXT NOT NULL,
+    CreatedAt TEXT NOT NULL,
+    ParentCommentId TEXT NULL
+);");
+    db.Database.ExecuteSqlRaw(@"
+CREATE TABLE IF NOT EXISTS MemoryCommentLikes (
+    CommentId TEXT NOT NULL,
+    UserId TEXT NOT NULL,
+    CreatedAt TEXT NOT NULL,
+    PRIMARY KEY (CommentId, UserId)
+);");
+}
+
 // ---- Map endpoints ----
 app.MapAuthEndpoints();
 

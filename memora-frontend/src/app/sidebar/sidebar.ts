@@ -47,6 +47,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
         this.loadGroups();
       })
     );
+
+    this.subscriptions.add(
+      this.auth.profileChanged$.subscribe(() => {
+        this.loadUserProfile();
+      })
+    );
   }
 
   loadUserProfile() {

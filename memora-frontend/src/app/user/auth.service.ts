@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, Subject, tap } from 'rxjs';
 import { I18nService } from '../i18n.service';
 
 interface AuthResponse {
@@ -30,6 +30,8 @@ export class AuthService {
   private readonly accountUrl = 'http://localhost:5000/api/account';
   private loggedInSubject = new BehaviorSubject<boolean>(!!this.token);
   loggedIn$ = this.loggedInSubject.asObservable();
+  private profileChangedSubject = new Subject<void>();
+  profileChanged$ = this.profileChangedSubject.asObservable();
 
   constructor(private http: HttpClient, private i18n: I18nService) {}
 
@@ -66,6 +68,10 @@ export class AuthService {
 
   confirmLogout(): boolean {
     return confirm(this.i18n.translate('sidebar.logoutConfirm'));
+  }
+
+  notifyProfileChanged() {
+    this.profileChangedSubject.next();
   }
 
   get token(): string | null {

@@ -17,7 +17,23 @@ public record MemoryDto(
     DateTime CreatedAt,
     Guid CreatedByUserId,
     List<string>? Tags,
-    Guid? AlbumId
+    Guid? AlbumId,
+    int LikeCount,
+    int CommentCount,
+    bool IsLiked
+);
+
+public record CommentDto(
+    Guid Id,
+    Guid MemoryId,
+    Guid UserId,
+    string UserName,
+    string? AvatarUrl,
+    string Content,
+    DateTime CreatedAt,
+    Guid? ParentCommentId,
+    int LikeCount,
+    bool IsLiked
 );
 
 public record CreateGroupRequest(string Name);
@@ -43,6 +59,12 @@ public class CreateQuoteRequest
     public List<string>? Tags { get; set; }
     public Guid? AlbumId { get; set; }
 };
+
+public class CreateCommentRequest
+{
+    public string Content { get; set; } = "";
+    public Guid? ParentCommentId { get; set; }
+}
 
 public class MemoryQuery
 {

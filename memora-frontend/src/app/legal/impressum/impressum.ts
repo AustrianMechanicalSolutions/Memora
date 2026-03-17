@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { TranslatePipe } from '../../translate.pipe';
 
@@ -10,6 +10,8 @@ import { TranslatePipe } from '../../translate.pipe';
   styleUrls: ['./impressum.css']
 })
 export class ImpressumComponent {
+  constructor(private location: Location) {}
+
   readonly teamMembers = [
     'Nico Kogler',
     'Mikhail Krech',
@@ -17,4 +19,8 @@ export class ImpressumComponent {
     'Petar Gajic',
     'Filip Grgic'
   ];
+
+  goBack() {
+    this.location.back();
+  }
 }
