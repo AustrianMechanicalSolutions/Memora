@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Subject, tap } from 'rxjs';
+import { I18nService } from '../i18n.service';
 
 interface AuthResponse {
   token: string;
@@ -32,7 +33,7 @@ export class AuthService {
   private profileChangedSubject = new Subject<void>();
   profileChanged$ = this.profileChangedSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private i18n: I18nService) {}
 
   login(email: string, password: string, twoFactorCode?: string) {
     return this.http
@@ -66,7 +67,7 @@ export class AuthService {
   }
 
   confirmLogout(): boolean {
-    return confirm('Are you sure you want to logout?');
+    return confirm(this.i18n.translate('sidebar.logoutConfirm'));
   }
 
   notifyProfileChanged() {

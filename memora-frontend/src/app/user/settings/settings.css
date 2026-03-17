@@ -1,3 +1,4 @@
+/* PAGE */
 .page {
   width: min(1120px, 100%);
   margin: 0 auto;
@@ -49,28 +50,32 @@
   margin-bottom: 14px;
 }
 
-.panel-title {
+.card-header h2 {
   margin: 0;
   font-size: 18px;
   letter-spacing: -0.01em;
   color: var(--text-primary);
 }
 
-.grid {
+/* GRID */
+
+.form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-.field {
+.form-group {
   display: flex;
   flex-direction: column;
   gap: 7px;
 }
 
-.field.full {
+.form-group.full {
   grid-column: span 2;
 }
+
+/* INPUTS */
 
 label {
   font-size: 13px;
@@ -262,17 +267,19 @@ label {
   background: var(--bg-card);
   border: 1px solid var(--border);
   display: flex;
-  justify-content: center;
   align-items: center;
+  gap: 16px;
 }
 
-.qr {
-  width: 160px;
-  height: 160px;
-  border-radius: 12px;
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #1f2937;
 }
 
-.setup-info {
+.avatar-actions {
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -356,6 +363,25 @@ label {
 
   .twofa-setup {
     grid-template-columns: 1fr;
+  }
+
+  .form-group.full {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 560px) {
+  .btn {
+    width: 100%;
+  }
+
+  .code-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input.code {
+    max-width: 100%;
   }
 }
 

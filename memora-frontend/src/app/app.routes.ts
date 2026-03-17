@@ -27,6 +27,8 @@ export const routes: Routes = [
     { path: 'groups/:id/albums', component: GroupAlbumsComponent, canActivate: [authGuard] },
     { path: 'groups/:id/albums/:albumId', component: AlbumDetailComponent, canActivate: [authGuard] },
     { path: 'groups/:id/stats', component: UserStatsPageComponent, canActivate: [authGuard] },
+    { path: 'groups/:id/admin', canActivate: [authGuard], loadChildren: () => import('./groups/admin/admin.routes')
+        .then(m => m.ADMIN_ROUTES)},
     
     { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
     { path: 'stats', component: UserStatsPageComponent, canActivate: [authGuard] },
