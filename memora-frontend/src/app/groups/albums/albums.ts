@@ -3,11 +3,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GroupsService, AlbumDto } from '../groups';
+import { TranslatePipe } from '../../translate.pipe';
+import { I18nService } from '../../i18n.service';
 
 @Component({
   selector: 'app-albums',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
+  imports: [CommonModule, FormsModule, DatePipe, TranslatePipe],
   templateUrl: './albums.html',
   styleUrls: ['./albums.css']
 })
@@ -27,7 +29,8 @@ export class GroupAlbumsComponent {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private groupsService: GroupsService
+    private groupsService: GroupsService,
+    private i18n: I18nService
   ) {}
 
   ngOnInit() {
@@ -62,7 +65,7 @@ export class GroupAlbumsComponent {
 
   createAlbum() {
     if (!this.aTitle.trim()) {
-      alert("Album title is required");
+      alert(this.i18n.translate('admin.titleRequired'));
       return;
     }
 
@@ -98,8 +101,8 @@ export class GroupAlbumsComponent {
     const allAlbum: AlbumDto = {
       id: 'all',
       groupId: this.groupId,
-      title: 'All Memories',
-      description: 'Photos, videos & quotes — everything in one place',
+      title: this.i18n.translate('albums.allMemories'),
+      description: this.i18n.translate('albums.collections'),
       dateStart: null as any,
       dateEnd: null,
       memoryCount: this.allMemoriesCount

@@ -4,11 +4,13 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { GroupsService, GroupListItemDto } from '../groups';
+import { TranslatePipe } from '../../translate.pipe';
+import { I18nService } from '../../i18n.service';
 
 @Component({
   selector: 'app-groups-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslatePipe],
   templateUrl: './groups-page.html',
   styleUrls: ['./groups-page.css']
 })
@@ -26,7 +28,10 @@ export class GroupsPageComponent {
   joining = false;
   joinErrorMsg = '';
 
-  constructor(private groupsService: GroupsService) {}
+  constructor(
+    private groupsService: GroupsService,
+    private i18n: I18nService
+  ) {}
 
   ngOnInit() {
     this.loadGroups();
@@ -62,7 +67,7 @@ export class GroupsPageComponent {
       error: (err) => {
         console.error(err);
         this.creating = false;
-        this.errorMsg = err?.error ?? 'Could not create group';
+        this.errorMsg = err?.error ?? this.i18n.translate('groups.createFailed');
       }
     });
   }
@@ -83,7 +88,7 @@ export class GroupsPageComponent {
       error: (err) => {
         console.error(err);
         this.joining = false;
-        this.joinErrorMsg = err?.error ?? 'Could not join group';
+        this.joinErrorMsg = err?.error ?? this.i18n.translate('groups.joinFailed');
       }
     });
   }

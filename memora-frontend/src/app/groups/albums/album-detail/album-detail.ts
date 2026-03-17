@@ -3,15 +3,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GroupsService, AlbumDto, MemoryDto, AlbumPersonDto } from '../../groups';
+import { TranslatePipe } from '../../../translate.pipe';
+import { I18nService } from '../../../i18n.service';
 
 @Component({
   selector: 'app-album-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
+  imports: [CommonModule, FormsModule, DatePipe, TranslatePipe],
   templateUrl: './album-detail.html',
   styleUrls: ['./album-detail.css']
 })
 export class AlbumDetailComponent {
+  private readonly backendOrigin = `${window.location.protocol}//${window.location.hostname}:5000`;
   groupId!: string;
   albumId!: string;
 
@@ -37,6 +40,7 @@ export class AlbumDetailComponent {
   addStep: 'choose' | 'media' | 'quote' = 'choose';
   mediaType: 'photo' | 'video' = 'photo';
   previewUrl: string | null = null;
+  failedMedia = new Set<string>();
 
   // Adding people
   albumPeople: AlbumPersonDto[] = [];
@@ -48,7 +52,8 @@ export class AlbumDetailComponent {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private groupsService: GroupsService
+    private groupsService: GroupsService,
+    private i18n: I18nService
   ) {}
 
   ngOnInit() {
@@ -70,8 +75,8 @@ export class AlbumDetailComponent {
       this.album = {
         id: 'all',
         groupId: this.groupId,
-        title: 'All Memories',
-        description: 'Photos, videos & quotes — everything in one place',
+        title: this.i18n.translate('albums.allMemories'),
+        description: this.i18n.translate('albums.collections'),
         dateStart: new Date(0).toISOString(),
         dateEnd: null,
         memoryCount: 0
@@ -141,7 +146,7 @@ export class AlbumDetailComponent {
     } else {
       // Photo or video
       if (!this.selectedFile) {
-        alert('Please select a file');
+        alert(this.i18n.translate('album.selectFile'));
         return;
       }
 
@@ -259,7 +264,7 @@ export class AlbumDetailComponent {
 
   submitMedia() {
     if (!this.selectedFile) {
-      alert('Please select a file');
+      alert(this.i18n.translate('album.selectFile'));
       return;
     }
 
@@ -273,7 +278,7 @@ export class AlbumDetailComponent {
     this.newType = 2;
 
     if (!this.newQuoteText) {
-      alert('Please write a quote');
+      alert(this.i18n.translate('album.writeQuote'));
       return;
     }
 
@@ -289,6 +294,21 @@ export class AlbumDetailComponent {
   isVideo(url: string | null | undefined): boolean {
     if (!url) return false;
     return /\.(mp4|webm|mov)$/i.test(url);
+  }
+
+  mediaSrc(url: string | null | undefined): string | null {
+    if (!url) return null;
+    if (/^https?:\/\//i.test(url)) return url;
+    const normalizedUrl = url.startsWith('/') ? url : `/${url}`;
+    return `${this.backendOrigin}${normalizedUrl}`;
+  }
+
+  mediaFailed(url: string | null | undefined): boolean {
+    return !!url && this.failedMedia.has(url);
+  }
+
+  onMediaError(url: string | null | undefined) {
+    if (url) this.failedMedia.add(url);
   }
 
   // People in Album
