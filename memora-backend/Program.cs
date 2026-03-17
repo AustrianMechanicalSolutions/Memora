@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,12 +60,21 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+var webRootPath = app.Environment.WebRootPath ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+var uploadsPath = Path.Combine(webRootPath, "uploads");
+
+Directory.CreateDirectory(uploadsPath);
 
 app.UseHttpsRedirection();
 app.UseCors("frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
 
 // ---- Map endpoints ----
 app.MapAuthEndpoints();
