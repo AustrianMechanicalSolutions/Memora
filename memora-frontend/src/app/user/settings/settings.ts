@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import QRCode from 'qrcode';
 import { TwoFactorService, TwoFactorSetupResponse } from './twofactor';
 import { ThemeService } from '../../theme.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-settings',
@@ -54,7 +55,8 @@ export class SettingsComponent {
   constructor(
     private http: HttpClient,
     private twoFactor: TwoFactorService,
-    private theme: ThemeService
+    private theme: ThemeService,
+    private auth: AuthService
   ) {}
 
   get themeMode() {
@@ -122,6 +124,7 @@ export class SettingsComponent {
       next: () => {
         this.msg = 'Profile saved!';
         this.saving = false;
+        this.auth.notifyProfileChanged();
       },
       error: (e) => {
         console.error(e);

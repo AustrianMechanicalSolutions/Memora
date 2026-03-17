@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, Subject, tap } from 'rxjs';
 
 interface AuthResponse {
   token: string;
@@ -29,6 +29,8 @@ export class AuthService {
   private readonly accountUrl = 'http://localhost:5000/api/account';
   private loggedInSubject = new BehaviorSubject<boolean>(!!this.token);
   loggedIn$ = this.loggedInSubject.asObservable();
+  private profileChangedSubject = new Subject<void>();
+  profileChanged$ = this.profileChangedSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -65,6 +67,10 @@ export class AuthService {
 
   confirmLogout(): boolean {
     return confirm('Are you sure you want to logout?');
+  }
+
+  notifyProfileChanged() {
+    this.profileChangedSubject.next();
   }
 
   get token(): string | null {

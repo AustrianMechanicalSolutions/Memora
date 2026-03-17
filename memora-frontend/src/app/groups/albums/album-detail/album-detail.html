@@ -70,7 +70,7 @@
     <h2 class="wall-title">Memory Wall</h2>
 
     <div class="wall" *ngIf="items.length > 0; else emptyState">
-      <div class="wall-card" *ngFor="let m of items">
+      <div class="wall-card clickable" *ngFor="let m of items" (click)="openMemory(m)">
         <!-- Photo / Video -->
         <ng-container *ngIf="m.type !== 2">
           <img
@@ -92,6 +92,16 @@
           <div class="wall-date">
             {{ m.happenedAt | date:'dd/MM/yyyy' }}
           </div>
+
+          <div class="wall-actions">
+            <button class="icon-btn" (click)="toggleMemoryLike(m, $event)">
+              <span class="icon" [class.active]="m.isLiked">♥</span>
+              <span>{{ m.likeCount || 0 }}</span>
+            </button>
+            <button class="icon-btn" (click)="openMemory(m); $event.stopPropagation()">
+              💬 <span>{{ m.commentCount || 0 }}</span>
+            </button>
+          </div>
         </ng-container>
 
         <!-- Quote -->
@@ -107,6 +117,16 @@
           <div class="wall-date">
             {{ m.happenedAt | date:'dd/MM/yyyy' }}
           </div>
+
+          <div class="wall-actions">
+            <button class="icon-btn" (click)="toggleMemoryLike(m, $event)">
+              <span class="icon" [class.active]="m.isLiked">♥</span>
+              <span>{{ m.likeCount || 0 }}</span>
+            </button>
+            <button class="icon-btn" (click)="openMemory(m); $event.stopPropagation()">
+              💬 <span>{{ m.commentCount || 0 }}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -118,6 +138,136 @@
       </div>
     </ng-template>
   </section>
+
+  <div class="modal-backdrop" *ngIf="showMemoryModal && activeMemory as m">
+    <div class="memory-modal">
+      <button class="modal-close" (click)="closeMemory()">×</button>
+
+      <div class="memory-layout">
+        <div class="memory-media">
+          <ng-container *ngIf="m.type !== 2">
+            <img
+              *ngIf="m.type === 0 && isImage(m.mediaUrl)"
+              [src]="'http://localhost:5000' + m.mediaUrl"
+            />
+
+            <video
+              *ngIf="m.type === 1 && isVideo(m.mediaUrl)"
+              controls
+              [src]="'http://localhost:5000' + m.mediaUrl"
+            ></video>
+
+            <div *ngIf="m.type === 0 && !isImage(m.mediaUrl)" class="media-error">Unsupported image file</div>
+            <div *ngIf="m.type === 1 && !isVideo(m.mediaUrl)" class="media-error">Unsupported video file</div>
+          </ng-container>
+
+          <div class="quote-full" *ngIf="m.type === 2">
+            <div class="quote-text">
+              “{{ m.quoteText }}”
+            </div>
+
+            <div class="quote-by" *ngIf="m.quoteBy">
+              — {{ m.quoteBy }}
+            </div>
+          </div>
+        </div>
+
+        <aside class="memory-comments">
+          <div class="memory-header">
+            <div class="memory-meta">
+              <div class="memory-date">{{ m.happenedAt | date:'dd/MM/yyyy' }}</div>
+              <div class="memory-uploader" *ngIf="activeUploader as uploader">
+                <div class="uploader-avatar">
+                  <img *ngIf="uploader.avatarUrl; else uploaderInitial" [src]="uploader.avatarUrl" />
+                  <ng-template #uploaderInitial>{{ uploader.name.charAt(0) }}</ng-template>
+                </div>
+                <div class="uploader-text">
+                  <div class="uploader-label">Uploaded by</div>
+                  <div class="uploader-name">{{ uploader.name }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="memory-actions">
+              <button class="icon-btn" (click)="toggleMemoryLike(m, $event)">
+                <span class="icon" [class.active]="m.isLiked">♥</span>
+                <span>{{ m.likeCount || 0 }}</span>
+              </button>
+              <div class="comment-count">💬 {{ m.commentCount || 0 }}</div>
+            </div>
+          </div>
+
+          <div class="comment-list">
+            <div class="comment muted" *ngIf="commentsLoading">Loading comments…</div>
+
+            <div class="comment muted" *ngIf="!commentsLoading && topLevelComments.length === 0">
+              No comments yet. Be the first one.
+            </div>
+
+            <div class="comment" *ngFor="let c of topLevelComments">
+              <div class="comment-avatar">
+                <img *ngIf="c.avatarUrl" [src]="c.avatarUrl" />
+                <div *ngIf="!c.avatarUrl">{{ c.userName.charAt(0) }}</div>
+              </div>
+
+              <div class="comment-body">
+                <div class="comment-meta">
+                  <strong>{{ c.userName }}</strong>
+                  <span class="muted">{{ c.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <div class="comment-text">{{ c.content }}</div>
+
+                <div class="comment-actions">
+                  <button class="link-btn" (click)="toggleCommentLike(c, $event)">
+                    <span class="icon" [class.active]="c.isLiked">♥</span>
+                    <span>{{ c.likeCount || 0 }}</span>
+                  </button>
+                  <button class="link-btn" (click)="setReply(c)">Reply</button>
+                </div>
+
+                <div class="comment-replies" *ngIf="replyMap[c.id]?.length">
+                  <div class="comment reply" *ngFor="let r of replyMap[c.id]">
+                    <div class="comment-avatar">
+                      <img *ngIf="r.avatarUrl" [src]="r.avatarUrl" />
+                      <div *ngIf="!r.avatarUrl">{{ r.userName.charAt(0) }}</div>
+                    </div>
+                    <div class="comment-body">
+                      <div class="comment-meta">
+                        <strong>{{ r.userName }}</strong>
+                        <span class="muted">{{ r.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                      </div>
+                      <div class="comment-text">{{ r.content }}</div>
+                      <div class="comment-actions">
+                        <button class="link-btn" (click)="toggleCommentLike(r, $event)">
+                          <span class="icon" [class.active]="r.isLiked">♥</span>
+                          <span>{{ r.likeCount || 0 }}</span>
+                        </button>
+                        <button class="link-btn" (click)="setReply(r)">Reply</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment-editor">
+            <div class="replying" *ngIf="replyTo">
+              Replying to {{ replyTo.userName }}
+              <button class="link-btn" (click)="cancelReply()">Cancel</button>
+            </div>
+            <textarea
+              class="input textarea"
+              [(ngModel)]="commentText"
+              placeholder="Write a comment..."
+            ></textarea>
+            <div class="comment-submit">
+              <button class="btn primary" (click)="submitComment()">Send</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
 
   <div class="modal-backdrop" *ngIf="showAddMemoryModal">
     <div class="modal">

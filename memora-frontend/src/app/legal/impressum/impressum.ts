@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component } from '@angular/core';
 
 @Component({
@@ -9,6 +9,8 @@ import { Component } from '@angular/core';
   styleUrls: ['./impressum.css']
 })
 export class ImpressumComponent {
+  constructor(private location: Location) {}
+
   readonly teamMembers = [
     'Nico Kogler',
     'Mikhail Krech',
@@ -16,4 +18,8 @@ export class ImpressumComponent {
     'Petar Gajic',
     'Filip Grgic'
   ];
+
+  goBack() {
+    this.location.back();
+  }
 }
