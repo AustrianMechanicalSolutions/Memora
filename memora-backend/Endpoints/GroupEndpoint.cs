@@ -88,6 +88,9 @@ public class GroupsController : ControllerBase
         var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
         if (!isMember) return Forbid();
 
+        var page = q.Page < 1 ? 1 : q.Page;
+        var pageSize = q.PageSize < 1 ? 20 : Math.Min(q.PageSize, 200);
+
         var query = _db.Set<Memory>()
             .AsNoTracking()
             .Include(x => x.Tags)
@@ -113,25 +116,51 @@ public class GroupsController : ControllerBase
             : query.OrderByDescending(x => x.HappenedAt).ThenByDescending(x => x.CreatedAt);
 
         var total = await query.CountAsync();
-        var items = await query
-            .Skip((q.Page - 1) * q.PageSize)
-            .Take(q.PageSize)
-            .Select(x => new MemoryDto(
+        var pageItems = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var memoryIds = pageItems.Select(x => x.Id).ToList();
+
+        var likeCounts = await _db.Set<MemoryLike>()
+            .AsNoTracking()
+            .Where(l => memoryIds.Contains(l.MemoryId))
+            .GroupBy(l => l.MemoryId)
+            .Select(g => new { MemoryId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.MemoryId, x => x.Count);
+
+        var commentCounts = await _db.Set<MemoryComment>()
+            .AsNoTracking()
+            .Where(c => memoryIds.Contains(c.MemoryId))
+            .GroupBy(c => c.MemoryId)
+            .Select(g => new { MemoryId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.MemoryId, x => x.Count);
+
+        var likedIds = await _db.Set<MemoryLike>()
+            .AsNoTracking()
+            .Where(l => memoryIds.Contains(l.MemoryId) && l.UserId == uid)
+            .Select(l => l.MemoryId)
+            .ToListAsync();
+        var likedSet = likedIds.ToHashSet();
+
+        var items = pageItems.Select(x =>
+        {
+            var tags = x.Tags?
+                .Select(t => t.Value)
+                .Where(v => !string.IsNullOrWhiteSpace(v))
+                .ToList();
+
+            return new MemoryDto(
                 x.Id, x.GroupId, x.Type, x.Title, x.QuoteText, x.QuoteBy, x.MediaUrl, x.ThumbUrl,
                 x.HappenedAt, x.CreatedAt, x.CreatedByUserId,
-                x.Tags
-                    .Any()
-                    ? x.Tags
-                        .Select(t => t.Value)
-                        .Where(v => !string.IsNullOrWhiteSpace(v))
-                        .ToList()
-                    : null,
+                tags != null && tags.Count > 0 ? tags : null,
                 x.AlbumId,
-                _db.Set<MemoryLike>().Count(l => l.MemoryId == x.Id),
-                _db.Set<MemoryComment>().Count(c => c.MemoryId == x.Id),
-                _db.Set<MemoryLike>().Any(l => l.MemoryId == x.Id && l.UserId == uid)
-            ))
-            .ToListAsync();
+                likeCounts.TryGetValue(x.Id, out var likeCount) ? likeCount : 0,
+                commentCounts.TryGetValue(x.Id, out var commentCount) ? commentCount : 0,
+                likedSet.Contains(x.Id)
+            );
+        }).ToList();
 
         return Ok(new { total, items });
     }
@@ -352,7 +381,6 @@ public class GroupsController : ControllerBase
         {
             var parentExists = await _db.Set<MemoryComment>()
                 .AnyAsync(x => x.Id == req.ParentCommentId && x.MemoryId == memoryId);
-
             if (!parentExists) return BadRequest("Parent comment not found.");
         }
 

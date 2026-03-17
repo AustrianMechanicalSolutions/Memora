@@ -2,7 +2,7 @@
   position: relative;
   width: min(1180px, 100%);
   margin: 0 auto;
-  padding: 32px 20px 48px;
+  padding: 28px 20px 42px;
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', sans-serif;
 }
@@ -60,20 +60,23 @@
 .distribution,
 .state,
 .empty-state {
-  border-radius: 30px;
+  border-radius: 26px;
 }
 
 .hero {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
+  gap: 16px;
   align-items: flex-end;
-  padding: 28px;
-  margin-bottom: 18px;
+  flex-wrap: wrap;
+  padding: 24px;
+  margin-bottom: 16px;
 }
 
 .hero-copy {
   max-width: 740px;
+  flex: 1 1 360px;
+  min-width: 0;
 }
 
 .eyebrow,
@@ -111,8 +114,8 @@
 .hero-pill {
   display: inline-flex;
   align-items: center;
-  min-height: 36px;
-  padding: 0 14px;
+  min-height: 32px;
+  padding: 0 12px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -125,15 +128,16 @@
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  flex: 1 1 220px;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
-  padding: 0 18px;
-  border-radius: 18px;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 16px;
   border: 1px solid transparent;
   text-decoration: none;
   color: inherit;
@@ -165,8 +169,8 @@
 .distribution,
 .state,
 .empty-state {
-  padding: 22px;
-  margin-bottom: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
 }
 
 .panel-head {
@@ -174,7 +178,12 @@
   justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
-  margin-bottom: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.panel-head > div {
+  min-width: 0;
 }
 
 .panel-head h2 {
@@ -190,8 +199,8 @@
 
 .toggle-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
 }
 
 .toggle-card,
@@ -214,9 +223,9 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-height: 110px;
-  padding: 16px;
-  border-radius: 22px;
+  min-height: 78px;
+  padding: 12px;
+  border-radius: 18px;
 }
 
 .toggle-card.active,
@@ -242,17 +251,17 @@
 .chip-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
+  gap: 8px;
+  margin-top: 14px;
 }
 
 .metric-chip {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 146px;
-  padding: 12px 14px;
-  border-radius: 18px;
+  min-width: 110px;
+  padding: 8px 10px;
+  border-radius: 14px;
 }
 
 .metric-chip span {
@@ -272,8 +281,8 @@
 .segment {
   text-decoration: none;
   color: var(--text-primary);
-  min-height: 46px;
-  padding: 0 16px;
+  min-height: 38px;
+  padding: 0 12px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
@@ -290,15 +299,15 @@
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  margin-bottom: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .tile {
-  min-height: 186px;
-  padding: 18px 18px 16px;
-  border-radius: 28px;
+  min-height: 118px;
+  padding: 12px;
+  border-radius: 18px;
 }
 
 .tile.primary {
@@ -329,16 +338,16 @@
 
 .tile-value {
   display: block;
-  margin-top: 20px;
-  font-size: clamp(38px, 5vw, 54px);
+  margin-top: 14px;
+  font-size: clamp(32px, 4.8vw, 48px);
   line-height: 0.95;
   letter-spacing: -0.06em;
 }
 
 .tile-description {
-  margin: 14px 0 0;
+  margin: 10px 0 0;
   color: rgba(214, 224, 234, 0.68);
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 .tile-hint {
@@ -387,7 +396,7 @@
 }
 
 .bar-track {
-  height: 14px;
+  height: 12px;
   border-radius: 999px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.04);
@@ -439,25 +448,37 @@ html[data-theme='light'] .aurora-right {
 
 html[data-theme='light'] .glass-panel,
 html[data-theme='light'] .glass-card {
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(248, 250, 252, 0.76)),
-    radial-gradient(circle at top left, rgba(168, 85, 247, 0.08), transparent 38%),
-    rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(203, 213, 225, 0.7);
+  background: linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
   box-shadow:
-    0 22px 52px rgba(99, 102, 241, 0.08),
-    0 12px 24px rgba(15, 23, 42, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+    0 12px 26px rgba(15, 23, 42, 0.08),
+    0 6px 12px rgba(15, 23, 42, 0.04);
 }
 
 html[data-theme='light'] .glass-panel::after,
 html[data-theme='light'] .glass-card::after {
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0.38), transparent 42%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), transparent 70%);
+}
+
+html[data-theme='light'] .glass-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fe 100%);
 }
 
 html[data-theme='light'] .eyebrow,
 html[data-theme='light'] .panel-kicker {
   color: rgba(71, 85, 105, 0.74);
+}
+
+html[data-theme='light'] .stats-page {
+  color: #0f172a;
+}
+
+html[data-theme='light'] .headline {
+  color: #0f172a;
+}
+
+html[data-theme='light'] .subline {
+  color: rgba(51, 65, 85, 0.86);
 }
 
 html[data-theme='light'] .subline,
@@ -476,17 +497,19 @@ html[data-theme='light'] .metric-chip,
 html[data-theme='light'] .segment,
 html[data-theme='light'] .btn.frosted,
 html[data-theme='light'] .btn.subtle {
-  background: rgba(255, 255, 255, 0.56);
-  border-color: rgba(148, 163, 184, 0.22);
+  background: #ffffff;
+  border-color: rgba(148, 163, 184, 0.32);
   color: #0f172a;
+  box-shadow: 0 6px 12px rgba(15, 23, 42, 0.06);
 }
 
 html[data-theme='light'] .toggle-card.active,
 html[data-theme='light'] .metric-chip.active,
 html[data-theme='light'] .segment.active,
 html[data-theme='light'] .segment.all {
-  background: linear-gradient(180deg, rgba(168, 85, 247, 0.14), rgba(255, 255, 255, 0.82));
-  border-color: rgba(168, 85, 247, 0.26);
+  background: linear-gradient(180deg, rgba(168, 85, 247, 0.14), rgba(255, 255, 255, 0.98));
+  border-color: rgba(139, 92, 246, 0.38);
+  box-shadow: 0 10px 16px rgba(99, 102, 241, 0.16);
 }
 
 html[data-theme='light'] .btn.accent {
@@ -498,22 +521,23 @@ html[data-theme='light'] .tile {
   border-color: rgba(148, 163, 184, 0.2);
 }
 
-html[data-theme='light'] .tile.primary {
+html[data-theme='light'] .tile.primary,
+html[data-theme='light'] .tile.accent {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 250, 252, 0.82)),
-    radial-gradient(circle at top right, rgba(246, 181, 98, 0.14), transparent 36%),
-    rgba(255, 255, 255, 0.76);
+    linear-gradient(160deg, #ffffff 0%, #f7f9ff 100%);
 }
 
 html[data-theme='light'] .tile.accent {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 250, 252, 0.82)),
-    radial-gradient(circle at top right, rgba(168, 85, 247, 0.12), transparent 36%),
-    rgba(255, 255, 255, 0.76);
+    linear-gradient(160deg, #ffffff 0%, #fdf8ff 100%);
 }
 
 html[data-theme='light'] .tile-label {
-  color: rgba(71, 85, 105, 0.86);
+  color: rgba(30, 41, 59, 0.9);
+}
+
+html[data-theme='light'] .tile-value {
+  color: #0b1220;
 }
 
 html[data-theme='light'] .tile-hint {
@@ -569,5 +593,103 @@ html[data-theme='light'] .state.error {
 
   .bar-value {
     text-align: left;
+  }
+}
+
+@media (max-width: 600px) {
+  .stats-page {
+    padding: 18px 12px 32px;
+  }
+
+  .hero {
+    padding: 18px;
+  }
+
+  .headline {
+    font-size: clamp(30px, 10vw, 44px);
+  }
+
+  .subline {
+    font-size: 15px;
+  }
+
+  .hero-actions {
+    width: 100%;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+  }
+
+  .hero-pills {
+    gap: 8px;
+  }
+
+  .hero-pill {
+    min-height: 30px;
+    font-size: 12px;
+  }
+
+  .customize-panel,
+  .group-switch,
+  .distribution,
+  .state,
+  .empty-state {
+    padding: 14px;
+  }
+
+  .toggle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chip-grid {
+    gap: 6px;
+  }
+
+  .metric-chip {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .segmented {
+    gap: 8px;
+  }
+
+  .segment {
+    width: 100%;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .tile {
+    min-height: 110px;
+  }
+
+  .tile-value {
+    font-size: clamp(28px, 10vw, 40px);
+  }
+
+  .bar-row {
+    gap: 10px;
+  }
+
+  .bar-track {
+    height: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .stats-page {
+    padding: 16px 10px 28px;
+  }
+
+  .hero {
+    padding: 16px;
+  }
+
+  .toggle-card {
+    min-height: 70px;
   }
 }

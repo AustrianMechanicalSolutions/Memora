@@ -165,7 +165,7 @@ export class AlbumDetailComponent {
     const found = this.memberById[this.activeMemory.createdByUserId];
     this.activeUploader = found
       ? { name: found.name, avatarUrl: found.avatarUrl ?? null }
-      : { name: 'Unknown', avatarUrl: null };
+      : { name: this.i18n.translate('album.unknownUser'), avatarUrl: null };
   }
 
   loadComments() {

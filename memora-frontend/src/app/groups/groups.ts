@@ -30,10 +30,9 @@ export interface MemoryDto {
   createdAt: string;
   createdByUserId: string;
   tags: string[];
-  albumId?: string | null;
-  likeCount: number;
-  commentCount: number;
-  isLiked: boolean;
+  likeCount?: number;
+  commentCount?: number;
+  isLiked?: boolean;
 }
 
 export interface CommentDto {

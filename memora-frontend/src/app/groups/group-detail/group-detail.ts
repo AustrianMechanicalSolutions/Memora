@@ -5,6 +5,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '../../translate.pipe';
+import { AppLanguage, I18nService } from '../../i18n.service';
 
 @Component({
   selector: 'app-group-detail',
@@ -74,6 +75,7 @@ export class GroupDetailComponent {
     private route: ActivatedRoute,
     private router: Router,
     private groupsService: GroupsService,
+    private i18n: I18nService,
   ) {}
 
   ngOnInit() {
@@ -320,9 +322,9 @@ export class GroupDetailComponent {
   // Stats
   timeSince(createdAt: string): string {
     const start = new Date(createdAt);
-    const now = new Date();
+    if (Number.isNaN(start.getTime())) return '';
 
-    const diffMs = now.getTime() - start.getTime();
+    const diffMs = Date.now() - start.getTime();
     const diffSeconds = Math.floor(diffMs / 1000);
 
     const minute = 60;
@@ -332,38 +334,73 @@ export class GroupDetailComponent {
     const month = 30 * day;
     const year = 365 * day;
 
+    const rtf = this.getRelativeTimeFormat();
+    if (!rtf) {
+      // Fallback (English)
+      const s = Math.max(diffSeconds, 1);
+      if (diffSeconds < minute) return `${s} second${s === 1 ? '' : 's'} ago`;
+      if (diffSeconds < hour) {
+        const m = Math.floor(diffSeconds / minute);
+        return `${m} minute${m === 1 ? '' : 's'} ago`;
+      }
+      if (diffSeconds < day) {
+        const h = Math.floor(diffSeconds / hour);
+        return `${h} hour${h === 1 ? '' : 's'} ago`;
+      }
+      if (diffSeconds < week) {
+        const d = Math.floor(diffSeconds / day);
+        return `${d} day${d === 1 ? '' : 's'} ago`;
+      }
+      if (diffSeconds < month) {
+        const w = Math.floor(diffSeconds / week);
+        return `${w} week${w === 1 ? '' : 's'} ago`;
+      }
+      if (diffSeconds < year) {
+        const mo = Math.floor(diffSeconds / month);
+        return `${mo} month${mo === 1 ? '' : 's'} ago`;
+      }
+      const y = Math.floor(diffSeconds / year);
+      return `${y} year${y === 1 ? '' : 's'} ago`;
+    }
+
     if (diffSeconds < minute) {
       const s = Math.max(diffSeconds, 1);
-      return `${s} second${s === 1 ? '' : 's'} ago`;
+      return rtf.format(-s, 'second');
     }
 
     // Minutes
     if (diffSeconds < hour) {
       const m = Math.floor(diffSeconds / minute);
-      return `${m} minute${m === 1 ? '' : 's'} ago`;
+      return rtf.format(-m, 'minute');
     }
 
     if (diffSeconds < day) {
       const h = Math.floor(diffSeconds / hour);
-      return `${h} hour${h === 1 ? '' : 's'} ago`;
+      return rtf.format(-h, 'hour');
     }
 
     if (diffSeconds < week) {
       const d = Math.floor(diffSeconds / day);
-      return `${d} day${d === 1 ? '' : 's'} ago`;
+      return rtf.format(-d, 'day');
     }
 
     if (diffSeconds < month) {
       const w = Math.floor(diffSeconds / week);
-      return `${w} week${w === 1 ? '' : 's'} ago`;
+      return rtf.format(-w, 'week');
     }
 
     if (diffSeconds < year) {
       const mo = Math.floor(diffSeconds / month);
-      return `${mo} month${mo === 1 ? '' : 's'} ago`;
+      return rtf.format(-mo, 'month');
     }
 
     const y = Math.floor(diffSeconds / year);
-    return `${y} year${y === 1 ? '' : 's'} ago`;
+    return rtf.format(-y, 'year');
+  }
+
+  private getRelativeTimeFormat(): Intl.RelativeTimeFormat | null {
+    if (typeof Intl === 'undefined' || !Intl.RelativeTimeFormat) return null;
+    const lang: AppLanguage = this.i18n.currentLanguage;
+    return new Intl.RelativeTimeFormat(lang, { numeric: 'always' });
   }
 }

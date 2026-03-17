@@ -7,9 +7,9 @@ import { RouterModule } from '@angular/router';
 import QRCode from 'qrcode';
 import { TwoFactorService, TwoFactorSetupResponse } from './twofactor';
 import { ThemeService } from '../../theme.service';
-import { AuthService } from '../auth.service';
 import { TranslatePipe } from '../../translate.pipe';
 import { AppLanguage, I18nService } from '../../i18n.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-settings',
@@ -58,8 +58,8 @@ export class SettingsComponent {
     private http: HttpClient,
     private twoFactor: TwoFactorService,
     private theme: ThemeService,
-    private auth: AuthService,
-    private i18n: I18nService
+    private i18n: I18nService,
+    private auth: AuthService
   ) {}
 
   get themeMode() {
