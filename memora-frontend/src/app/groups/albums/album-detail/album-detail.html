@@ -75,23 +75,21 @@
         <!-- Photo / Video -->
         <ng-container *ngIf="m.type !== 2">
           <img
-            *ngIf="m.type === 0 && isImage(m.mediaUrl) && !mediaFailed(m.mediaUrl)"
+            *ngIf="m.type === 0 && !mediaFailed(m.mediaUrl)"
             class="wall-media"
-            [src]="mediaSrc(m.mediaUrl)"
-            [alt]="m.title || 'Memory image'"
-            (error)="onMediaError(m.mediaUrl)"
+            [src]="imageSrcMap.get(m.mediaUrl!)"
           />
 
           <video
-            *ngIf="m.type === 1 && isVideo(m.mediaUrl) && !mediaFailed(m.mediaUrl)"
+            *ngIf="m.type === 1 && !mediaFailed(m.mediaUrl)"
             class="wall-media"
             controls
-            [src]="mediaSrc(m.mediaUrl)"
+            [src]="imageSrcMap.get(m.mediaUrl!)"
             (error)="onMediaError(m.mediaUrl)"
           ></video>
 
-          <div *ngIf="m.type === 0 && (!isImage(m.mediaUrl) || mediaFailed(m.mediaUrl))" class="media-error">{{ 'album.imageLoadError' | t }}</div>
-          <div *ngIf="m.type === 1 && (!isVideo(m.mediaUrl) || mediaFailed(m.mediaUrl))" class="media-error">{{ 'album.videoLoadError' | t }}</div>
+          <div *ngIf="m.type === 0 && mediaFailed(m.mediaUrl)" class="media-error">{{ 'album.imageLoadError' | t }}</div>
+          <div *ngIf="m.type === 1 && mediaFailed(m.mediaUrl)" class="media-error">{{ 'album.videoLoadError' | t }}</div>
 
           <div class="wall-date">
             {{ m.happenedAt | date:'dd/MM/yyyy' }}
@@ -151,21 +149,21 @@
         <div class="memory-media">
           <ng-container *ngIf="m.type !== 2">
             <img
-              *ngIf="m.type === 0 && isImage(m.mediaUrl) && !mediaFailed(m.mediaUrl)"
-              [src]="mediaSrc(m.mediaUrl)"
+              *ngIf="m.type === 0 && !mediaFailed(m.mediaUrl)"
+              [src]="imageSrcMap.get(m.mediaUrl!)"
               [alt]="m.title || 'Memory image'"
               (error)="onMediaError(m.mediaUrl)"
             />
 
             <video
-              *ngIf="m.type === 1 && isVideo(m.mediaUrl) && !mediaFailed(m.mediaUrl)"
+              *ngIf="m.type === 1 && !mediaFailed(m.mediaUrl)"
               controls
-              [src]="mediaSrc(m.mediaUrl)"
+              [src]="imageSrcMap.get(m.mediaUrl!)"
               (error)="onMediaError(m.mediaUrl)"
             ></video>
 
-            <div *ngIf="m.type === 0 && (!isImage(m.mediaUrl) || mediaFailed(m.mediaUrl))" class="media-error">{{ 'album.imageLoadError' | t }}</div>
-            <div *ngIf="m.type === 1 && (!isVideo(m.mediaUrl) || mediaFailed(m.mediaUrl))" class="media-error">{{ 'album.videoLoadError' | t }}</div>
+            <div *ngIf="m.type === 0 && mediaFailed(m.mediaUrl)" class="media-error">{{ 'album.imageLoadError' | t }}</div>
+            <div *ngIf="m.type === 1 && mediaFailed(m.mediaUrl)" class="media-error">{{ 'album.videoLoadError' | t }}</div>
           </ng-container>
 
           <div class="quote-full" *ngIf="m.type === 2">

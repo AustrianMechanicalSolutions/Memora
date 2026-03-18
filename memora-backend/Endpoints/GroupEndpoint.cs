@@ -151,8 +151,12 @@ public class GroupsController : ControllerBase
                 .Where(v => !string.IsNullOrWhiteSpace(v))
                 .ToList();
 
+            var protectedMediaUrl = !string.IsNullOrWhiteSpace(x.MediaUrl)
+                ? $"/api/groups/{x.GroupId}/memories/{x.Id}/media"
+                : null;
+
             return new MemoryDto(
-                x.Id, x.GroupId, x.Type, x.Title, x.QuoteText, x.QuoteBy, x.MediaUrl, x.ThumbUrl,
+                x.Id, x.GroupId, x.Type, x.Title, x.QuoteText, x.QuoteBy, protectedMediaUrl, x.ThumbUrl,
                 x.HappenedAt, x.CreatedAt, x.CreatedByUserId,
                 tags != null && tags.Count > 0 ? tags : null,
                 x.AlbumId,
@@ -278,6 +282,58 @@ public class GroupsController : ControllerBase
             0,
             false
         ));
+    }
+
+    [HttpGet("{groupId:guid}/memories/{memoryId:guid}/media")]
+    public async Task<IActionResult> GetMemoryMedia(Guid groupId, Guid memoryId)
+    {
+        var uid = User.UserId();
+
+        var isMember = await _db.Set<GroupMember>()
+            .AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+
+        if (!isMember)
+            return Forbid();
+
+        var memory = await _db.Set<Memory>()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == memoryId && x.GroupId == groupId);
+
+        if (memory == null)
+            return NotFound();
+
+        if (string.IsNullOrWhiteSpace(memory.MediaUrl))
+            return NotFound();
+
+        var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+        var uploadsFolder = Path.Combine(webRootPath, "uploads");
+
+        // if MediaUrl stores just the filename
+        var fileName = Path.GetFileName(memory.MediaUrl);
+        var filePath = Path.Combine(uploadsFolder, fileName);
+
+        if (!System.IO.File.Exists(filePath))
+            return NotFound();
+
+        var contentType = GetContentType(filePath);
+        return PhysicalFile(filePath, contentType);
+    }
+
+    private static string GetContentType(string path)
+    {
+        var ext = Path.GetExtension(path).ToLowerInvariant();
+
+        return ext switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".webp" => "image/webp",
+            ".mp4" => "video/mp4",
+            ".mov" => "video/quicktime",
+            ".webm" => "video/webm",
+            _ => "application/octet-stream"
+        };
     }
 
     [HttpPost("{groupId:guid}/memories/{memoryId:guid}/likes")]
