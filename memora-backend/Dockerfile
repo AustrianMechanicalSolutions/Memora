@@ -15,8 +15,4 @@ WORKDIR /app
 COPY --from=build /app/out .
 
 EXPOSE 8080
-<<<<<<< HEAD
 ENTRYPOINT ["dotnet", "memora-backend.dll"] 
-=======
-ENTRYPOINT ["dotnet", "memora-backend.dll"]
->>>>>>> origin/main
