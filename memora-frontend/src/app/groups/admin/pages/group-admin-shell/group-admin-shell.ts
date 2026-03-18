@@ -10,6 +10,7 @@ import { AlbumsComponent } from '../albums/albums';
 import { MemoriesComponent } from '../memories/memories';
 import { MembersComponent } from '../members/members';
 import { DashboardComponent } from '../dashboard/dashboard';
+import { TranslatePipe } from '../../../../translate.pipe';
 
 @Component({
   selector: 'app-group-admin-shell',
@@ -17,7 +18,8 @@ import { DashboardComponent } from '../dashboard/dashboard';
   imports: [
     CommonModule,
     RouterModule,
-    FormsModule
+    FormsModule,
+    TranslatePipe
   ],
   templateUrl: './group-admin-shell.html',
   styleUrls: ['./group-admin-shell.css']

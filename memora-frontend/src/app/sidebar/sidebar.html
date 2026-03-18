@@ -3,7 +3,7 @@
     <a routerLink="/home" routerLinkActive="active" class="nav-link logo-link">
       <img src="/memora-logo.png" alt="Memora Logo" class="logo-icon" (error)="$event.target.onerror=null; $event.target.src='/memora-logo.ico'" />
       <span class="logo-fallback">🏠</span>
-      <span class="label">Your Memora</span>
+      <span class="label">{{ 'sidebar.home' | t }}</span>
     </a>
   </div>
 
@@ -12,7 +12,7 @@
       <li class="nav-item">
         <a routerLink="/groups" routerLinkActive="active" class="nav-link">
           <span class="icon">⧉</span>
-          <span class="label">Groups</span>
+          <span class="label">{{ 'sidebar.groups' | t }}</span>
         </a>
         <ul class="groups-sublist" *ngIf="groups.length > 0">
           <li class="group-subitem" *ngFor="let group of groups">
@@ -34,7 +34,7 @@
                   routerLinkActive="active"
                   class="group-link">
                   <span class="group-indicator">├</span>
-                  <span class="group-name">Dashboard</span>
+                  <span class="group-name">{{ 'sidebar.dashboard' | t }}</span>
                 </a>
               </li>
 
@@ -43,7 +43,7 @@
                   routerLinkActive="active"
                   class="group-link">
                   <span class="group-indicator">├</span>
-                  <span class="group-name">Members</span>
+                  <span class="group-name">{{ 'sidebar.members' | t }}</span>
                 </a>
               </li>
 
@@ -52,7 +52,7 @@
                   routerLinkActive="active"
                   class="group-link">
                   <span class="group-indicator">├</span>
-                  <span class="group-name">Memories</span>
+                  <span class="group-name">{{ 'sidebar.memories' | t }}</span>
                 </a>
               </li>
 
@@ -61,7 +61,7 @@
                   routerLinkActive="active"
                   class="group-link">
                   <span class="group-indicator">├</span>
-                  <span class="group-name">Albums</span>
+                  <span class="group-name">{{ 'sidebar.albums' | t }}</span>
                 </a>
               </li>
 
@@ -70,7 +70,7 @@
                   routerLinkActive="active"
                   class="group-link">
                   <span class="group-indicator">└</span>
-                  <span class="group-name">Settings</span>
+                  <span class="group-name">{{ 'sidebar.settings' | t }}</span>
                 </a>
               </li>
 
@@ -84,13 +84,13 @@
 
   <div class="sidebar-footer">
     <button class="theme-toggle" type="button" (click)="toggleTheme()">
-      <span class="label">Theme</span>
+      <span class="label">{{ 'sidebar.theme' | t }}</span>
       <span class="switch" [class.on]="themeMode === 'dark'">
         <span class="switch-thumb"></span>
       </span>
     </button>
     <div class="stats-item">
-      <a routerLink="/stats" routerLinkActive="active-icon" class="user-button" title="View Stats">
+      <a routerLink="/stats" routerLinkActive="active-icon" class="user-button" [title]="'sidebar.viewStats' | t">
         <img 
           *ngIf="userProfileImageUrl" 
           [src]="userProfileImageUrl" 
@@ -105,7 +105,7 @@
     </div>
     <button class="logout-button" type="button" (click)="logout()">
       <span class="logout-icon" aria-hidden="true">&#x21AA;</span>
-      <span class="logout-label">Log out</span>
+      <span class="logout-label">{{ 'sidebar.logout' | t }}</span>
     </button>
   </div>
 </aside>
