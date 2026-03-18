@@ -225,7 +225,7 @@ public class GroupsController : ControllerBase
 
         if (req.File != null && req.File.Length > 0)
         {
-            var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+            var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath);
             var uploadsFolder = Path.Combine(webRootPath, "uploads");
             Directory.CreateDirectory(uploadsFolder);
 
@@ -278,6 +278,53 @@ public class GroupsController : ControllerBase
             0,
             false
         ));
+    }
+
+    [HttpGet("{groupId:guid}/memories/{memoryId:guid}/media")]
+    public async Task<IActionResult> GetMemoryMedia(Guid groupId, Guid memoryId)
+    {
+        var uid = User.UserId();
+
+        var isMember = await _db.Set<GroupMember>()
+            .AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
+
+        if (!isMember) return Forbid();
+
+        var memory = await _db.Set<Memory>()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == memoryId && x.GroupId == groupId);
+
+        if (memory == null) return NotFound();
+        if (string.IsNullOrWhiteSpace(memory.MediaUrl)) return NotFound();
+
+        var uploadsRoot = Path.Combine(_environment.ContentRootPath, "uploads");
+
+        var fileName = Path.GetFileName(memory.MediaUrl);
+        var filePath = Path.Combine(uploadsRoot, fileName);
+
+        if (!System.IO.File.Exists(filePath)) return NotFound();
+
+        var contentType = GetContentType(filePath);
+
+        var stream = System.IO.File.OpenRead(filePath);
+        return File(stream, contentType);
+    }
+
+    private static string GetContentType(string path)
+    {
+        var ext = Path.GetExtension(path).ToLowerInvariant();
+
+        return ext switch
+        {
+            ".png" => "image/png",
+            ".jpg" => "image/jpeg",
+            ".jpeg" => "image/jpeg",
+            ".webp" => "image/webp",
+            ".gif" => "image/gif",
+            ".mp4" => "video/mp4",
+            ".mov" => "video/quicktime",
+            _ => "application/octet-stream"
+        };
     }
 
     [HttpPost("{groupId:guid}/memories/{memoryId:guid}/likes")]

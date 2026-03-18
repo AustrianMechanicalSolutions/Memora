@@ -61,7 +61,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 var webRootPath = app.Environment.WebRootPath ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
-var uploadsPath = Path.Combine(webRootPath, "uploads");
+var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
 
 Directory.CreateDirectory(uploadsPath);
 
@@ -69,12 +69,6 @@ app.UseHttpsRedirection();
 app.UseCors("frontend");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseStaticFiles();
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(uploadsPath),
-    RequestPath = "/uploads"
-});
 
 // ---- Ensure interaction tables exist (SQLite, no migrations) ----
 using (var scope = app.Services.CreateScope())
