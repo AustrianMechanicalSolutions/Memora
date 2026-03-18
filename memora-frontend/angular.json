@@ -54,10 +54,10 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
-          "host": "0.0.0.0",
-          "allowedHosts": ["memora.austrianms.at"],
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.json",
+            "host": "0.0.0.0",
+            "allowedHosts": ["memora.austrianms.at"]
           },
           "configurations": {
             "production": {
