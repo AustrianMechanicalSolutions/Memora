@@ -20,7 +20,7 @@ import { environment } from '../../../environment';
   styleUrls: ['./settings.css']
 })
 export class SettingsComponent {
-  private api = environment.apiUrl + '/api/account';
+  private api = `${environment.apiUrl}/api/account`
 
   loading = true;
   saving = false;

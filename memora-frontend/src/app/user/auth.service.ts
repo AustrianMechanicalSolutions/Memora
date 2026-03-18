@@ -27,8 +27,8 @@ export interface CurrentUser {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly apiUrl = environment.apiUrl + '/api/auth';
-  private readonly accountUrl = environment.apiUrl + '/api/account';
+  private readonly apiUrl = `${environment.apiUrl}/api/auth`;
+  private readonly accountUrl = `${environment.apiUrl}/api/account`;
   private loggedInSubject = new BehaviorSubject<boolean>(!!this.token);
   loggedIn$ = this.loggedInSubject.asObservable();
   private profileChangedSubject = new Subject<void>();

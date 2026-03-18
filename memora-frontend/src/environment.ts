@@ -1,3 +1,5 @@
 export const environment = {
-    apiUrl: "https://api.austrianms.at"
+    apiUrl: window.location.hostname === 'localhost'
+    ? 'http://localhost:5000'
+    : 'https://api.memora.at'
 };

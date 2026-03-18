@@ -2,9 +2,11 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { GroupsService, AlbumDto, MemoryDto, AlbumPersonDto, CommentDto } from '../../groups';
 import { TranslatePipe } from '../../../translate.pipe';
 import { I18nService } from '../../../i18n.service';
+import { environment } from '../../../../environment';
 
 @Component({
   selector: 'app-album-detail',
@@ -61,11 +63,16 @@ export class AlbumDetailComponent {
   personQuery = '';
   personResults: { userId: string; name: string; role: string; avatarUrl?: string | null }[] = [];
 
+  // Security
+  imageSrcMap = new Map<string, string>();
+  loadingSet = new Set<string>();
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private groupsService: GroupsService,
-    private i18n: I18nService
+    private i18n: I18nService,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -116,7 +123,15 @@ export class AlbumDetailComponent {
     if (this.albumId != 'all') query.albumId = this.albumId;
     
     this.groupsService.memories(this.groupId, query).subscribe({
-      next: (r) => this.items = r.items,
+      next: (r) => {
+        this.items = r.items;
+
+        this.items.forEach(m => {
+          if (m.type === 0 || m.type === 1) {
+            this.loadMedia(m.mediaUrl);
+          }
+        });
+      },
       error: (err) => console.error(err)
     });
   }
@@ -132,6 +147,26 @@ export class AlbumDetailComponent {
         this.updateActiveUploader();
       },
       error: (err) => console.error(err)
+    });
+  }
+
+  loadMedia(url?: string | null) {
+    if (!url || this.imageSrcMap.has(url) || this.loadingSet.has(url)) return;
+
+    this.loadingSet.add(url);
+
+    const fullUrl = environment.apiUrl + url;
+
+    this.http.get(fullUrl, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const objectUrl = URL.createObjectURL(blob);
+        this.imageSrcMap.set(url, objectUrl);
+        this.loadingSet.delete(url);
+      },
+      error: (err) => {
+        console.error('Media load failed', err);
+        this.loadingSet.delete(url);
+      }
     });
   }
 
@@ -473,7 +508,9 @@ export class AlbumDetailComponent {
 
   isImage(url: string | null | undefined): boolean {
     if (!url) return false;
-    return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+    const result = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+    console.log("Image? " + result + "    " + url)
+    return result;
   }
 
   isVideo(url: string | null | undefined): boolean {
@@ -481,14 +518,16 @@ export class AlbumDetailComponent {
     return /\.(mp4|webm|mov)$/i.test(url);
   }
 
-  mediaSrc(url: string | null | undefined): string | null {
+  mediaSrc(url?: string | null): string | null {
     if (!url) return null;
-    if (/^https?:\/\//i.test(url)) return url;
-    const normalizedUrl = url.startsWith('/') ? url : `/${url}`;
-    return `${this.backendOrigin}${normalizedUrl}`;
+
+    const token = localStorage.getItem('token');
+
+    return `${environment.apiUrl}${url}?token=${token}`;
   }
 
   mediaFailed(url: string | null | undefined): boolean {
+    console.log("media failed");
     return !!url && this.failedMedia.has(url);
   }
 
