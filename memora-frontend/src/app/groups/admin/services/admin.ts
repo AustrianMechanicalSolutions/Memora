@@ -129,20 +129,17 @@ export class GroupAdminService {
     return this.http.get<GroupMemberDto[]>(`${this.base}/${groupId}/members`);
   }
 
-  // PLACEHOLDER: Endpoint not in backend yet
   changeMemberRole(groupId: string, userId: number, role: string): Observable<void> {
-    console.warn('[PLACEHOLDER] changeMemberRole() needs backend endpoint');
-    return new Observable<void>((subscriber) => {
-      subscriber.error('PLACEHOLDER: changeMemberRole endpoint missing');
-    });
+    return this.http.put<void>(
+      `${this.base}/${groupId}/members/${userId}/role`,
+      role
+    );
   }
 
-  // PLACEHOLDER: Endpoint not in backend yet
   removeMember(groupId: string, userId: number): Observable<void> {
-    console.warn('[PLACEHOLDER] removeMember() needs backend endpoint');
-    return new Observable<void>((subscriber) => {
-      subscriber.error('PLACEHOLDER: removeMember endpoint missing');
-    });
+    return this.http.delete<void>(
+      `${this.base}/${groupId}/members/${userId}`
+    );
   }
 
   // ===== Memories =====

@@ -87,7 +87,6 @@
             class="wall-media"
             controls
             [src]="mediaSrc(m.mediaUrl)"
-            (error)="onMediaError(m.mediaUrl)"
           ></video>
 
           <div *ngIf="m.type === 0 && (!isImage(m.mediaUrl) || mediaFailed(m.mediaUrl))" class="media-error">{{ 'album.imageLoadError' | t }}</div>
