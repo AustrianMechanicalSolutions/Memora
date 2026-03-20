@@ -33,10 +33,10 @@ export interface GroupWeeklyActivityDto {
 }
 
 export interface GroupMemberDto {
-  userId: number;
-  displayName: string;
+  userId: string;
+  name: string;
   role: string;
-  profileImageUrl?: string | null;
+  avatarUrl?: string | null;
 }
 
 export interface GroupMemberActivityDto {
@@ -129,14 +129,14 @@ export class GroupAdminService {
     return this.http.get<GroupMemberDto[]>(`${this.base}/${groupId}/members`);
   }
 
-  changeMemberRole(groupId: string, userId: number, role: string): Observable<void> {
-    return this.http.put<void>(
+  changeMemberRole(groupId: string, userId: string, role: string) {
+    return this.http.put(
       `${this.base}/${groupId}/members/${userId}/role`,
-      role
+      { Role: role }
     );
   }
 
-  removeMember(groupId: string, userId: number): Observable<void> {
+  removeMember(groupId: string, userId: string): Observable<void> {
     return this.http.delete<void>(
       `${this.base}/${groupId}/members/${userId}`
     );

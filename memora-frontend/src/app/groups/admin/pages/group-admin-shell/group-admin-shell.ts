@@ -18,8 +18,7 @@ import { TranslatePipe } from '../../../../translate.pipe';
   imports: [
     CommonModule,
     RouterModule,
-    FormsModule,
-    TranslatePipe
+    FormsModule
   ],
   templateUrl: './group-admin-shell.html',
   styleUrls: ['./group-admin-shell.css']

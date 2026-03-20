@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+public record ChangeRoleRequest(string Role);
+
 [ApiController]
 [Route("api/groups")]
 [Authorize]
@@ -509,7 +511,7 @@ public class GroupsController : ControllerBase
         return Ok(members);
     }
 
-    [HttpDelete("{groupId:guid}/members/{userId:int}")]
+    [HttpDelete("{groupId:guid}/members/{userId:guid}")]
     public async Task<IActionResult> RemoveMember(Guid groupId, Guid userId)
     {
         var uid = User.UserId();
@@ -527,7 +529,7 @@ public class GroupsController : ControllerBase
 
         // prevent removing yourself (optional safety)
         if (target.UserId == uid)
-            return BadRequest("You cannot remove yourself.");
+            return StatusCode(403, "You cannot remove yourself.");
 
         _db.Remove(target);
         await _db.SaveChangesAsync();
@@ -535,8 +537,8 @@ public class GroupsController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("{groupId:guid}/members/{userId:int}/role")]
-    public async Task<IActionResult> ChangeRole(Guid groupId, Guid userId, [FromBody] string role)
+    [HttpPut("{groupId:guid}/members/{userId:guid}/role")]
+    public async Task<IActionResult> ChangeRole(Guid groupId, Guid userId, [FromBody] ChangeRoleRequest req)
     {
         var uid = User.UserId();
 
@@ -551,15 +553,24 @@ public class GroupsController : ControllerBase
 
         if (target == null) return NotFound();
 
-        if (!Enum.TryParse<GroupRole>(role, true, out var newRole))
+        if (!Enum.TryParse<GroupRole>(req.Role, true, out var newRole))
             return BadRequest("Invalid role.");
+
+        if (target.Role == GroupRole.Admin && newRole != GroupRole.Admin)
+        {
+            var adminCount = await _db.Set<GroupMember>()
+                .CountAsync(x => x.GroupId == groupId && x.Role == GroupRole.Admin);
+
+            if (adminCount <= 1)
+                return StatusCode(403, "Group must have at least one admin.");
+        }
 
         target.Role = newRole;
 
         await _db.SaveChangesAsync();
 
         return NoContent();
-}
+    }
 
     [HttpGet("{groupId:guid}/stats")]
     public async Task<ActionResult<GroupStatsDto>> Stats(Guid groupId)
@@ -688,4 +699,6 @@ public class GroupsController : ControllerBase
 
         return Ok(result);
     }
+
+
 }

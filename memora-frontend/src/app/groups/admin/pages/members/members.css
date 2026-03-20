@@ -45,13 +45,17 @@
 
 .ga-table th {
   text-align: left;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-secondary);
-  padding-bottom: 10px;
+  font-size: 13px;
+  padding: 12px 8px;
 }
 
 .ga-table td {
-  padding: 12px 0;
+  padding: 12px 8px;
+}
+
+.ga-table tbody tr {
   border-top: 1px solid var(--border);
 }
 
@@ -105,4 +109,9 @@
 .role.admin {
   background: var(--accent-soft);
   color: var(--accent);
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
 }
