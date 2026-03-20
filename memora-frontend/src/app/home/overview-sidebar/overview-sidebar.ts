@@ -4,11 +4,12 @@ import { AuthService } from '../../user/auth.service';
 import { GroupsService, MemoryDto } from '../../groups/groups';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
+import { TranslatePipe } from '../../translate.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-overview-sidebar',
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './overview-sidebar.html',
   styleUrls: ['./overview-sidebar.css']
 })

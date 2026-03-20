@@ -1,24 +1,24 @@
 <div class="auth-container">
   <div class="auth-card">
-    <h2>Create Account ✨</h2>
+    <h2>{{ 'auth.register.title' | t }} ✨</h2>
 
     <input
       type="email"
-      placeholder="Email"
+      [placeholder]="'auth.email' | t"
       [(ngModel)]="email"
     />
 
     <input
       type="password"
-      placeholder="Password"
+      [placeholder]="'auth.password' | t"
       [(ngModel)]="password"
     />
 
-    <button (click)="register()">Register</button>
+    <button (click)="register()">{{ 'auth.register.button' | t }}</button>
 
     <p>
-      Already have an account?
-      <a routerLink="/login">Login</a>
+      {{ 'auth.register.haveAccount' | t }}
+      <a routerLink="/login">{{ 'auth.register.login' | t }}</a>
     </p>
   </div>
 </div>

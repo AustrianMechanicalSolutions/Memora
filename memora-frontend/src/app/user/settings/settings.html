@@ -1,65 +1,78 @@
 <div class="page">
   <div class="page-header">
     <div>
-      <h1>Account Settings</h1>
-      <p>Customize your profile and security settings.</p>
+      <h1>{{ 'settings.headerTitle' | t }}</h1>
+      <p>{{ 'settings.headerSub' | t }}</p>
     </div>
   </div>
 
   <div class="panel appearance-panel">
     <div class="panel-head">
-      <h2 class="panel-title">Appearance</h2>
+      <h2 class="panel-title">{{ 'settings.appearance' | t }}</h2>
       <button class="btn toggle" type="button" (click)="toggleTheme()">
-        {{ themeMode === 'dark' ? 'Switch to Light' : 'Switch to Dark' }}
+        {{ themeMode === 'dark' ? ('settings.switchToLight' | t) : ('settings.switchToDark' | t) }}
       </button>
     </div>
-    <p class="subtitle small">Purple stays. Everything else adapts.</p>
+    <p class="subtitle small">{{ 'settings.appearanceHint' | t }}</p>
+  </div>
+
+  <div class="panel appearance-panel">
+    <div class="panel-head">
+      <h2 class="panel-title">{{ 'settings.language' | t }}</h2>
+    </div>
+    <p class="subtitle small">{{ 'settings.languageHint' | t }}</p>
+    <div class="panel-head">
+      <button class="btn toggle" type="button" [class.primary]="language === 'de'" (click)="setLanguage('de')">
+        {{ 'settings.languageGerman' | t }}
+      </button>
+      <button class="btn toggle" type="button" [class.primary]="language === 'en'" (click)="setLanguage('en')">
+        {{ 'settings.languageEnglish' | t }}
+      </button>
+    </div>
   </div>
 
   <div class="panel stats-link-panel">
     <div class="panel-head">
-      <h2 class="panel-title">Meine Stats</h2>
-      <a class="btn primary" routerLink="/stats">Stats ansehen</a>
+      <h2 class="panel-title">{{ 'settings.statsTitle' | t }}</h2>
+      <a class="btn primary" routerLink="/stats">{{ 'settings.statsButton' | t }}</a>
     </div>
-    <p class="subtitle small">
-      Hier findest du gruppenuebergreifende Statistiken und kannst in Gruppen-Stats wechseln.
-    </p>
+    <p class="subtitle small">{{ 'settings.statsHint' | t }}</p>
   </div>
 
   <!-- PROFILE -->
   <section class="card">
     <div class="card-header">
-      <h2>Profile</h2>
+      <h2>{{ 'settings.profile' | t }}</h2>
       <button class="btn primary" (click)="saveProfile()" [disabled]="saving">
-        {{ saving ? 'Saving...' : 'Save' }}
+        {{ saving ? ('settings.saving' | t) : ('settings.save' | t) }}
       </button>
     </div>
 
     <div class="form-grid">
       <div class="form-group">
-        <label>Display name</label>
+        <label>{{ 'settings.displayName' | t }}</label>
         <input class="input" [(ngModel)]="profile.displayName" />
-        <span class="hint">Not your backend unique username.</span>
+        <span class="hint">{{ 'settings.displayNameHint' | t }}</span>
       </div>
 
       <div class="form-group">
-        <label>Status</label>
-        <input class="input" [(ngModel)]="profile.status" placeholder="e.g. chilling 😎" />
+        <label>{{ 'settings.status' | t }}</label>
+        <input class="input" [(ngModel)]="profile.status" [placeholder]="'settings.statusPlaceholder' | t" />
       </div>
 
       <div class="form-group">
-        <label>Birthdate</label>
+        <label>{{ 'settings.birthdate' | t }}</label>
         <input class="input" type="date" [(ngModel)]="profile.birthDate" />
       </div>
 
       <div class="field">
-        <label>Profile picture URL</label>
+        <label>{{ 'settings.profilePicture' | t }}</label>
         
         <div class="avatar-row">
           <img
             class="avatar"
             [src]="profile.profileImageUrl || '/profilePictures/Avatar_Placeholder.png'"
-            alt="Profile picture"
+            [alt]="'settings.profilePicture' | t"
           />
 
           <div class="avatar-actions">
@@ -72,7 +85,7 @@
             />
 
             <button class="btn secondary" type="button" (click)="fileInput.click()">
-              Change
+              {{ 'settings.change' | t }}
             </button>
 
             <button
@@ -81,16 +94,16 @@
               *ngIf="profile.profileImageUrl"
               (click)="removeProfileImage()"
             >
-              Remove
+              {{ 'settings.remove' | t }}
             </button>
           </div>
         </div>
 
-        <div class="hint">PNG / JPG, max 2MB</div>
+        <div class="hint">{{ 'settings.imageHint' | t }}</div>
       </div>
 
       <div class="form-group full">
-        <label>Bio</label>
+        <label>{{ 'settings.bio' | t }}</label>
         <textarea class="input textarea" [(ngModel)]="profile.bio"></textarea>
       </div>
     </div>
@@ -99,22 +112,22 @@
   <!-- CONTACT -->
   <section class="card">
     <div class="card-header">
-      <h2>Contact</h2>
+      <h2>{{ 'settings.contact' | t }}</h2>
     </div>
 
     <div class="form-grid">
       <div class="form-group">
-        <label>Email</label>
-        <input class="input" disabled placeholder="Email is your login" />
+        <label>{{ 'settings.email' | t }}</label>
+        <input class="input" disabled [placeholder]="'settings.emailHint' | t" />
       </div>
 
       <div class="form-group">
-        <label>Phone number</label>
+        <label>{{ 'settings.phone' | t }}</label>
         <input class="input" [(ngModel)]="profile.phoneNumber" />
       </div>
 
       <div class="form-group">
-        <label>Discord</label>
+        <label>{{ 'settings.discord' | t }}</label>
         <input class="input" [(ngModel)]="profile.discordTag" />
       </div>
     </div>
@@ -123,23 +136,23 @@
   <!-- SECURITY -->
   <section class="card">
     <div class="card-header">
-      <h2>Security</h2>
+      <h2>{{ 'settings.security' | t }}</h2>
     </div>
 
     <div class="form-grid">
       <div class="form-group">
-        <label>Current password</label>
+        <label>{{ 'settings.currentPassword' | t }}</label>
         <input type="password" class="input" [(ngModel)]="password.currentPassword" />
       </div>
 
       <div class="form-group">
-        <label>New password</label>
+        <label>{{ 'settings.newPassword' | t }}</label>
         <input type="password" class="input" [(ngModel)]="password.newPassword" />
       </div>
 
       <div class="form-group full">
         <button class="btn primary" (click)="changePassword()">
-          Change password
+          {{ 'settings.changePassword' | t }}
         </button>
       </div>
     </div>

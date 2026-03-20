@@ -6,10 +6,11 @@ import { ThemeService } from './theme.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, SidebarComponent, RouterLink],
+  imports: [CommonModule, RouterOutlet, SidebarComponent, RouterLink, TranslatePipe],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
