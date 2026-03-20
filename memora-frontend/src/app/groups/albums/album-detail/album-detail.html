@@ -86,12 +86,7 @@
             *ngIf="m.type === 1 && isVideo(m.mediaUrl) && !mediaFailed(m.mediaUrl)"
             class="wall-media"
             controls
-<<<<<<< HEAD
             [src]="mediaSrc(m.mediaUrl)"
-            (error)="onMediaError(m.mediaUrl)"
-=======
-            [src]="imageSrcMap.get(m.mediaUrl!)"
->>>>>>> 2e59967 (Fixed videos not loading)
           ></video>
 
           <div *ngIf="m.type === 0 && (!isImage(m.mediaUrl) || mediaFailed(m.mediaUrl))" class="media-error">{{ 'album.imageLoadError' | t }}</div>
