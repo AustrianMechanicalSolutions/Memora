@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '../../translate.pipe';
 import { AppLanguage, I18nService } from '../../i18n.service';
+import { AuthService } from '../../user/auth.service';
 
 @Component({
   selector: 'app-group-detail',
@@ -71,11 +72,15 @@ export class GroupDetailComponent {
   topVideoUserId?: string;
   topQuoteUserId?: string;
 
+  currentUserId: string | null = null;
+  isAdmin = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private groupsService: GroupsService,
     private i18n: I18nService,
+    private auth: AuthService
   ) {}
 
   ngOnInit() {
@@ -98,6 +103,10 @@ export class GroupDetailComponent {
       });
 
       this.loadAlbums();
+    });
+
+    this.auth.currentUser().subscribe(u => {
+      this.currentUserId = u.id;
     });
 
     this.loadAlbums();
@@ -200,6 +209,11 @@ export class GroupDetailComponent {
         this.members = r;
 
         this.creatorName = this.members.find(m => m.userId === this.group?.createdByUserId)?.name ?? 'Unknown';
+
+        const currentUserId = this.currentUserId;
+        this.isAdmin = this.members.some(
+          m => m.userId === currentUserId && m.role === 'Admin'
+        );
       },
       error: (err) => console.error(err)
     });
@@ -398,6 +412,10 @@ export class GroupDetailComponent {
 
     const y = Math.floor(diffSeconds / year);
     return rtf.format(-y, 'year');
+  }
+
+  goToAdmin() {
+    this.router.navigate(['/groups', this.groupId, 'admin']);
   }
 
   private getRelativeTimeFormat(): Intl.RelativeTimeFormat | null {

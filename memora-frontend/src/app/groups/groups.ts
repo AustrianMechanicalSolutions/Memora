@@ -109,7 +109,9 @@ export interface AlbumPersonDto {
   role: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class GroupsService {
   private baseUrl = '/api/groups';
   private groupsChangedSource = new Subject<void>();
@@ -244,5 +246,9 @@ export class GroupsService {
     return this.http.delete(
       `${this.baseUrl}/${groupId}/albums/${albumId}/people/${userId}`
     );
+  }
+
+  notifyGroupsChanged() {
+    this.groupsChangedSource.next();
   }
 }

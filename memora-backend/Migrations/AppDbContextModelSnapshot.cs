@@ -454,8 +454,6 @@ namespace memorabackend.Migrations
                     b.Navigation("Memory");
                 });
 
-<<<<<<< HEAD
-=======
             modelBuilder.Entity("Album", b =>
                 {
                     b.Navigation("Memories");
@@ -463,7 +461,6 @@ namespace memorabackend.Migrations
                     b.Navigation("People");
                 });
 
->>>>>>> origin/main
             modelBuilder.Entity("AuthApi.Models.AppUser", b =>
                 {
                     b.Navigation("GroupMembers");

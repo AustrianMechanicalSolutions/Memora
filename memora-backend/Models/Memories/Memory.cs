@@ -18,7 +18,6 @@ public class Memory
     public Album? Album { get; set; }
 
     public ICollection<MemoryTag> Tags { get; set; } = new List<MemoryTag>();
-    public Guid? AlbumId { get; set; }
 }
 
 public class MemoryTag
