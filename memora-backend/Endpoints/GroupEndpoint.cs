@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+public record ChangeRoleRequest(string Role);
+
 [ApiController]
 [Route("api/groups")]
 [Authorize]
@@ -78,7 +80,77 @@ public class GroupsController : ControllerBase
         if (!isMember) return Forbid();
 
         var g = await _db.Set<Group>().Include(x => x.Members).FirstAsync(x => x.Id == groupId);
-        return Ok(new GroupDetailDto(g.Id, g.Name, g.InviteCode, g.Members.Count, g.CreatedByUserId));
+
+        var owner = await _db.Set<AppUser>()
+            .Where(u => u.Id == g.CreatedByUserId)
+            .Select(u => u.DisplayName)
+            .FirstAsync();
+
+        return Ok(new GroupDetailInfoDto(g.Id, g.Name, g.InviteCode, g.Members.Count, owner));
+    }
+
+    [HttpPatch("{groupId:guid}")]
+    public async Task<IActionResult> Rename(Guid groupId, RenameGroupRequest req)
+    {
+        var uid = User.UserId();
+
+        var group = await _db.Set<Group>()
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+
+        if (group == null) return NotFound();
+
+        // optional: check permission
+        if (group.CreatedByUserId != uid)
+            return Forbid();
+
+        group.Name = req.Name;
+
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{groupId:guid}")]
+    public async Task<IActionResult> Delete(Guid groupId)
+    {
+        var uid = User.UserId();
+
+        var group = await _db.Set<Group>()
+            .Include(g => g.Members)
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+
+        if (group == null)
+            return NotFound();
+
+        if (group.CreatedByUserId != uid)
+            return StatusCode(403, "Only the owner can delete the group.");
+
+        _db.Remove(group);
+
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpPost("{groupId:guid}/invite/regenerate")]
+    public async Task<IActionResult> RegenerateInvite(Guid groupId)
+    {
+        var uid = User.UserId();
+
+        var group = await _db.Set<Group>()
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+
+        if (group == null)
+            return NotFound();
+
+        if (group.CreatedByUserId != uid)
+            return Forbid();
+
+        group.InviteCode = Guid.NewGuid().ToString("N")[..8].ToUpperInvariant();
+
+        await _db.SaveChangesAsync();
+
+        return Ok(new { inviteCode = group.InviteCode });
     }
 
     [HttpGet("{groupId:guid}/memories")]
@@ -565,6 +637,67 @@ public class GroupsController : ControllerBase
         return Ok(members);
     }
 
+    [HttpDelete("{groupId:guid}/members/{userId:guid}")]
+    public async Task<IActionResult> RemoveMember(Guid groupId, Guid userId)
+    {
+        var uid = User.UserId();
+
+        var me = await _db.Set<GroupMember>()
+            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == uid);
+
+        if (me == null) return Forbid();
+        if (me.Role != GroupRole.Admin) return Forbid();
+
+        var target = await _db.Set<GroupMember>()
+            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == userId);
+
+        if (target == null) return NotFound();
+
+        // prevent removing yourself (optional safety)
+        if (target.UserId == uid)
+            return StatusCode(403, "You cannot remove yourself.");
+
+        _db.Remove(target);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpPut("{groupId:guid}/members/{userId:guid}/role")]
+    public async Task<IActionResult> ChangeRole(Guid groupId, Guid userId, [FromBody] ChangeRoleRequest req)
+    {
+        var uid = User.UserId();
+
+        var me = await _db.Set<GroupMember>()
+            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == uid);
+
+        if (me == null || me.Role != GroupRole.Admin)
+            return Forbid();
+
+        var target = await _db.Set<GroupMember>()
+            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == userId);
+
+        if (target == null) return NotFound();
+
+        if (!Enum.TryParse<GroupRole>(req.Role, true, out var newRole))
+            return BadRequest("Invalid role.");
+
+        if (target.Role == GroupRole.Admin && newRole != GroupRole.Admin)
+        {
+            var adminCount = await _db.Set<GroupMember>()
+                .CountAsync(x => x.GroupId == groupId && x.Role == GroupRole.Admin);
+
+            if (adminCount <= 1)
+                return StatusCode(403, "Group must have at least one admin.");
+        }
+
+        target.Role = newRole;
+
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
     [HttpGet("{groupId:guid}/stats")]
     public async Task<ActionResult<GroupStatsDto>> Stats(Guid groupId)
     {
@@ -692,4 +825,6 @@ public class GroupsController : ControllerBase
 
         return Ok(result);
     }
+
+
 }

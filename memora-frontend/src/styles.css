@@ -61,6 +61,10 @@ body {
   --danger-soft-border: rgba(239, 68, 68, 0.25);
   --danger-soft-bg: rgba(255, 107, 107, 0.05);
 
+  --warning: #f59e0b;
+  --warning-soft: rgba(245, 158, 11, 0.15);
+  --warning-soft-border: rgba(245, 158, 11, 0.35);
+
   --app-gradient: linear-gradient(135deg, #667eea, #764ba2);
   --page-gradient: radial-gradient(1200px 600px at 20% 0%, rgba(255, 255, 255, 0.08), transparent 55%),
     radial-gradient(900px 500px at 80% 20%, rgba(255, 255, 255, 0.06), transparent 55%),
@@ -121,6 +125,10 @@ html[data-theme='light'] {
   --danger-soft: rgba(239, 68, 68, 0.12);
   --danger-soft-border: rgba(239, 68, 68, 0.25);
   --danger-soft-bg: rgba(239, 68, 68, 0.08);
+
+  --warning: #f59e0b;
+  --warning-soft: rgba(245, 158, 11, 0.18);
+  --warning-soft-border: rgba(245, 158, 11, 0.35);
 
   --app-gradient: linear-gradient(135deg, #f7f8ff, #eef2ff);
   --page-gradient: radial-gradient(1200px 600px at 20% 0%, rgba(99, 102, 241, 0.1), transparent 55%),

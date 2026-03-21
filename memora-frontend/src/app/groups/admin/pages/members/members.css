@@ -1,27 +1,153 @@
-.ga-actions { display: inline-flex; gap: 8px; align-items: center; }
+.ga-page {
+  padding: 24px;
+  max-width: 900px;
+}
+
+.ga-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ga-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .ga-actions input {
-  padding: 9px 10px;
-  border: 1px solid #e6e6e6;
-  border-radius: 10px;
-  background: #fff;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.ga-actions button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  cursor: pointer;
 }
 
 .ga-card {
-  background: #fff;
-  border: 1px solid #e6e6e6;
-  border-radius: 14px;
-  padding: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
 }
 
-.ga-table-wrap { overflow: auto; }
-.ga-table { width: 100%; border-collapse: collapse; }
-.ga-table th, .ga-table td { padding: 10px; border-bottom: 1px solid #f0f0f0; text-align: left; }
+.ga-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ga-table th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 13px;
+  padding: 12px 8px;
+}
+
+.ga-table td {
+  padding: 12px 8px;
+}
+
+.ga-table tbody tr {
+  border-top: 1px solid var(--border);
+}
+
+.ga-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
 .ga-avatar {
-  width: 26px; height: 26px; border-radius: 999px; object-fit: cover;
-  border: 1px solid #e6e6e6;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
 }
-.ga-row { display: inline-flex; gap: 10px; align-items: center; }
 
-.ga-btns { display: inline-flex; gap: 8px; flex-wrap: wrap; }
-.ga-note.small { margin-top: 10px; font-size: 12px; opacity: 0.8; }
+.ga-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.ga-btns button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.ga-btns button:hover {
+  background: var(--hover-bg);
+}
+
+.ga-note {
+  margin-top: 12px;
+  color: var(--text-subtle);
+}
+
+.ga-error {
+  color: red;
+}
+
+.role {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--bg-surface-alt);
+  font-size: 13px;
+}
+
+.role.admin {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+
+.clickBtn {
+  color: var(--text-primary);
+}
+
+.role-menu-wrapper {
+  position: relative;
+}
+
+.role-menu {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  min-width: 120px;
+}
+
+.role-menu button {
+  padding: 6px 10px;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 6px;
+  color: var(--text-primary);
+}
+
+.role-menu button:hover {
+  background: var(--hover-bg);
+}
