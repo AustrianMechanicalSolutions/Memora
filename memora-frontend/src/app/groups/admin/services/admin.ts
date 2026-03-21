@@ -46,10 +46,7 @@ export interface GroupMemberDto {
   name: string;
   role: string;
   avatarUrl?: string | null;
-<<<<<<< HEAD
-=======
   displayName: string;
->>>>>>> origin/main
 }
 
 export interface GroupMemberActivityDto {
