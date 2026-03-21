@@ -9,7 +9,15 @@ export interface GroupDetailDto {
   name: string;
   inviteCode: string;
   memberCount: number;
-  createdByUserId: number;
+  CreatedByUserId: number;
+}
+
+export interface GroupDetailInfoDto {
+  id: string;
+  name: string;
+  inviteCode: string;
+  memberCount: number;
+  createdByUserName: string;
 }
 
 export interface GroupStatsDto {
@@ -112,6 +120,12 @@ export class GroupAdminService {
     return this.http.get<GroupDetailDto>(`${this.base}/${groupId}`);
   }
 
+  getGroupSettings(groupId: string): Observable<GroupDetailInfoDto> {
+    const test = this.http.get<GroupDetailInfoDto>(`${this.base}/${groupId}`);
+    console.log(test);
+    return test;
+  }
+
   getStats(groupId: string): Observable<GroupStatsDto> {
     return this.http.get<GroupStatsDto>(`${this.base}/${groupId}/stats`);
   }
@@ -173,5 +187,18 @@ export class GroupAdminService {
 
   createAlbum(groupId: string, body: CreateAlbumRequest): Observable<AlbumDto> {
     return this.http.post<AlbumDto>(`${this.base}/${groupId}/albums`, body);
+  }
+
+  // ===== Settings ======
+  renameGroup(groupId: string, name: string): Observable<GroupDetailDto> {
+    return this.http.patch<GroupDetailDto>(`/api/groups/${groupId}`, { name });
+  }
+  
+  regenerateInviteCode(groupId: string): Observable<GroupDetailDto> {
+    return this.http.post<GroupDetailDto>(`/api/groups/${groupId}/invite/regenerate`, {});
+  }
+  
+  deleteGroup(groupId: string): Observable<void> {
+    return this.http.delete<void>(`/api/groups/${groupId}`);
   }
 }

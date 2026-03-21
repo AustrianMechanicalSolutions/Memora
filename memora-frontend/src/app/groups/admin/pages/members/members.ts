@@ -24,6 +24,9 @@ export class MembersComponent implements OnInit, OnDestroy {
   loading = true;
   error?: string;
 
+  openMenuFor?: string; //userId
+  roles = ['Admin', 'Member'];
+
   filter = '';
 
   private sub = new Subscription();
@@ -69,20 +72,29 @@ export class MembersComponent implements OnInit, OnDestroy {
     );
   }
 
-  changeRole(m: GroupMemberDto): void {
-    const newRole = m.role === 'Admin' ? 'Member' : 'Admin';
-
-    this.service.changeMemberRole(this.groupId, m.userId, newRole).subscribe({
-      next: () => this.load(),
-      error: err => console.error(err.error)
-    });
-  }
-
   remove(m: GroupMemberDto): void {
     const confirmDelete = confirm(`Remove ${m.name}?`);
     if (!confirmDelete) return;
 
     this.service.removeMember(this.groupId, m.userId).subscribe({
+      next: () => this.load(),
+      error: err => console.error(err.error)
+    });
+  }
+
+  toggleMenu(userId: string) {
+    this.openMenuFor = this.openMenuFor === userId ? undefined : userId;
+  }
+
+  confirmChangeRole(m: GroupMemberDto, newRole: string) {
+    this.openMenuFor = undefined;
+
+    if (m.role === newRole) return;
+
+    const ok = confirm(`Change role of ${m.name} to ${newRole}?`);
+    if (!ok) return;
+
+    this.service.changeMemberRole(this.groupId, m.userId, newRole).subscribe({
       next: () => this.load(),
       error: err => console.error(err.error)
     });

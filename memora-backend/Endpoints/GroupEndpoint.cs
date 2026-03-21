@@ -80,7 +80,13 @@ public class GroupsController : ControllerBase
         if (!isMember) return Forbid();
 
         var g = await _db.Set<Group>().Include(x => x.Members).FirstAsync(x => x.Id == groupId);
-        return Ok(new GroupDetailDto(g.Id, g.Name, g.InviteCode, g.Members.Count, g.CreatedByUserId));
+
+        var owner = await _db.Set<AppUser>()
+            .Where(u => u.Id == g.CreatedByUserId)
+            .Select(u => u.DisplayName)
+            .FirstAsync();
+
+        return Ok(new GroupDetailInfoDto(g.Id, g.Name, g.InviteCode, g.Members.Count, owner));
     }
 
     [HttpGet("{groupId:guid}/memories")]
