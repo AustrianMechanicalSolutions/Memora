@@ -59,8 +59,8 @@
 
 .groups-sublist {
   list-style: none;
-  margin: 8px 0 0 0;
-  padding: 0;
+  margin: 8px 32px 0 0;
+  padding: 0 8px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -69,7 +69,13 @@
 
 .group-subitem {
   width: 100%;
-  padding: 0 32px;
+  padding: 0 0;
+  box-sizing: border-box;
+}
+
+.group-adminsubitem {
+  width: 100%;
+  padding: 0 20px;
   box-sizing: border-box;
 }
 
@@ -77,18 +83,19 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 6px;
+  padding: 8px 32px;
   color: var(--text-subtle);
   text-decoration: none;
   border-radius: 8px;
   transition: all 0.2s ease;
   cursor: pointer;
-  width: 100%;
+  width: calc(100% - 80px);
   font-size: 15px;
 }
 
 .group-indicator {
   color: var(--accent);
+  padding: 0;
   font-size: 24px;
   flex-shrink: 0;
   line-height: 1;

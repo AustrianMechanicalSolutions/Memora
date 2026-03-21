@@ -509,6 +509,58 @@ public class GroupsController : ControllerBase
         return Ok(members);
     }
 
+    [HttpDelete("{groupId:guid}/members/{userId:int}")]
+    public async Task<IActionResult> RemoveMember(Guid groupId, Guid userId)
+    {
+        var uid = User.UserId();
+
+        var me = await _db.Set<GroupMember>()
+            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == uid);
+
+        if (me == null) return Forbid();
+        if (me.Role != GroupRole.Admin) return Forbid();
+
+        var target = await _db.Set<GroupMember>()
+            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == userId);
+
+        if (target == null) return NotFound();
+
+        // prevent removing yourself (optional safety)
+        if (target.UserId == uid)
+            return BadRequest("You cannot remove yourself.");
+
+        _db.Remove(target);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpPut("{groupId:guid}/members/{userId:int}/role")]
+    public async Task<IActionResult> ChangeRole(Guid groupId, Guid userId, [FromBody] string role)
+    {
+        var uid = User.UserId();
+
+        var me = await _db.Set<GroupMember>()
+            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == uid);
+
+        if (me == null || me.Role != GroupRole.Admin)
+            return Forbid();
+
+        var target = await _db.Set<GroupMember>()
+            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == userId);
+
+        if (target == null) return NotFound();
+
+        if (!Enum.TryParse<GroupRole>(role, true, out var newRole))
+            return BadRequest("Invalid role.");
+
+        target.Role = newRole;
+
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+}
+
     [HttpGet("{groupId:guid}/stats")]
     public async Task<ActionResult<GroupStatsDto>> Stats(Guid groupId)
     {
