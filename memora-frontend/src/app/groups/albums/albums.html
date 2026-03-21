@@ -1,0 +1,106 @@
+<div class="page">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <h1 class="title">{{ 'albums.title' | t }}</h1>
+
+      <div class="meta">
+        <span class="meta-item">{{ 'albums.count' | t:{ count: albums.length } }}</span>
+        <span class="sep">•</span>
+        <span class="meta-item muted">{{ 'albums.collections' | t }}</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn ghost" (click)="backToGroup()">← {{ 'albums.back' | t }}</button>
+      <button class="btn ghost" (click)="reload()">{{ 'albums.refresh' | t }}</button>
+
+      <button class="btn primary" (click)="showCreate = !showCreate">
+        {{ showCreate ? ('albums.close' | t) : ('albums.new' | t) }}
+      </button>
+    </div>
+  </header>
+
+  <!-- Create Album -->
+  <section class="panel create" *ngIf="showCreate">
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-title">{{ 'albums.newTitle' | t }}</h2>
+        <span class="muted">{{ 'albums.newSub' | t }}</span>
+      </div>
+    </div>
+
+    <div class="create-grid">
+      <div class="field full">
+        <label>{{ 'albums.fieldTitle' | t }}</label>
+        <input class="input" [(ngModel)]="aTitle" [placeholder]="'albums.titlePlaceholder' | t" />
+      </div>
+
+      <div class="field full">
+        <label>{{ 'albums.fieldDescription' | t }}</label>
+        <textarea
+          class="input textarea"
+          [(ngModel)]="aDescription"
+          [placeholder]="'albums.descriptionPlaceholder' | t"
+        ></textarea>
+      </div>
+
+      <div class="field">
+        <label>{{ 'albums.dateStart' | t }}</label>
+        <input class="input" type="date" [(ngModel)]="aDateStart" />
+      </div>
+
+      <div class="field">
+        <label>{{ 'albums.dateEnd' | t }}</label>
+        <input class="input" type="date" [(ngModel)]="aDateEnd" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" (click)="showCreate = false">{{ 'albums.cancel' | t }}</button>
+      <button class="btn primary" (click)="createAlbum()">{{ 'albums.create' | t }}</button>
+    </div>
+  </section>
+
+  <!-- Album list -->
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-title">{{ 'albums.yourAlbums' | t }}</h2>
+        <span class="muted">{{ 'groups.total' | t:{ count: albums.length } }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="albums.length > 0; else emptyState" class="album-grid">
+      <div class="album-card" *ngFor="let a of albumsWithAll" [class.all-album]="a.id === 'all'">
+        <div class="album-header">
+          <div class="album-title">{{ a.title }}</div>
+          <div class="album-pill">{{ 'albums.memories' | t:{ count: a.memoryCount } }}</div>
+        </div>
+
+        <div class="album-desc" *ngIf="a.description">
+          {{ a.description }}
+        </div>
+
+        <div class="album-dates">
+          <span class="date">{{ a.dateStart | date:'dd.MM.yyyy' }}</span>
+          <span class="arrow" *ngIf="a.dateEnd">→</span>
+          <span class="date" *ngIf="a.dateEnd">{{ a.dateEnd | date:'dd.MM.yyyy' }}</span>
+        </div>
+
+        <div class="album-actions">
+          <button class="btn ghost" (click)="openAlbum(a.id)">
+            {{ 'albums.open' | t }} →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="empty">
+        <div class="empty-title">{{ 'albums.emptyTitle' | t }}</div>
+        <div class="empty-sub">{{ 'albums.emptySub' | t }}</div>
+      </div>
+    </ng-template>
+  </section>
+</div>

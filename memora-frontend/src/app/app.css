@@ -1,0 +1,69 @@
+.app-shell {
+  position: relative;
+}
+
+.impressum-link {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 30;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-panel);
+  backdrop-filter: blur(10px);
+
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.impressum-link:hover {
+  transform: translateY(-1px);
+  background: var(--bg-panel);
+  box-shadow: 0 8px 20px var(--shadow-soft);
+}
+
+@media (max-width: 640px) {
+  .impressum-link {
+    right: 12px;
+    bottom: 12px;
+    padding: 9px 12px;
+  }
+}
+.app-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.main-content.no-sidebar {
+  margin-left: 0;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 80px;
+  }
+
+  .main-content.no-sidebar {
+    margin-left: 0;
+  }
+}

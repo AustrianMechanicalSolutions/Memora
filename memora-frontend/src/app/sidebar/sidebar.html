@@ -1,0 +1,111 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <a routerLink="/home" routerLinkActive="active" class="nav-link logo-link">
+      <img src="/memora-logo.png" alt="Memora Logo" class="logo-icon" (error)="$event.target.onerror=null; $event.target.src='/memora-logo.ico'" />
+      <span class="logo-fallback">🏠</span>
+      <span class="label">{{ 'sidebar.home' | t }}</span>
+    </a>
+  </div>
+
+  <nav class="nav">
+    <ul class="nav-list">
+      <li class="nav-item">
+        <a routerLink="/groups" routerLinkActive="active" class="nav-link">
+          <span class="icon">⧉</span>
+          <span class="label">{{ 'sidebar.groups' | t }}</span>
+        </a>
+        <ul class="groups-sublist" *ngIf="groups.length > 0">
+          <li class="group-subitem" *ngFor="let group of groups">
+            
+            <!-- GROUP LINK -->
+            <a [routerLink]="['/groups', group.id]"
+              routerLinkActive="active"
+              class="group-link">
+              <span class="group-indicator">└</span>
+              <span class="group-name">{{ group.name }}</span>
+            </a>
+
+            <!-- ADMIN SUBMENU (only when inside that group) -->
+            <ul class="groups-sublist"
+                *ngIf="router.url.startsWith('/groups/' + group.id + '/admin')">
+              
+              <li class="group-subitem">
+                <a [routerLink]="['/groups', group.id, 'admin', 'dashboard']"
+                  routerLinkActive="active"
+                  class="group-link">
+                  <span class="group-indicator">├</span>
+                  <span class="group-name">{{ 'sidebar.dashboard' | t }}</span>
+                </a>
+              </li>
+
+              <li class="group-subitem">
+                <a [routerLink]="['/groups', group.id, 'admin', 'members']"
+                  routerLinkActive="active"
+                  class="group-link">
+                  <span class="group-indicator">├</span>
+                  <span class="group-name">{{ 'sidebar.members' | t }}</span>
+                </a>
+              </li>
+
+              <li class="group-subitem">
+                <a [routerLink]="['/groups', group.id, 'admin', 'memories']"
+                  routerLinkActive="active"
+                  class="group-link">
+                  <span class="group-indicator">├</span>
+                  <span class="group-name">{{ 'sidebar.memories' | t }}</span>
+                </a>
+              </li>
+
+              <li class="group-subitem">
+                <a [routerLink]="['/groups', group.id, 'admin', 'albums']"
+                  routerLinkActive="active"
+                  class="group-link">
+                  <span class="group-indicator">├</span>
+                  <span class="group-name">{{ 'sidebar.albums' | t }}</span>
+                </a>
+              </li>
+
+              <li class="group-subitem">
+                <a [routerLink]="['/groups', group.id, 'admin', 'settings']"
+                  routerLinkActive="active"
+                  class="group-link">
+                  <span class="group-indicator">└</span>
+                  <span class="group-name">{{ 'sidebar.settings' | t }}</span>
+                </a>
+              </li>
+
+            </ul>
+
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="theme-toggle" type="button" (click)="toggleTheme()">
+      <span class="label">{{ 'sidebar.theme' | t }}</span>
+      <span class="switch" [class.on]="themeMode === 'dark'">
+        <span class="switch-thumb"></span>
+      </span>
+    </button>
+    <div class="stats-item">
+      <a routerLink="/stats" routerLinkActive="active-icon" class="user-button" [title]="'sidebar.viewStats' | t">
+        <img 
+          *ngIf="userProfileImageUrl" 
+          [src]="userProfileImageUrl" 
+          alt="Profile" 
+          class="user-avatar"
+        />
+        <div *ngIf="!userProfileImageUrl" class="user-avatar-placeholder">
+          👤
+        </div>
+        <span class="label">{{ currentUser?.displayName }}</span>
+      </a>
+    </div>
+    <button class="logout-button" type="button" (click)="logout()">
+      <span class="logout-icon" aria-hidden="true">&#x21AA;</span>
+      <span class="logout-label">{{ 'sidebar.logout' | t }}</span>
+    </button>
+  </div>
+</aside>

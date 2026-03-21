@@ -2,14 +2,19 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 
 import QRCode from 'qrcode';
 import { TwoFactorService, TwoFactorSetupResponse } from './twofactor';
+import { ThemeService } from '../../theme.service';
+import { TranslatePipe } from '../../translate.pipe';
+import { AppLanguage, I18nService } from '../../i18n.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe],
   templateUrl: './settings.html',
   styleUrls: ['./settings.css']
 })
@@ -43,7 +48,7 @@ export class SettingsComponent {
 
   // ===== 2FA UI state =====
   twoFaLoading = false;
-  twoFaEnabled = false; // will be set from /me if you add it there
+  twoFaEnabled = false;
   twoFaSecret = '';
   twoFaOtpAuthUrl = '';
   twoFaQrDataUrl = '';
@@ -51,8 +56,27 @@ export class SettingsComponent {
 
   constructor(
     private http: HttpClient,
-    private twoFactor: TwoFactorService
+    private twoFactor: TwoFactorService,
+    private theme: ThemeService,
+    private i18n: I18nService,
+    private auth: AuthService
   ) {}
+
+  get themeMode() {
+    return this.theme.current;
+  }
+
+  get language(): AppLanguage {
+    return this.i18n.currentLanguage;
+  }
+
+  toggleTheme() {
+    this.theme.toggleTheme();
+  }
+
+  setLanguage(language: AppLanguage) {
+    this.i18n.setLanguage(language);
+  }
 
   ngOnInit() {
     this.http.get<any>(`${this.api}/me`).subscribe({
@@ -69,14 +93,13 @@ export class SettingsComponent {
         this.profile.youtubeUrl = data.youtubeUrl ?? '';
         this.profile.websiteUrl = data.websiteUrl ?? '';
 
-        // OPTIONAL: if backend returns it
         this.twoFaEnabled = data.twoFactorEnabled ?? false;
 
         this.loading = false;
       },
       error: (e) => {
         console.error(e);
-        this.err = 'Could not load profile.';
+        this.err = this.i18n.translate('settings.profileLoadFailed');
         this.loading = false;
       }
     });
@@ -109,12 +132,13 @@ export class SettingsComponent {
 
     this.http.put(`${this.api}/profile`, body).subscribe({
       next: () => {
-        this.msg = 'Profile saved!';
+        this.msg = this.i18n.translate('settings.profileSaved');
         this.saving = false;
+        this.auth.notifyProfileChanged();
       },
       error: (e) => {
         console.error(e);
-        this.err = 'Could not save profile.';
+        this.err = this.i18n.translate('settings.profileSaveFailed');
         this.saving = false;
       }
     });
@@ -126,14 +150,14 @@ export class SettingsComponent {
 
     this.http.put(`${this.api}/password`, this.password).subscribe({
       next: () => {
-        this.msg = 'Password changed!';
+        this.msg = this.i18n.translate('settings.passwordChanged');
         this.password.currentPassword = '';
         this.password.newPassword = '';
         this.saving = false;
       },
       error: (e) => {
         console.error(e);
-        this.err = e?.error ?? 'Could not change password.';
+        this.err = e?.error ?? this.i18n.translate('settings.passwordChangeFailed');
         this.saving = false;
       }
     });
@@ -159,11 +183,11 @@ export class SettingsComponent {
         this.twoFaQrDataUrl = await QRCode.toDataURL(res.otpauthUrl);
 
         this.twoFaLoading = false;
-        this.msg = 'Scan the QR code with Microsoft Authenticator, then enter the 6-digit code.';
+        this.msg = this.i18n.translate('settings.twoFactorSetupHint');
       },
       error: (e) => {
         console.error(e);
-        this.err = 'Could not start 2FA setup.';
+        this.err = this.i18n.translate('settings.twoFactorSetupFailed');
         this.twoFaLoading = false;
       }
     });
@@ -180,11 +204,11 @@ export class SettingsComponent {
       next: () => {
         this.twoFaEnabled = true;
         this.twoFaLoading = false;
-        this.msg = '2FA enabled successfully!';
+        this.msg = this.i18n.translate('settings.twoFactorEnabled');
       },
       error: (e) => {
         console.error(e);
-        this.err = e?.error ?? 'Invalid 2FA code.';
+        this.err = e?.error ?? this.i18n.translate('settings.twoFactorInvalid');
         this.twoFaLoading = false;
       }
     });
@@ -205,13 +229,37 @@ export class SettingsComponent {
         this.twoFaCode = '';
 
         this.twoFaLoading = false;
-        this.msg = '2FA disabled.';
+        this.msg = this.i18n.translate('settings.twoFactorDisabled');
       },
       error: (e) => {
         console.error(e);
-        this.err = 'Could not disable 2FA.';
+        this.err = this.i18n.translate('settings.twoFactorDisableFailed');
         this.twoFaLoading = false;
       }
     });
+  }
+
+  // Profile image
+  onProfileImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+
+    if (!file.type.startsWith('image/')) {
+      this.err = this.i18n.translate('settings.selectImage');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.profile.profileImageUrl = reader.result as string;
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  removeProfileImage() {
+    this.profile.profileImageUrl = '';
   }
 }

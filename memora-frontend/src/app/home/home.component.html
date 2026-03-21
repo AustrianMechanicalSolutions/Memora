@@ -1,0 +1,28 @@
+<div class="home">
+  <div class="home-main">
+    <div class="welcome-section">
+      <h1>{{ 'home.welcome' | t:{ name: username } }}</h1>
+    </div>
+    <div class="section-header">
+      <h2>{{ 'home.yourGroups' | t }}</h2>
+      <p>{{ 'home.sharedCollections' | t }}</p>
+    </div>
+    <div class="groups-dashboard">
+      <div class="group-card" *ngFor="let group of groups" [routerLink]="['/groups', group.id]">
+        <div class="group-header">
+          <h3>{{ group.name }}</h3>
+        </div>
+        <div class="group-preview" *ngIf="group.imagePreview.length > 0">
+          <img *ngFor="let img of group.imagePreview" [src]="img" [alt]="'home.memoryPreview' | t" />
+        </div>
+        <div class="group-footer">
+          <div class="group-stats">
+            <span class="stat">{{ 'home.members' | t:{ count: group.memberCount } }}</span>
+            <span class="stat">{{ 'home.memories' | t:{ count: group.memoryCount } }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-overview-sidebar></app-overview-sidebar>
+</div>

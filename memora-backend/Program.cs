@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,11 +60,50 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+var webRootPath = app.Environment.WebRootPath ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+var uploadsPath = Path.Combine(webRootPath, "uploads");
+
+Directory.CreateDirectory(uploadsPath);
 
 app.UseHttpsRedirection();
 app.UseCors("frontend");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
+
+// ---- Ensure interaction tables exist (SQLite, no migrations) ----
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.ExecuteSqlRaw(@"
+CREATE TABLE IF NOT EXISTS MemoryLikes (
+    MemoryId TEXT NOT NULL,
+    UserId TEXT NOT NULL,
+    CreatedAt TEXT NOT NULL,
+    PRIMARY KEY (MemoryId, UserId)
+);");
+    db.Database.ExecuteSqlRaw(@"
+CREATE TABLE IF NOT EXISTS MemoryComments (
+    Id TEXT NOT NULL PRIMARY KEY,
+    MemoryId TEXT NOT NULL,
+    UserId TEXT NOT NULL,
+    Content TEXT NOT NULL,
+    CreatedAt TEXT NOT NULL,
+    ParentCommentId TEXT NULL
+);");
+    db.Database.ExecuteSqlRaw(@"
+CREATE TABLE IF NOT EXISTS CommentLikes (
+    CommentId TEXT NOT NULL,
+    UserId TEXT NOT NULL,
+    CreatedAt TEXT NOT NULL,
+    PRIMARY KEY (CommentId, UserId)
+);");
+}
 
 // ---- Map endpoints ----
 app.MapAuthEndpoints();

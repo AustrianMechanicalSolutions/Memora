@@ -9,7 +9,7 @@ public class AppUser
     public string Email { get; set; } = string.Empty;
     [Required]
     public string PasswordHash { get; set; } = string.Empty;
-    public DateTimeOffset CreatedAtUtc { get; set; } = DateTimeOffset.UtcNow;
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 
     // Profile Fields
     [MaxLength(50)]
@@ -35,4 +35,5 @@ public class AppUser
     // TOTP
     public bool TwoFactorEnabled { get; set; }
     public string? TwoFactorSecret { get; set; } // base32 secret
+    public ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
 }
