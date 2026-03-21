@@ -49,7 +49,8 @@ export class MembersComponent implements OnInit, OnDestroy {
             userId: m.userId,
             name: m.name,
             role: m.role,
-            profileImageUrl: m.avatarUrl
+            profileImageUrl: m.avatarUrl,
+            displayName: m.displayName
           }));
           this.loading = false;
         },
@@ -67,13 +68,22 @@ export class MembersComponent implements OnInit, OnDestroy {
     if (!s) return this.members;
 
     return this.members.filter(m =>
-      (m.name || '').toLowerCase().includes(s) ||
+      (m.displayName || '').toLowerCase().includes(s) ||
       (m.role || '').toLowerCase().includes(s)
     );
   }
 
+  changeRole(m: GroupMemberDto): void {
+    const newRole = m.role === 'Admin' ? 'Member' : 'Admin';
+
+    this.service.changeMemberRole(this.groupId, m.userId, newRole).subscribe({
+      next: () => this.load(),
+      error: err => console.error(err)
+    });
+  }
+
   remove(m: GroupMemberDto): void {
-    const confirmDelete = confirm(`Remove ${m.name}?`);
+    const confirmDelete = confirm(`Remove ${m.displayName}?`);
     if (!confirmDelete) return;
 
     this.service.removeMember(this.groupId, m.userId).subscribe({
