@@ -92,25 +92,4 @@ export class GroupsPageComponent {
       }
     });
   }
-
-  joinGroup() {
-    const code = this.inviteCode.trim();
-    if (!code) return;
-
-    this.joining = true;
-    this.joinErrorMsg = '';
-
-    this.groupsService.joinGroup(code).subscribe({
-      next: () => {
-        this.inviteCode = '';
-        this.joining = false;
-        this.loadGroups();
-      },
-      error: (err) => {
-        console.error(err);
-        this.joining = false;
-        this.joinErrorMsg = err?.error ?? 'Could not join group';
-      }
-    });
-  }
 }

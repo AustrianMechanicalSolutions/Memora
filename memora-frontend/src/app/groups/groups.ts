@@ -109,8 +109,7 @@ export interface AlbumPersonDto {
   role: string;
 }
 
-@Injectable({
-  providedIn: 'root'
+@Injectable({ providedIn: 'root' })
 export class GroupsService {
   private baseUrl = '/api/groups';
   private groupsChangedSource = new Subject<void>();
@@ -245,35 +244,5 @@ export class GroupsService {
     return this.http.delete(
       `${this.baseUrl}/${groupId}/albums/${albumId}/people/${userId}`
     );
-  }
-
-  joinGroup(inviteCode: string) {
-    return this.http.post('/api/groups/join', { inviteCode });
-  }
-
-  groupMembers(groupId: string) {
-    return this.http.get<{ userId: string; name: string, role: string }[]>(`/api/groups/${groupId}/members`);
-  }
-
-  // Albums
-  groupAlbums(groupId: string) {
-    return this.http.get<AlbumDto[]>(`/api/groups/${groupId}/albums`);
-  }
-
-  createAlbum(groupId: string, body: any) {
-    return this.http.post<AlbumDto>(`/api/groups/${groupId}/albums`, body);
-  }
-
-  // Groups page data
-  groupStats(groupId: string) {
-    return this.http.get<GroupStatsDto>(`/api/groups/${groupId}/stats`);
-  }
-
-  weeklyActivity(groupId: string) {
-    return this.http.get<GroupWeeklyActivityDto>(`/api/groups/${groupId}/activity/week`);
-  }
-
-  memberActivity(groupId: string) {
-    return this.http.get<GroupMemberActivityDto[]>(`/api/groups/${groupId}/activity/members`);
   }
 }
