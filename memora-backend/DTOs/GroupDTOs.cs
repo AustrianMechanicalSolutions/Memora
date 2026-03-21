@@ -17,7 +17,6 @@ public record MemoryDto(
 
 public record CreateGroupRequest(string Name);
 public record JoinGroupRequest(string InviteCode);
-
 public record CreateMemoryRequest(
     MemoryType Type,
     string? Title,
