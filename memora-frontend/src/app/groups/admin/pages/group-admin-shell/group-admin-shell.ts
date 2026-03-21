@@ -3,14 +3,7 @@ import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/ro
 import { filter, Subscription } from 'rxjs';
 import { GroupAdminService, GroupDetailDto } from '../../services/admin';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ModerationComponent } from '../moderation/moderation';
-import { SettingsComponent } from '../settings/settings';
-import { AlbumsComponent } from '../albums/albums';
-import { MemoriesComponent } from '../memories/memories';
-import { MembersComponent } from '../members/members';
-import { DashboardComponent } from '../dashboard/dashboard';
-import { TranslatePipe } from '../../../../translate.pipe';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-group-admin-shell',

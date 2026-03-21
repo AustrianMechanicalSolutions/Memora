@@ -128,7 +128,7 @@ body {
   position: absolute;
   top: 110%;
   left: 0;
-  background: var(--bg-card);
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 4px;
