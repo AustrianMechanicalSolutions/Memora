@@ -105,6 +105,8 @@ export interface GroupMemberActivityDto {
 }
 
 export interface AlbumPersonDto {
+  userId: string;
+  avatarUrl: string;
   name: string;
   role: string;
 }
