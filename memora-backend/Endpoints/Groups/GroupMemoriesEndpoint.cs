@@ -151,7 +151,7 @@ public class GroupMemoriesController : ControllerBase
     }
 
 
-    [HttpPost("memories/upload")]
+    [HttpPost("upload")]
     [RequestSizeLimit(200_000_000)] // 200MB limit
     public async Task<ActionResult<MemoryDto>> CreateMemory(Guid groupId, [FromForm] CreateMemoryRequest req)
     {

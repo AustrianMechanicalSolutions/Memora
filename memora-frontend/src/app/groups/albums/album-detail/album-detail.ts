@@ -527,7 +527,6 @@ export class AlbumDetailComponent {
   }
 
   mediaFailed(url: string | null | undefined): boolean {
-    console.log("media failed");
     return !!url && this.failedMedia.has(url);
   }
 
