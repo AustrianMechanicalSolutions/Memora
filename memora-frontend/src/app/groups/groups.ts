@@ -14,7 +14,7 @@ export interface GroupDetailDto {
   name: string;
   inviteCode: string;
   memberCount: number;
-  createdByUserId: string;
+  createdByUserName: string;
 }
 
 export interface MemoryDto {
