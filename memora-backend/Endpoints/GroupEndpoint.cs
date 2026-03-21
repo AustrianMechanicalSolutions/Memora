@@ -89,6 +89,70 @@ public class GroupsController : ControllerBase
         return Ok(new GroupDetailInfoDto(g.Id, g.Name, g.InviteCode, g.Members.Count, owner));
     }
 
+    [HttpPatch("{groupId:guid}")]
+    public async Task<IActionResult> Rename(Guid groupId, RenameGroupRequest req)
+    {
+        var uid = User.UserId();
+
+        var group = await _db.Set<Group>()
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+
+        if (group == null) return NotFound();
+
+        // optional: check permission
+        if (group.CreatedByUserId != uid)
+            return Forbid();
+
+        group.Name = req.Name;
+
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{groupId:guid}")]
+    public async Task<IActionResult> Delete(Guid groupId)
+    {
+        var uid = User.UserId();
+
+        var group = await _db.Set<Group>()
+            .Include(g => g.Members)
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+
+        if (group == null)
+            return NotFound();
+
+        if (group.CreatedByUserId != uid)
+            return StatusCode(403, "Only the owner can delete the group.");
+
+        _db.Remove(group);
+
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpPost("{groupId:guid}/invite/regenerate")]
+    public async Task<IActionResult> RegenerateInvite(Guid groupId)
+    {
+        var uid = User.UserId();
+
+        var group = await _db.Set<Group>()
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+
+        if (group == null)
+            return NotFound();
+
+        if (group.CreatedByUserId != uid)
+            return Forbid();
+
+        group.InviteCode = Guid.NewGuid().ToString("N")[..8].ToUpperInvariant();
+
+        await _db.SaveChangesAsync();
+
+        return Ok(new { inviteCode = group.InviteCode });
+    }
+
     [HttpGet("{groupId:guid}/memories")]
     public async Task<ActionResult<object>> Memories(Guid groupId, [FromQuery] MemoryQuery q)
     {

@@ -5,6 +5,8 @@ public record GroupMemberDto(Guid UserId, string Name, string Role, string? Avat
 
 public record GroupStatsDto(int memoryCount, int albumCount, DateTime timeActive);
 
+public class RenameGroupRequest { public string Name { get; set; } = ""; }
+
 public record MemoryDto(
     Guid Id,
     Guid GroupId,

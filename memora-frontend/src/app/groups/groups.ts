@@ -249,4 +249,8 @@ export class GroupsService {
       `${this.baseUrl}/${groupId}/albums/${albumId}/people/${userId}`
     );
   }
+
+  notifyGroupsChanged() {
+    this.groupsChangedSource.next();
+  }
 }

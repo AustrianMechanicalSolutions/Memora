@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
+import { GroupsService } from '../../groups';
 
 export type MemoryType = 'Photo' | 'Video' | 'Quote' | number; // backend uses enum; we accept string/number
 
@@ -113,7 +114,7 @@ export interface CreateAlbumRequest {
 export class GroupAdminService {
   private base = '/api/groups';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private groupsService: GroupsService) {}
 
   // ===== Group =====
   getGroup(groupId: string): Observable<GroupDetailDto> {
@@ -191,14 +192,22 @@ export class GroupAdminService {
 
   // ===== Settings ======
   renameGroup(groupId: string, name: string): Observable<GroupDetailDto> {
-    return this.http.patch<GroupDetailDto>(`/api/groups/${groupId}`, { name });
+    return this.http.patch<GroupDetailDto>(`/api/groups/${groupId}`, { name }).pipe(
+      tap(() => {
+        this.groupsService.notifyGroupsChanged();
+      })
+    );
   }
   
   regenerateInviteCode(groupId: string): Observable<GroupDetailDto> {
     return this.http.post<GroupDetailDto>(`/api/groups/${groupId}/invite/regenerate`, {});
   }
   
-  deleteGroup(groupId: string): Observable<void> {
-    return this.http.delete<void>(`/api/groups/${groupId}`);
+  deleteGroup(groupId: string) {
+    return this.http.delete<GroupDetailDto>(`/api/groups/${groupId}`).pipe(
+      tap(() => {
+        this.groupsService.notifyGroupsChanged();
+      })
+    );
   }
 }

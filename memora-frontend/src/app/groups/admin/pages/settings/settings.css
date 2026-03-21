@@ -67,10 +67,10 @@
   padding: 7px 13px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: var(--border);
+  background: var(--bg-surface-alt);
   font-size: 13px;
   font-weight: 500;
-  color: var(--bg-card);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -83,8 +83,8 @@
   align-items: center;
   gap: 7px;
   padding: 8px 16px;
-  background: var(--text-primary);
-  color: var(--bg-base);
+  background: var(--accent);
+  color: var(--text-on-accent);
   border: none;
   border-radius: 8px;
   font-size: 13px;
@@ -411,6 +411,7 @@
 /* ── Warning Box ── */
 .ga-warning-box {
   display: flex;
+  align-items: flex-start;
   gap: 10px;
   padding: 12px 14px;
   background: var(--warning-soft);
@@ -420,13 +421,21 @@
   color: var(--danger);
   line-height: 1.5;
 }
-.ga-warning-box svg { flex-shrink: 0; margin-top: 1px; }
+.ga-warning-box svg { flex-shrink: 0; margin-top: 2px; }
 .ga-warning-box--red {
   background: var(--danger-soft);
   border-color: var(--danger);
   color: var(--danger);
 }
 .ga-warning-box strong { font-weight: 650; }
+
+.ga-warning-text {
+  display: block;
+  white-space: normal;
+  word-break: normal;
+  line-height: 1.5;
+  max-width: 100%;
+}
 
 /* ── Spinner ── */
 .ga-spinner {

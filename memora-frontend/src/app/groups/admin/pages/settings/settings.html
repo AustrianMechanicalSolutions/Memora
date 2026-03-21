@@ -6,7 +6,6 @@
       <div class="ga-header-icon">⚙</div>
       <div>
         <h2>{{ 'admin.settings' | t }}</h2>
-        <p class="ga-subtitle">{{ 'admin.settingsSubtitle' | t }}</p>
       </div>
     </div>
     <button class="ga-btn-ghost" (click)="load()">
@@ -56,7 +55,7 @@
         </div>
         <div class="ga-kv-item">
           <span class="ga-kv-label">{{ 'admin.owner' | t }}</span>
-          <strong class="ga-kv-value ga-truncate">{{ group?.createdByUserName }}</strong>
+          <strong class="ga-kv-value ga-truncate">{{ group.createdByUserName }}</strong>
         </div>
       </div>
     </div>
@@ -145,7 +144,9 @@
     <div class="ga-modal-body">
       <div class="ga-warning-box">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        The current invite code <strong>{{ group?.inviteCode }}</strong> will stop working immediately. Anyone with the old link won't be able to join.
+        <div class="ga-warning-text">
+          The current invite code <strong>{{ group?.inviteCode }}</strong> will stop working immediately. Anyone with the old link won't be able to join.
+        </div>
       </div>
     </div>
     <div class="ga-modal-footer">
@@ -168,7 +169,9 @@
     <div class="ga-modal-body">
       <div class="ga-warning-box ga-warning-box--red">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        This will permanently delete <strong>{{ group?.name }}</strong> and all its memories, albums, and member data. This cannot be undone.
+        <div class="ga-warning-text">
+          This will permanently delete <strong>{{ group?.name }}</strong> and all its memories, albums, and member data. This cannot be undone.
+        </div>
       </div>
       <label class="ga-label ga-label--mt">Type the group name to confirm</label>
       <input
