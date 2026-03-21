@@ -14,6 +14,9 @@ public class Memory
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public Guid CreatedByUserId { get; set; } = default!;
 
+    public Guid? AlbumId { get; set; }
+    public Album? Album { get; set; }
+
     public ICollection<MemoryTag> Tags { get; set; } = new List<MemoryTag>();
     public Guid? AlbumId { get; set; }
 }

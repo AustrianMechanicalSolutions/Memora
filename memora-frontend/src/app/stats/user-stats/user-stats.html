@@ -1,0 +1,158 @@
+<section class="stats-page">
+  <div class="aurora aurora-left"></div>
+  <div class="aurora aurora-right"></div>
+
+  <header class="hero glass-panel">
+    <div class="hero-copy">
+      <p class="eyebrow">{{ 'stats.eyebrow' | t }}</p>
+      <h1 class="headline">
+        {{ isGroupMode ? ('stats.groupTitle' | t) : ('stats.profileTitle' | t) }}
+      </h1>
+      <p class="subline">
+        <ng-container *ngIf="isGroupMode; else allGroupsInfo">
+          {{ 'stats.groupSubline' | t:{ name: userDisplayName, group: (groupName || '...') } }}
+        </ng-container>
+        <ng-template #allGroupsInfo>
+          {{ 'stats.allGroupsSubline' | t:{ name: userDisplayName } }}
+        </ng-template>
+      </p>
+
+      <div class="hero-pills">
+        <span class="hero-pill">{{ 'stats.appleFocus' | t }}</span>
+        <span class="hero-pill">{{ 'stats.visibleMetrics' | t:{ count: visibleTileCount } }}</span>
+        <span class="hero-pill">{{ 'stats.postsInView' | t:{ count: totalPosts } }}</span>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <button class="btn frosted" type="button" (click)="toggleCustomizePanel()">
+        {{ showCustomizePanel ? ('stats.customizeClose' | t) : ('stats.customize' | t) }}
+      </button>
+      <a class="btn frosted" routerLink="/settings">{{ 'stats.toProfile' | t }}</a>
+      <a class="btn accent" routerLink="/groups">{{ 'stats.groups' | t }}</a>
+    </div>
+  </header>
+
+  <section class="customize-panel glass-panel" *ngIf="showCustomizePanel">
+    <div class="panel-head">
+      <div>
+        <p class="panel-kicker">{{ 'stats.visibility' | t }}</p>
+        <h2>{{ 'stats.visibilityTitle' | t }}</h2>
+      </div>
+      <button class="btn subtle" type="button" (click)="resetPreferences()">{{ 'stats.reset' | t }}</button>
+    </div>
+
+    <div class="toggle-grid">
+      <button
+        type="button"
+        class="toggle-card"
+        [class.active]="showGroupSwitcher"
+        [class.disabled]="groupSwitchLinks.length === 0"
+        (click)="toggleGroupSwitcher()"
+      >
+        <span class="toggle-label">{{ 'stats.groupSwitcher' | t }}</span>
+        <span class="toggle-caption">{{ 'stats.groupSwitcherCaption' | t }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="toggle-card"
+        [class.active]="showDistribution"
+        (click)="toggleDistribution()"
+      >
+        <span class="toggle-label">{{ 'stats.distribution' | t }}</span>
+        <span class="toggle-caption">{{ 'stats.distributionCaption' | t }}</span>
+      </button>
+    </div>
+
+    <div class="chip-grid">
+      <button
+        type="button"
+        class="metric-chip"
+        *ngFor="let tile of tiles; trackBy: trackTile"
+        [class.active]="visibleTileIds.has(tile.id)"
+        (click)="toggleTile(tile.id)"
+      >
+        <span>{{ tile.label }}</span>
+        <small>{{ visibleTileIds.has(tile.id) ? ('stats.visible' | t) : ('stats.hidden' | t) }}</small>
+      </button>
+    </div>
+  </section>
+
+  <section class="group-switch glass-panel" *ngIf="showGroupSwitcher && groupSwitchLinks.length > 0">
+    <div class="panel-head">
+      <div>
+        <p class="panel-kicker">{{ 'stats.scope' | t }}</p>
+        <h2>{{ 'stats.scopeTitle' | t }}</h2>
+      </div>
+      <span class="muted">{{ 'stats.scopeHint' | t }}</span>
+    </div>
+
+    <div class="segmented">
+      <a class="segment all" routerLink="/stats" *ngIf="isGroupMode">{{ 'stats.allGroups' | t }}</a>
+      <a
+        class="segment"
+        *ngFor="let g of groupSwitchLinks"
+        [class.active]="g.id === groupId"
+        [routerLink]="['/groups', g.id, 'stats']"
+      >
+        {{ g.name }}
+      </a>
+    </div>
+  </section>
+
+  <section class="glass-panel state" *ngIf="loading">{{ 'stats.loading' | t }}</section>
+  <section class="glass-panel state error" *ngIf="!loading && error">{{ error }}</section>
+
+  <ng-container *ngIf="!loading && !error">
+    <section class="cards" *ngIf="visibleTiles.length > 0; else noVisibleStats">
+      <article
+        class="tile glass-card"
+        *ngFor="let t of visibleTiles; trackBy: trackTile"
+        [class.primary]="t.tone === 'primary'"
+        [class.accent]="t.tone === 'accent'"
+      >
+        <div class="tile-topline">
+          <span class="tile-label">{{ t.label }}</span>
+          <span class="tile-hint" *ngIf="t.hint">
+            {{ t.hint }}
+            <span class="dot" *ngIf="t.placeholder"></span>
+          </span>
+        </div>
+
+        <strong class="tile-value">{{ t.value }}</strong>
+        <p class="tile-description" *ngIf="t.description">{{ t.description }}</p>
+      </article>
+    </section>
+
+    <ng-template #noVisibleStats>
+      <section class="glass-panel empty-state">
+        <h2>{{ 'stats.noVisibleTitle' | t }}</h2>
+        <p>{{ 'stats.noVisibleSub' | t }}</p>
+      </section>
+    </ng-template>
+
+    <section class="glass-panel distribution" *ngIf="showDistribution">
+      <div class="panel-head">
+        <div>
+          <p class="panel-kicker">{{ 'stats.breakdown' | t }}</p>
+          <h2>{{ 'stats.breakdownTitle' | t }}</h2>
+        </div>
+        <span class="muted">{{ 'stats.totalContent' | t:{ count: totalPosts } }}</span>
+      </div>
+
+      <div class="bars">
+        <div class="bar-row" *ngFor="let b of activityBars">
+          <div class="bar-copy">
+            <span class="bar-label">{{ b.label }}</span>
+            <span class="bar-meta">{{ distributionWidth(b.value) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width.%]="distributionWidth(b.value)"></div>
+          </div>
+          <span class="bar-value">{{ b.value }}</span>
+        </div>
+      </div>
+    </section>
+  </ng-container>
+</section>

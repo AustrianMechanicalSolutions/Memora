@@ -1,6 +1,6 @@
 public record GroupListItemDto(Guid Id, string Name, int MemberCount);
 public record GroupDetailDto(Guid Id, string Name, string InviteCode, int MemberCount, Guid CreatedByUserId);
-public record GroupMemberDto(Guid UserId, string Name, string Role);
+public record GroupMemberDto(Guid UserId, string Name, string Role, string? AvatarUrl);
 
 public record GroupStatsDto(int memoryCount, int albumCount, DateTime timeActive);
 
@@ -17,7 +17,23 @@ public record MemoryDto(
     DateTime CreatedAt,
     Guid CreatedByUserId,
     List<string>? Tags,
-    Guid? AlbumId
+    Guid? AlbumId,
+    int LikeCount,
+    int CommentCount,
+    bool IsLiked
+);
+
+public record CommentDto(
+    Guid Id,
+    Guid MemoryId,
+    Guid UserId,
+    string UserName,
+    string? AvatarUrl,
+    string Content,
+    DateTime CreatedAt,
+    Guid? ParentCommentId,
+    int LikeCount,
+    bool IsLiked
 );
 
 public record CreateGroupRequest(string Name);
@@ -44,6 +60,11 @@ public class CreateQuoteRequest
     public Guid? AlbumId { get; set; }
 };
 
+public record CreateCommentRequest(
+    string Content,
+    Guid? ParentCommentId
+);
+
 public class MemoryQuery
 {
     public MemoryType? Type { get; set; }
@@ -56,12 +77,18 @@ public class MemoryQuery
     public Guid? AlbumId { get; set; }
 }
 
+public record GroupWeeklyContributorDto(
+    Guid UserId,
+    string Name,
+    string? AvatarUrl
+);
+
 public record GroupWeeklyActivityDto(
     int Photos,
     int Videos,
     int Quotes,
     int Albums,
-    List<string> Contributors
+    List<GroupWeeklyContributorDto> Contributors
 );
 
 public record GroupMemberActivityDto(
@@ -70,6 +97,7 @@ public record GroupMemberActivityDto(
     string Role,
     DateTime JoinedAt,
     DateTime? LastActiveAt,
+    string? ProfileImageUrl,
     int TotalMemories,
     int PhotoCount,
     int VideoCount,

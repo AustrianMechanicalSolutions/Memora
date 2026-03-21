@@ -11,7 +11,13 @@ using Microsoft.EntityFrameworkCore;
 public class GroupsController : ControllerBase
 {
     private readonly AppDbContext _db;
-    public GroupsController(AppDbContext db) => _db = db;
+    private readonly IWebHostEnvironment _environment;
+
+    public GroupsController(AppDbContext db, IWebHostEnvironment environment)
+    {
+        _db = db;
+        _environment = environment;
+    }
 
     [HttpGet]
     public async Task<ActionResult<List<GroupListItemDto>>> MyGroups()
@@ -82,6 +88,9 @@ public class GroupsController : ControllerBase
         var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
         if (!isMember) return Forbid();
 
+        var page = q.Page < 1 ? 1 : q.Page;
+        var pageSize = q.PageSize < 1 ? 20 : Math.Min(q.PageSize, 200);
+
         var query = _db.Set<Memory>()
             .AsNoTracking()
             .Include(x => x.Tags)
@@ -111,18 +120,52 @@ public class GroupsController : ControllerBase
             .Skip((q.Page - 1) * q.PageSize)
             .Take(q.PageSize)
             .Select(x => new MemoryDto(
-                x.Id, x.GroupId, x.Type, x.Title, x.QuoteText, x.QuoteBy, x.MediaUrl, x.ThumbUrl,
+                x.Id, x.GroupId, x.Type, x.Title, x.QuoteText, x.MediaUrl, x.ThumbUrl,
                 x.HappenedAt, x.CreatedAt, x.CreatedByUserId,
-                x.Tags
-                    .Any()
-                    ? x.Tags
-                        .Select(t => t.Value)
-                        .Where(v => !string.IsNullOrWhiteSpace(v))
-                        .ToList()
-                    : null,
-                x.AlbumId
+                x.Tags.Select(t => t.Value).ToList()
             ))
             .ToListAsync();
+
+        var memoryIds = pageItems.Select(x => x.Id).ToList();
+
+        var likeCounts = await _db.Set<MemoryLike>()
+            .AsNoTracking()
+            .Where(l => memoryIds.Contains(l.MemoryId))
+            .GroupBy(l => l.MemoryId)
+            .Select(g => new { MemoryId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.MemoryId, x => x.Count);
+
+        var commentCounts = await _db.Set<MemoryComment>()
+            .AsNoTracking()
+            .Where(c => memoryIds.Contains(c.MemoryId))
+            .GroupBy(c => c.MemoryId)
+            .Select(g => new { MemoryId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.MemoryId, x => x.Count);
+
+        var likedIds = await _db.Set<MemoryLike>()
+            .AsNoTracking()
+            .Where(l => memoryIds.Contains(l.MemoryId) && l.UserId == uid)
+            .Select(l => l.MemoryId)
+            .ToListAsync();
+        var likedSet = likedIds.ToHashSet();
+
+        var items = pageItems.Select(x =>
+        {
+            var tags = x.Tags?
+                .Select(t => t.Value)
+                .Where(v => !string.IsNullOrWhiteSpace(v))
+                .ToList();
+
+            return new MemoryDto(
+                x.Id, x.GroupId, x.Type, x.Title, x.QuoteText, x.QuoteBy, x.MediaUrl, x.ThumbUrl,
+                x.HappenedAt, x.CreatedAt, x.CreatedByUserId,
+                tags != null && tags.Count > 0 ? tags : null,
+                x.AlbumId,
+                likeCounts.TryGetValue(x.Id, out var likeCount) ? likeCount : 0,
+                commentCounts.TryGetValue(x.Id, out var commentCount) ? commentCount : 0,
+                likedSet.Contains(x.Id)
+            );
+        }).ToList();
 
         return Ok(new { total, items });
     }
@@ -133,69 +176,6 @@ public class GroupsController : ControllerBase
         var uid = User.UserId();
         var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
         if (!isMember) return Forbid();
-
-        var m = new Memory
-        {
-            Id = Guid.NewGuid(),
-            GroupId = groupId,
-            Type = MemoryType.Quote,
-            Title = req.Title,
-            QuoteText = req.QuoteText,
-            QuoteBy = req.QuoteBy,
-            HappenedAt = req.HappenedAt,
-            CreatedByUserId = uid,
-            AlbumId = req.AlbumId,
-        };
-
-        if (req.Tags?.Any() == true)
-        {
-            var cleanTags = req.Tags
-                .Select(t => t.Trim())
-                .Where(t => !string.IsNullOrWhiteSpace(t))
-                .Distinct()
-                .ToList();
-
-            m.Tags = cleanTags.Select(t => new MemoryTag { MemoryId = m.Id, Value = t }).ToList();
-        }
-
-        _db.Add(m);
-        await _db.SaveChangesAsync();
-
-        var tags = m.Tags.Select(t => t.Value).ToList();
-
-        return Ok(new MemoryDto(
-            m.Id, m.GroupId, m.Type, m.Title, m.QuoteText, m.QuoteBy, m.MediaUrl, m.ThumbUrl,
-            m.HappenedAt, m.CreatedAt, m.CreatedByUserId,
-            tags.Count == 0 ? null : tags,
-            m.AlbumId
-        ));
-    }
-
-
-    [HttpPost("{groupId:guid}/memories/upload")]
-    [RequestSizeLimit(200_000_000)] // 200MB limit
-    public async Task<ActionResult<MemoryDto>> CreateMemory(Guid groupId, [FromForm] CreateMemoryRequest req)
-    {
-        var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-        if (!isMember) return Forbid();
-
-        string? mediaUrl = req.MediaUrl;
-
-        if (req.File != null && req.File.Length > 0)
-        {
-            var uploadsFolder = Path.Combine("wwwroot", "uploads");
-            Directory.CreateDirectory(uploadsFolder);
-
-            var ext = Path.GetExtension(req.File.FileName);
-            var fileName = $"{Guid.NewGuid()}{ext}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            using var stream = System.IO.File.Create(filePath);
-            await req.File.CopyToAsync(stream);
-
-            mediaUrl = $"/uploads/{fileName}";
-        }
 
         var m = new Memory
         {
@@ -230,153 +210,7 @@ public class GroupsController : ControllerBase
         return Ok(new MemoryDto(
             m.Id, m.GroupId, m.Type, m.Title, m.QuoteText, m.QuoteBy, m.MediaUrl, m.ThumbUrl,
             m.HappenedAt, m.CreatedAt, m.CreatedByUserId,
-            m.Tags.Select(t => t.Value).ToList(),
-            m.AlbumId
+            m.Tags.Select(t => t.Value).ToList()
         ));
-    }
-
-    [HttpGet("{groupId:guid}/members")]
-    public async Task<ActionResult<List<GroupMemberDto>>> Members(Guid groupId)
-    {
-        var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-        if (!isMember) return Forbid();
-
-        var members = await _db.Set<GroupMember>()
-            .AsNoTracking()
-            .Where(x => x.GroupId == groupId)
-            .Join(
-                _db.Set<AppUser>(),
-                gm => gm.UserId,
-                u => u.Id,
-                (gm, u) => new { gm, u }
-            )
-            .OrderBy(x => x.u.DisplayName)
-            .Select(x => new GroupMemberDto(
-                x.gm.UserId,
-                x.u.DisplayName,
-                x.gm.Role.ToString()
-            ))
-            .ToListAsync();
-
-        return Ok(members);
-    }
-
-    [HttpGet("{groupId:guid}/stats")]
-    public async Task<ActionResult<GroupStatsDto>> Stats(Guid groupId)
-    {
-        var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-        if (!isMember) return Forbid();
-
-        var group = await _db.Set<Group>()
-            .AsNoTracking()
-            .Where(g => g.Id == groupId)
-            .Select(g => new { g.CreatedAt })
-            .FirstOrDefaultAsync();
-
-        if (group == null) return NotFound();
-
-        var memoryCountTask = _db.Set<Memory>()
-            .AsNoTracking()
-            .CountAsync(m => m.GroupId == groupId);
-
-        var albumCountTask = _db.Set<Memory>()
-            .AsNoTracking()
-            .Where(m => m.GroupId == groupId && m.AlbumId != null)
-            .Select(m => m.AlbumId)
-            .Distinct()
-            .CountAsync();
-
-        await Task.WhenAll(memoryCountTask, albumCountTask);
-
-        return Ok(new GroupStatsDto(memoryCountTask.Result, albumCountTask.Result, group.CreatedAt));
-    }
-
-    [HttpGet("{groupId:guid}/activity/week")]
-    public async Task<ActionResult<GroupWeeklyActivityDto>> WeeklyActivity(Guid groupId)
-    {
-        var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>()
-            .AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-
-        if (!isMember) return Forbid();
-
-        var since = DateTime.UtcNow.AddDays(-7);
-
-        var memories = await _db.Set<Memory>()
-            .AsNoTracking()
-            .Where(m => m.GroupId == groupId && m.CreatedAt >= since)
-            .ToListAsync();
-
-        var photos = memories.Count(m => m.Type == MemoryType.Photo);
-        var videos = memories.Count(m => m.Type == MemoryType.Video);
-        var quotes = memories.Count(m => m.Type == MemoryType.Quote);
-
-        var albums = memories
-            .Where(m => m.AlbumId != null)
-            .Select(m => m.AlbumId)
-            .Distinct()
-            .Count();
-
-        var contributors = await _db.Set<AppUser>()
-            .Where(u => memories.Select(m => m.CreatedByUserId).Contains(u.Id))
-            .Select(u => u.DisplayName)
-            .Distinct()
-            .Take(5)
-            .ToListAsync();
-
-        return Ok(new GroupWeeklyActivityDto(
-            photos,
-            videos,
-            quotes,
-            albums,
-            contributors
-        ));
-    }
-
-    [HttpGet("{groupId:guid}/activity/members")]
-    public async Task<ActionResult<List<GroupMemberActivityDto>>> MemberActivity(Guid groupId)
-    {
-        var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>()
-            .AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-
-        if (!isMember) return Forbid();
-
-        var members = await _db.Set<GroupMember>()
-            .AsNoTracking()
-            .Where(gm => gm.GroupId == groupId)
-            .Join(
-                _db.Set<AppUser>(),
-                gm => gm.UserId,
-                u => u.Id,
-                (gm, u) => new { gm, u}
-            )
-            .ToListAsync();
-
-        var memories = await _db.Set<Memory>()
-            .AsNoTracking()
-            .Where(m => m.GroupId == groupId)
-            .ToListAsync();
-
-        var result = members.Select(m =>
-        {
-            var userMemories = memories.Where(x => x.CreatedByUserId == m.u.Id).ToList();
-
-            return new GroupMemberActivityDto(
-                m.u.Id,
-                m.u.DisplayName,
-                m.gm.Role.ToString(),
-                m.gm.JoinedAt,
-                userMemories.Any() ? userMemories.Max(x => x.CreatedAt) : null,
-                userMemories.Count,
-                userMemories.Count(x => x.Type == MemoryType.Photo),
-                userMemories.Count(x => x.Type == MemoryType.Video),
-                userMemories.Count(x => x.Type == MemoryType.Quote)
-            );
-        }).ToList();
-
-        return Ok(result);
     }
 }

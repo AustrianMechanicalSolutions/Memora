@@ -1,0 +1,77 @@
+<div class="ga-page">
+  <div class="ga-page-header">
+    <h2>{{ 'admin.dashboard' | t }}</h2>
+    <button (click)="load()">{{ 'admin.refresh' | t }}</button>
+  </div>
+
+  <div *ngIf="loading" class="ga-note">{{ 'admin.loading' | t }}</div>
+  <div *ngIf="error" class="ga-error">{{ error }}</div>
+
+  <div class="ga-grid" *ngIf="!loading && !error">
+    <section class="ga-card">
+      <h3>{{ 'admin.statistics' | t }}</h3>
+      <div class="ga-kv">
+        <div><span>{{ 'admin.memories' | t }}</span><strong>{{ stats?.memoryCount }}</strong></div>
+        <div><span>{{ 'admin.albums' | t }}</span><strong>{{ stats?.albumCount }}</strong></div>
+        <div><span>{{ 'admin.createdAt' | t }}</span><strong>{{ stats?.createdAt | date:'mediumDate' }}</strong></div>
+      </div>
+    </section>
+
+    <section class="ga-card">
+      <h3>{{ 'admin.last7Days' | t }}</h3>
+      <div class="ga-kv">
+        <div><span>Fotos</span><strong>{{ weekly?.photos }}</strong></div>
+        <div><span>Videos</span><strong>{{ weekly?.videos }}</strong></div>
+        <div><span>Zitate</span><strong>{{ weekly?.quotes }}</strong></div>
+        <div><span>Alben</span><strong>{{ weekly?.albums }}</strong></div>
+      </div>
+
+      <div class="ga-sub" *ngIf="weekly?.contributors?.length">
+        <h4>{{ 'admin.topContributors' | t }}</h4>
+        <ul class="ga-list">
+          <li *ngFor="let c of weekly?.contributors">
+            <img *ngIf="c.profileImageUrl" class="ga-avatar" [src]="c.profileImageUrl" />
+            <span>{{ c.displayName }}</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="ga-card ga-span-2">
+      <h3>{{ 'admin.membersActivity' | t }}</h3>
+      <div class="ga-table-wrap">
+        <table class="ga-table">
+          <thead>
+            <tr>
+              <th>{{ 'admin.name' | t }}</th>
+              <th>{{ 'admin.role' | t }}</th>
+              <th>{{ 'admin.joined' | t }}</th>
+              <th>{{ 'admin.lastPost' | t }}</th>
+              <th>{{ 'admin.total' | t }}</th>
+              <th>Fotos</th>
+              <th>Videos</th>
+              <th>Zitate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of memberActivity">
+              <td>
+                <span class="ga-row">
+                  <img *ngIf="m.profileImageUrl" class="ga-avatar" [src]="m.profileImageUrl" />
+                  {{ m.displayName }}
+                </span>
+              </td>
+              <td>{{ m.role }}</td>
+              <td>{{ m.joinedAt | date:'mediumDate' }}</td>
+              <td>{{ m.lastPostAt ? (m.lastPostAt | date:'mediumDate') : '—' }}</td>
+              <td>{{ m.totalMemories }}</td>
+              <td>{{ m.photos }}</td>
+              <td>{{ m.videos }}</td>
+              <td>{{ m.quotes }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>

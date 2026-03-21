@@ -4,11 +4,13 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { GroupsService, GroupListItemDto } from '../groups';
+import { TranslatePipe } from '../../translate.pipe';
+import { I18nService } from '../../i18n.service';
 
 @Component({
   selector: 'app-groups-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslatePipe],
   templateUrl: './groups-page.html',
   styleUrls: ['./groups-page.css']
 })
@@ -26,7 +28,10 @@ export class GroupsPageComponent {
   joining = false;
   joinErrorMsg = '';
 
-  constructor(private groupsService: GroupsService) {}
+  constructor(
+    private groupsService: GroupsService,
+    private i18n: I18nService
+  ) {}
 
   ngOnInit() {
     this.loadGroups();
@@ -57,12 +62,33 @@ export class GroupsPageComponent {
       next: () => {
         this.newGroupName = '';
         this.creating = false;
-        this.loadGroups(); // ✅ refresh list
+        this.loadGroups(); // refresh list
       },
       error: (err) => {
         console.error(err);
         this.creating = false;
-        this.errorMsg = err?.error ?? 'Could not create group';
+        this.errorMsg = err?.error ?? this.i18n.translate('groups.createFailed');
+      }
+    });
+  }
+
+  joinGroup() {
+    const code = this.inviteCode.trim();
+    if (!code) return;
+
+    this.joining = true;
+    this.joinErrorMsg = '';
+
+    this.groupsService.joinGroup(code).subscribe({
+      next: () => {
+        this.inviteCode = '';
+        this.joining = false;
+        this.loadGroups();
+      },
+      error: (err) => {
+        console.error(err);
+        this.joining = false;
+        this.joinErrorMsg = err?.error ?? this.i18n.translate('groups.joinFailed');
       }
     });
   }
