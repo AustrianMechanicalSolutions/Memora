@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 [ApiController]
 [Route("api/groups/{groupId:guid}/memories/{memoryId:guid}/comments")]
 [Authorize]
-public class MemoryCommentsController : ControllerBase
+public class MemoryCommentsController : BaseApiController
 {
     private readonly AppDbContext _db;
 

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 [ApiController]
 [Route("api/groups/{groupId:guid}/memories")]
 [Authorize]
-public class GroupMemoriesController : ControllerBase
+public class GroupMemoriesController : BaseApiController
 {
     private readonly AppDbContext _db;
     private readonly IWebHostEnvironment _environment;
