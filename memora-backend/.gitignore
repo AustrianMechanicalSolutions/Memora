@@ -3,4 +3,4 @@
 /node_modules
 /Migrations
 /wwwroot
-    memora.db
+memora-backend/memora.db
