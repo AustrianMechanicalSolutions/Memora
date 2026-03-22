@@ -70,7 +70,8 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins("http://localhost:4200", "https://austrianms.at", "https://www.austrianms.at", "https://memora.austrianms.at")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -84,6 +85,7 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors("frontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -91,7 +93,7 @@ app.UseAuthorization();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.ExecuteSqlRaw(@"
+    /*db.Database.ExecuteSqlRaw(@"
 CREATE TABLE IF NOT EXISTS MemoryLikes (
     MemoryId TEXT NOT NULL,
     UserId TEXT NOT NULL,
@@ -113,7 +115,7 @@ CREATE TABLE IF NOT EXISTS CommentLikes (
     UserId TEXT NOT NULL,
     CreatedAt TEXT NOT NULL,
     PRIMARY KEY (CommentId, UserId)
-);");
+);");*/
 }
 
 app.MapControllers();
