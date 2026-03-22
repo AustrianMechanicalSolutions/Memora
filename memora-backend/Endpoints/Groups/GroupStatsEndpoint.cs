@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 [ApiController]
 [Route("api/groups/{groupId:guid}/stats")]
 [Authorize]
-public class GroupStatsController : ControllerBase
+public class GroupStatsController : BaseApiController
 {
     private readonly AppDbContext _db;
 
@@ -21,8 +21,7 @@ public class GroupStatsController : ControllerBase
     public async Task<ActionResult<GroupStatsDto>> Stats(Guid groupId)
     {
         var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-        if (!isMember) return Forbid();
+        await EnsureGroupMember(_db, groupId, uid);
 
         var group = await _db.Set<Group>()
             .AsNoTracking()
@@ -30,7 +29,7 @@ public class GroupStatsController : ControllerBase
             .Select(g => new { g.CreatedAt })
             .FirstOrDefaultAsync();
 
-        if (group == null) return NotFound();
+        if (group == null) throw new ApiException("not_found", "Group not found.", 404);
 
         var memoryCountTask = _db.Set<Memory>()
             .AsNoTracking()
@@ -45,6 +44,9 @@ public class GroupStatsController : ControllerBase
 
         await Task.WhenAll(memoryCountTask, albumCountTask);
 
-        return Ok(new GroupStatsDto(memoryCountTask.Result, albumCountTask.Result, group.CreatedAt));
+        var memoryCount = await memoryCountTask;
+        var albumCount = await albumCountTask;
+
+        return Ok(new GroupStatsDto(memoryCount, albumCount, group.CreatedAt));
     }
 }

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 [ApiController]
 [Route("api/groups/{groupId:guid}/comments/{commentId:guid}/likes")]
 [Authorize]
-public class CommentLikesController : ControllerBase
+public class CommentLikesController : BaseApiController
 {
     private readonly AppDbContext _db;
 
@@ -21,8 +21,7 @@ public class CommentLikesController : ControllerBase
     public async Task<IActionResult> LikeComment(Guid groupId, Guid commentId)
     {
         var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-        if (!isMember) return Forbid();
+        await EnsureGroupMember(_db, groupId, uid);
 
         var comment = await _db.Set<MemoryComment>()
             .AsNoTracking()
@@ -34,7 +33,7 @@ public class CommentLikesController : ControllerBase
             )
             .FirstOrDefaultAsync(x => x.c.Id == commentId && x.m.GroupId == groupId);
 
-        if (comment == null) return NotFound();
+        if (comment == null) throw new ApiException("not_found", "Comment not found.", 404);
 
         var exists = await _db.Set<CommentLike>()
             .AnyAsync(x => x.CommentId == commentId && x.UserId == uid);
@@ -56,8 +55,7 @@ public class CommentLikesController : ControllerBase
     public async Task<IActionResult> UnlikeComment(Guid groupId, Guid commentId)
     {
         var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-        if (!isMember) return Forbid();
+        await EnsureGroupMember(_db, groupId, uid);
 
         var commentInGroup = await _db.Set<MemoryComment>()
             .AsNoTracking()
@@ -69,12 +67,12 @@ public class CommentLikesController : ControllerBase
             )
             .AnyAsync(x => x.c.Id == commentId && x.m.GroupId == groupId);
 
-        if (!commentInGroup) return NotFound();
+        if (!commentInGroup) throw new ApiException("not_found", "Comment not found.", 404);
 
         var entry = await _db.Set<CommentLike>()
             .FirstOrDefaultAsync(x => x.CommentId == commentId && x.UserId == uid);
 
-        if (entry == null) return NotFound();
+        if (entry == null) throw new ApiException("not_found", "Comment like entry not found.", 404);
 
         _db.Remove(entry);
         await _db.SaveChangesAsync();
