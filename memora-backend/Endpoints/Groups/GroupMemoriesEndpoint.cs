@@ -23,8 +23,7 @@ public class GroupMemoriesController : ControllerBase
     public async Task<ActionResult<object>> Memories(Guid groupId, [FromQuery] MemoryQuery q)
     {
         var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-        if (!isMember) return Forbid();
+        await EnsureGroupMember(groupId, uid);
 
         var page = q.Page < 1 ? 1 : q.Page;
         var pageSize = q.PageSize < 1 ? 20 : Math.Min(q.PageSize, 200);
@@ -111,8 +110,7 @@ public class GroupMemoriesController : ControllerBase
     public async Task<ActionResult<MemoryDto>> CreateQuote(Guid groupId, [FromBody] CreateQuoteRequest req)
     {
         var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-        if (!isMember) return Forbid();
+        await EnsureGroupMember(groupId, uid);
 
         var m = new Memory
         {
@@ -159,19 +157,29 @@ public class GroupMemoriesController : ControllerBase
     [RequestSizeLimit(200_000_000)] // 200MB limit
     public async Task<ActionResult<MemoryDto>> CreateMemory(Guid groupId, [FromForm] CreateMemoryRequest req)
     {
+        if (req == null)
+            throw new ApiException("invalid_request", "Request body is required.");
+
         var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-        if (!isMember) return Forbid();
+        await EnsureGroupMember(groupId, uid);
 
         string? mediaUrl = req.MediaUrl;
 
-        if (req.File != null && req.File.Length > 0)
+        if (req?.File?.Length > 200_000_000)
+            throw new ApiException("file_too_large", "File too large.");
+
+        if (req?.File != null && req.File.Length > 0)
         {
             var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
             var uploadsFolder = Path.Combine(webRootPath, "uploads");
             Directory.CreateDirectory(uploadsFolder);
 
             var ext = Path.GetExtension(req.File.FileName);
+
+            var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp", ".mp4", ".mp3", ".mov", ".webm", ".svg", ".ogg" };
+            if (!allowed.Contains(ext.ToLower()))
+                throw new ApiException("invalid_file", "File type not allowed.");
+
             var fileName = $"{Guid.NewGuid()}{ext}";
             var filePath = Path.Combine(uploadsFolder, fileName);
 
@@ -185,7 +193,7 @@ public class GroupMemoriesController : ControllerBase
         {
             Id = Guid.NewGuid(),
             GroupId = groupId,
-            Type = req.Type,
+            Type = req!.Type,
             Title = req.Title,
             QuoteText = req.QuoteText,
             MediaUrl = mediaUrl,
@@ -227,18 +235,14 @@ public class GroupMemoriesController : ControllerBase
     {
         var uid = User.UserId();
 
-        var isMember = await _db.Set<GroupMember>()
-            .AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-
-        if (!isMember)
-            return Forbid();
+        await EnsureGroupMember(groupId, uid);
 
         var memory = await _db.Set<Memory>()
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == memoryId && x.GroupId == groupId);
 
         if (memory == null || string.IsNullOrWhiteSpace(memory.MediaUrl))
-            return NotFound();
+            throw new ApiException("not_found", "Memory not found.", 404);
 
         var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
         var uploadsFolder = Path.Combine(webRootPath, "uploads");
@@ -247,7 +251,7 @@ public class GroupMemoriesController : ControllerBase
         var filePath = Path.Combine(uploadsFolder, fileName);
 
         if (!System.IO.File.Exists(filePath))
-            return NotFound();
+            throw new ApiException("not_found", "Resource not found.", 404);
 
         var contentType = GetContentType(filePath);
 
@@ -269,5 +273,14 @@ public class GroupMemoriesController : ControllerBase
             ".webm" => "video/webm",
             _ => "application/octet-stream"
         };
+    }
+
+    private async Task EnsureGroupMember(Guid groupId, Guid userId)
+    {
+        var isMember = await _db.Set<GroupMember>()
+            .AnyAsync(x => x.GroupId == groupId && x.UserId == userId);
+
+        if (!isMember)
+            throw new ApiException("forbidden", "You are not a member of this group.", 403);
     }
 }

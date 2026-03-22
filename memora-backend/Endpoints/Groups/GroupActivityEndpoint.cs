@@ -21,10 +21,7 @@ public class GroupActivityController : ControllerBase
     public async Task<ActionResult<GroupWeeklyActivityDto>> WeeklyActivity(Guid groupId)
     {
         var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>()
-            .AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-
-        if (!isMember) return Forbid();
+        await EnsureGroupMember(groupId, uid);
 
         var since = DateTime.UtcNow.AddDays(-7);
 
@@ -72,10 +69,7 @@ public class GroupActivityController : ControllerBase
     public async Task<ActionResult<List<GroupMemberActivityDto>>> MemberActivity(Guid groupId)
     {
         var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>()
-            .AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-
-        if (!isMember) return Forbid();
+        await EnsureGroupMember(groupId, uid);
 
         var members = await _db.Set<GroupMember>()
             .AsNoTracking()
@@ -112,5 +106,14 @@ public class GroupActivityController : ControllerBase
         }).ToList();
 
         return Ok(result);
+    }
+
+    private async Task EnsureGroupMember(Guid groupId, Guid userId)
+    {
+        var isMember = await _db.Set<GroupMember>()
+            .AnyAsync(x => x.GroupId == groupId && x.UserId == userId);
+
+        if (!isMember)
+            throw new ApiException("forbidden", "You are not a member of this group.", 403);
     }
 }

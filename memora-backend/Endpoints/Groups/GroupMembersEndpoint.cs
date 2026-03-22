@@ -17,12 +17,12 @@ public class GroupMembersController : ControllerBase
         _db = db;
     }
 
-    [HttpGet()]
+    [HttpGet]
     public async Task<ActionResult<List<GroupMemberDto>>> Members(Guid groupId)
     {
         var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-        if (!isMember) return Forbid();
+
+        await EnsureGroupMember(groupId, uid);
 
         var members = await _db.Set<GroupMember>()
             .AsNoTracking()
@@ -50,20 +50,18 @@ public class GroupMembersController : ControllerBase
     {
         var uid = User.UserId();
 
-        var me = await _db.Set<GroupMember>()
-            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == uid);
+        var me = await GetMember(groupId, uid);
 
-        if (me == null) return Forbid();
-        if (me.Role != GroupRole.Admin) return Forbid();
+        if (me?.Role != GroupRole.Admin)
+            throw new ApiException("forbidden", "Admin access required.", 403);
 
-        var target = await _db.Set<GroupMember>()
-            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == userId);
+        var target = await GetMember(groupId, userId);
 
-        if (target == null) return NotFound();
+        if (target == null)
+            throw new ApiException("not_found", "Member not found.", 404);
 
-        // prevent removing yourself (optional safety)
         if (target.UserId == uid)
-            return StatusCode(403, "You cannot remove yourself.");
+            throw new ApiException("forbidden", "You cannot remove yourself.", 403);
 
         _db.Remove(target);
         await _db.SaveChangesAsync();
@@ -76,19 +74,18 @@ public class GroupMembersController : ControllerBase
     {
         var uid = User.UserId();
 
-        var me = await _db.Set<GroupMember>()
-            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == uid);
+        var me = await GetMember(groupId, uid);
 
-        if (me == null || me.Role != GroupRole.Admin)
-            return Forbid();
+        if (me?.Role != GroupRole.Admin)
+            throw new ApiException("forbidden", "Admin access required.", 403);
 
-        var target = await _db.Set<GroupMember>()
-            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == userId);
+        var target = await GetMember(groupId, userId);
 
-        if (target == null) return NotFound();
+        if (target == null)
+            throw new ApiException("not_found", "Member not found.", 404);
 
         if (!Enum.TryParse<GroupRole>(req.Role, true, out var newRole))
-            return BadRequest("Invalid role.");
+            throw new ApiException("invalid_role", "Invalid role.");
 
         if (target.Role == GroupRole.Admin && newRole != GroupRole.Admin)
         {
@@ -96,7 +93,7 @@ public class GroupMembersController : ControllerBase
                 .CountAsync(x => x.GroupId == groupId && x.Role == GroupRole.Admin);
 
             if (adminCount <= 1)
-                return StatusCode(403, "Group must have at least one admin.");
+                throw new ApiException("forbidden", "Group must have at least one admin.", 403);
         }
 
         target.Role = newRole;
@@ -104,5 +101,20 @@ public class GroupMembersController : ControllerBase
         await _db.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    private async Task<GroupMember?> GetMember(Guid groupId, Guid userId)
+    {
+        return await _db.Set<GroupMember>()
+            .FirstOrDefaultAsync(x => x.GroupId == groupId && x.UserId == userId);
+    }
+
+    private async Task EnsureGroupMember(Guid groupId, Guid userId)
+    {
+        var isMember = await _db.Set<GroupMember>()
+            .AnyAsync(x => x.GroupId == groupId && x.UserId == userId);
+
+        if (!isMember)
+            throw new ApiException("forbidden", "You are not a member of this group.", 403);
     }
 }
