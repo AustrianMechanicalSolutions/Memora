@@ -49,12 +49,8 @@ export class MembersComponent implements OnInit, OnDestroy {
             userId: m.userId,
             name: m.name,
             role: m.role,
-<<<<<<< HEAD
-            profileImageUrl: m.avatarUrl
-=======
             profileImageUrl: m.avatarUrl,
             displayName: m.displayName
->>>>>>> origin/main
           }));
           this.loading = false;
         },
@@ -70,17 +66,6 @@ export class MembersComponent implements OnInit, OnDestroy {
   get filtered(): GroupMemberDto[] {
     const s = this.filter.trim().toLowerCase();
     if (!s) return this.members;
-<<<<<<< HEAD
-
-    return this.members.filter(m =>
-      (m.name || '').toLowerCase().includes(s) ||
-      (m.role || '').toLowerCase().includes(s)
-    );
-  }
-
-  remove(m: GroupMemberDto): void {
-    const confirmDelete = confirm(`Remove ${m.name}?`);
-=======
 
     return this.members.filter(m =>
       (m.displayName || '').toLowerCase().includes(s) ||
@@ -99,7 +84,6 @@ export class MembersComponent implements OnInit, OnDestroy {
 
   remove(m: GroupMemberDto): void {
     const confirmDelete = confirm(`Remove ${m.displayName}?`);
->>>>>>> origin/main
     if (!confirmDelete) return;
 
     this.service.removeMember(this.groupId, m.userId).subscribe({

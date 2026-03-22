@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environment';
 
 export interface GroupListItemDto {
   id: string;
@@ -115,7 +116,7 @@ export interface AlbumPersonDto {
   providedIn: 'root'
 })
 export class GroupsService {
-  private baseUrl = '/api/groups';
+  private baseUrl = `${environment.apiUrl}/api/groups`;
   private groupsChangedSource = new Subject<void>();
   groupsChanged$ = this.groupsChangedSource.asObservable();
 
