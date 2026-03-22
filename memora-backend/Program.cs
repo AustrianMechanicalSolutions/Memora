@@ -116,9 +116,6 @@ CREATE TABLE IF NOT EXISTS CommentLikes (
 );");
 }
 
-// ---- Map endpoints ----
-app.MapAuthEndpoints();
-
 app.MapControllers();
 
 // ---- Protected test ----
