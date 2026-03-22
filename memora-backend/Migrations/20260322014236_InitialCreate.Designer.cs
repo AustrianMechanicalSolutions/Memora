@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace memorabackend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260322001559_InitialCreate")]
+    [Migration("20260322014236_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
