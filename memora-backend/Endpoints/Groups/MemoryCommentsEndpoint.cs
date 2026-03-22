@@ -21,7 +21,7 @@ public class MemoryCommentsController : ControllerBase
     public async Task<ActionResult<List<CommentDto>>> MemoryComments(Guid groupId, Guid memoryId)
     {
         var uid = User.UserId();
-        await EnsureGroupMember(groupId, uid);
+        await EnsureGroupMember(_db, groupId, uid);
 
         var memoryExists = await _db.Set<Memory>().AnyAsync(x => x.Id == memoryId && x.GroupId == groupId);
         if (!memoryExists) throw new ApiException("not_found", "Memory not found.", 404);
@@ -75,7 +75,7 @@ public class MemoryCommentsController : ControllerBase
     public async Task<ActionResult<CommentDto>> AddComment(Guid groupId, Guid memoryId, [FromBody] CreateCommentRequest req)
     {
         var uid = User.UserId();
-        await EnsureGroupMember(groupId, uid);
+        await EnsureGroupMember(_db, groupId, uid);
 
         var memoryExists = await _db.Set<Memory>().AnyAsync(x => x.Id == memoryId && x.GroupId == groupId);
         if (!memoryExists) throw new ApiException("not_found", "Memory not found.", 404);
@@ -123,14 +123,5 @@ public class MemoryCommentsController : ControllerBase
             0,
             false
         ));
-    }
-
-    private async Task EnsureGroupMember(Guid groupId, Guid userId)
-    {
-        var isMember = await _db.Set<GroupMember>()
-            .AnyAsync(x => x.GroupId == groupId && x.UserId == userId);
-
-        if (!isMember)
-            throw new ApiException("forbidden", "You are not a member of this group.", 403);
     }
 }

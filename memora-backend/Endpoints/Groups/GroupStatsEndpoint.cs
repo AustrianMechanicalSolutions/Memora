@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 [ApiController]
 [Route("api/groups/{groupId:guid}/stats")]
 [Authorize]
-public class GroupStatsController : ControllerBase
+public class GroupStatsController : BaseApiController
 {
     private readonly AppDbContext _db;
 
@@ -21,7 +21,7 @@ public class GroupStatsController : ControllerBase
     public async Task<ActionResult<GroupStatsDto>> Stats(Guid groupId)
     {
         var uid = User.UserId();
-        await EnsureGroupMember(groupId, uid);
+        await EnsureGroupMember(_db, groupId, uid);
 
         var group = await _db.Set<Group>()
             .AsNoTracking()
@@ -48,14 +48,5 @@ public class GroupStatsController : ControllerBase
         var albumCount = await albumCountTask;
 
         return Ok(new GroupStatsDto(memoryCount, albumCount, group.CreatedAt));
-    }
-
-    private async Task EnsureGroupMember(Guid groupId, Guid userId)
-    {
-        var isMember = await _db.Set<GroupMember>()
-            .AnyAsync(x => x.GroupId == groupId && x.UserId == userId);
-
-        if (!isMember)
-            throw new ApiException("forbidden", "You are not a member of this group.", 403);
     }
 }

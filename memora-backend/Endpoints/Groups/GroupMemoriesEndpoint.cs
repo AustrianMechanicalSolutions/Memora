@@ -23,7 +23,7 @@ public class GroupMemoriesController : ControllerBase
     public async Task<ActionResult<object>> Memories(Guid groupId, [FromQuery] MemoryQuery q)
     {
         var uid = User.UserId();
-        await EnsureGroupMember(groupId, uid);
+        await EnsureGroupMember(_db, groupId, uid);
 
         var page = q.Page < 1 ? 1 : q.Page;
         var pageSize = q.PageSize < 1 ? 20 : Math.Min(q.PageSize, 200);
@@ -110,7 +110,7 @@ public class GroupMemoriesController : ControllerBase
     public async Task<ActionResult<MemoryDto>> CreateQuote(Guid groupId, [FromBody] CreateQuoteRequest req)
     {
         var uid = User.UserId();
-        await EnsureGroupMember(groupId, uid);
+        await EnsureGroupMember(_db, groupId, uid);
 
         var m = new Memory
         {
@@ -161,7 +161,7 @@ public class GroupMemoriesController : ControllerBase
             throw new ApiException("invalid_request", "Request body is required.");
 
         var uid = User.UserId();
-        await EnsureGroupMember(groupId, uid);
+        await EnsureGroupMember(_db, groupId, uid);
 
         string? mediaUrl = req.MediaUrl;
 
@@ -235,7 +235,7 @@ public class GroupMemoriesController : ControllerBase
     {
         var uid = User.UserId();
 
-        await EnsureGroupMember(groupId, uid);
+        await EnsureGroupMember(_db, groupId, uid);
 
         var memory = await _db.Set<Memory>()
             .AsNoTracking()
@@ -273,14 +273,5 @@ public class GroupMemoriesController : ControllerBase
             ".webm" => "video/webm",
             _ => "application/octet-stream"
         };
-    }
-
-    private async Task EnsureGroupMember(Guid groupId, Guid userId)
-    {
-        var isMember = await _db.Set<GroupMember>()
-            .AnyAsync(x => x.GroupId == groupId && x.UserId == userId);
-
-        if (!isMember)
-            throw new ApiException("forbidden", "You are not a member of this group.", 403);
     }
 }

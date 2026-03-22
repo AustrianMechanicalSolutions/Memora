@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 [ApiController]
 [Route("api/groups/{groupId:guid}/memories/{memoryId:guid}/likes")]
 [Authorize]
-public class MemoryLikesController : ControllerBase {
+public class MemoryLikesController : BaseApiController {
 
     private readonly AppDbContext _db;
 
@@ -21,11 +21,10 @@ public class MemoryLikesController : ControllerBase {
     public async Task<IActionResult> LikeMemory(Guid groupId, Guid memoryId)
     {
         var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-        if (!isMember) return Forbid();
+        await EnsureGroupMember(_db, groupId, uid);
 
         var memoryExists = await _db.Set<Memory>().AnyAsync(x => x.Id == memoryId && x.GroupId == groupId);
-        if (!memoryExists) return NotFound();
+        if (!memoryExists) throw new ApiException("not_found", "Memory not found.", 404);
 
         var exists = await _db.Set<MemoryLike>()
             .AnyAsync(x => x.MemoryId == memoryId && x.UserId == uid);
@@ -47,16 +46,15 @@ public class MemoryLikesController : ControllerBase {
     public async Task<IActionResult> UnlikeMemory(Guid groupId, Guid memoryId)
     {
         var uid = User.UserId();
-        var isMember = await _db.Set<GroupMember>().AnyAsync(x => x.GroupId == groupId && x.UserId == uid);
-        if (!isMember) return Forbid();
+        await EnsureGroupMember(_db, groupId, uid);
 
         var memoryExists = await _db.Set<Memory>().AnyAsync(x => x.Id == memoryId && x.GroupId == groupId);
-        if (!memoryExists) return NotFound();
+        if (!memoryExists) throw new ApiException("not_found", "Memory not found.", 404);
 
         var entry = await _db.Set<MemoryLike>()
             .FirstOrDefaultAsync(x => x.MemoryId == memoryId && x.UserId == uid);
 
-        if (entry == null) return NotFound();
+        if (entry == null) throw new ApiException("not_found", "Like not found.", 404);
 
         _db.Remove(entry);
         await _db.SaveChangesAsync();

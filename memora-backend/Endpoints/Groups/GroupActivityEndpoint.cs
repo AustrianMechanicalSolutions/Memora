@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 [ApiController]
 [Route("api/groups/{groupId:guid}/activity")]
 [Authorize]
-public class GroupActivityController : ControllerBase
+public class GroupActivityController : BaseApiController
 {
     private readonly AppDbContext _db;
 
@@ -21,7 +21,7 @@ public class GroupActivityController : ControllerBase
     public async Task<ActionResult<GroupWeeklyActivityDto>> WeeklyActivity(Guid groupId)
     {
         var uid = User.UserId();
-        await EnsureGroupMember(groupId, uid);
+        await EnsureGroupMember(_db, groupId, uid);
 
         var since = DateTime.UtcNow.AddDays(-7);
 
@@ -69,7 +69,7 @@ public class GroupActivityController : ControllerBase
     public async Task<ActionResult<List<GroupMemberActivityDto>>> MemberActivity(Guid groupId)
     {
         var uid = User.UserId();
-        await EnsureGroupMember(groupId, uid);
+        await EnsureGroupMember(_db, groupId, uid);
 
         var members = await _db.Set<GroupMember>()
             .AsNoTracking()
@@ -106,14 +106,5 @@ public class GroupActivityController : ControllerBase
         }).ToList();
 
         return Ok(result);
-    }
-
-    private async Task EnsureGroupMember(Guid groupId, Guid userId)
-    {
-        var isMember = await _db.Set<GroupMember>()
-            .AnyAsync(x => x.GroupId == groupId && x.UserId == userId);
-
-        if (!isMember)
-            throw new ApiException("forbidden", "You are not a member of this group.", 403);
     }
 }

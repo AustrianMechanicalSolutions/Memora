@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 [ApiController]
 [Route("api/groups/{groupId:guid}/comments/{commentId:guid}/likes")]
 [Authorize]
-public class CommentLikesController : ControllerBase
+public class CommentLikesController : BaseApiController
 {
     private readonly AppDbContext _db;
 
@@ -21,7 +21,7 @@ public class CommentLikesController : ControllerBase
     public async Task<IActionResult> LikeComment(Guid groupId, Guid commentId)
     {
         var uid = User.UserId();
-        await EnsureGroupMember(groupId, uid);
+        await EnsureGroupMember(_db, groupId, uid);
 
         var comment = await _db.Set<MemoryComment>()
             .AsNoTracking()
@@ -55,7 +55,7 @@ public class CommentLikesController : ControllerBase
     public async Task<IActionResult> UnlikeComment(Guid groupId, Guid commentId)
     {
         var uid = User.UserId();
-        await EnsureGroupMember(groupId, uid);
+        await EnsureGroupMember(_db, groupId, uid);
 
         var commentInGroup = await _db.Set<MemoryComment>()
             .AsNoTracking()
@@ -78,14 +78,5 @@ public class CommentLikesController : ControllerBase
         await _db.SaveChangesAsync();
 
         return NoContent();
-    }
-
-    private async Task EnsureGroupMember(Guid groupId, Guid userId)
-    {
-        var isMember = await _db.Set<GroupMember>()
-            .AnyAsync(x => x.GroupId == groupId && x.UserId == userId);
-
-        if (!isMember)
-            throw new ApiException("forbidden", "You are not a member of this group.", 403);
     }
 }
