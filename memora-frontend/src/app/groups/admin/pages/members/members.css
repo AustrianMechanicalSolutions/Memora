@@ -45,13 +45,17 @@
 
 .ga-table th {
   text-align: left;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-secondary);
-  padding-bottom: 10px;
+  font-size: 13px;
+  padding: 12px 8px;
 }
 
 .ga-table td {
-  padding: 12px 0;
+  padding: 12px 8px;
+}
+
+.ga-table tbody tr {
   border-top: 1px solid var(--border);
 }
 
@@ -105,4 +109,45 @@
 .role.admin {
   background: var(--accent-soft);
   color: var(--accent);
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+
+.clickBtn {
+  color: var(--text-primary);
+}
+
+.role-menu-wrapper {
+  position: relative;
+}
+
+.role-menu {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  min-width: 120px;
+}
+
+.role-menu button {
+  padding: 6px 10px;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 6px;
+  color: var(--text-primary);
+}
+
+.role-menu button:hover {
+  background: var(--hover-bg);
 }

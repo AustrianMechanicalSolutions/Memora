@@ -80,6 +80,8 @@ var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
 
 Directory.CreateDirectory(uploadsPath);
 
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseCors("frontend");
 app.UseAuthentication();
@@ -113,9 +115,6 @@ CREATE TABLE IF NOT EXISTS CommentLikes (
     PRIMARY KEY (CommentId, UserId)
 );");
 }
-
-// ---- Map endpoints ----
-app.MapAuthEndpoints();
 
 app.MapControllers();
 

@@ -23,8 +23,8 @@
         <tbody>
           <tr *ngFor="let m of filtered">
             <td class="ga-row">
-              <img *ngIf="m.profileImageUrl" class="ga-avatar" [src]="m.profileImageUrl" />
-              {{ m.displayName }}
+              <img *ngIf="m.avatarUrl" class="ga-avatar" [src]="m.avatarUrl" />
+              {{ m.name }}
             </td>
             <td>
               <span class="role" [class.admin]="m.role === 'Admin'">
@@ -32,8 +32,19 @@
               </span>
             </td>
             <td class="ga-btns">
-              <button (click)="changeRole(m)">{{ 'admin.changeRole' | t }}</button>
-              <button (click)="remove(m)">{{ 'admin.removeMember' | t }}</button>
+              <div class="role-menu-wrapper">
+                <button class="clickBtn" (click)="toggleMenu(m.userId)">{{ 'admin.changeRole' | t }}</button>
+
+                <div class="role-menu" *ngIf="openMenuFor === m.userId">
+                  <button
+                    *ngFor="let r of roles"
+                    (click)="confirmChangeRole(m, r)"
+                  >
+                    {{ r }}
+                  </button>
+                </div>
+              </div>
+              <button class="clickBtn" (click)="remove(m)">{{ 'admin.removeMember' | t }}</button>
             </td>
           </tr>
         </tbody>
