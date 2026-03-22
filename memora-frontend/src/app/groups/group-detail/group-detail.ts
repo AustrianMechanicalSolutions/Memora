@@ -91,7 +91,7 @@ export class GroupDetailComponent {
         next: (g) => {
           this.group = g;
 
-          this.creatorUserId = (g as any).createdByUserId;
+          this.creatorUserId = (g as any).createdByUserName;
 
           this.reload();
           this.loadMembers();
@@ -108,6 +108,8 @@ export class GroupDetailComponent {
     this.auth.currentUser().subscribe(u => {
       this.currentUserId = u.id;
     });
+
+    this.loadAlbums();
   }
 
   reload() {
@@ -206,7 +208,7 @@ export class GroupDetailComponent {
       next: (r) => {
         this.members = r;
 
-        this.creatorName = this.members.find(m => m.userId === this.group?.createdByUserId)?.name ?? 'Unknown';
+        this.creatorName = this.group?.createdByUserName ?? 'Unknown';
 
         const currentUserId = this.currentUserId;
         this.isAdmin = this.members.some(
