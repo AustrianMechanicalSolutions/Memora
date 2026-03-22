@@ -80,6 +80,8 @@ var uploadsPath = Path.Combine(webRootPath, "uploads");
 
 Directory.CreateDirectory(uploadsPath);
 
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseCors("frontend");
 app.UseAuthentication();
