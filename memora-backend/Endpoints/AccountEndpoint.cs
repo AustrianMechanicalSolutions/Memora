@@ -28,7 +28,7 @@ public class AccountEndpoint : ControllerBase
         var uid = User.UserId();
 
         var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == uid);
-        if (user is null) return NotFound();
+        if (user is null) throw new ApiException("not_found", "User not found.", 404);
 
         return Ok(new
         {
@@ -72,7 +72,7 @@ public class AccountEndpoint : ControllerBase
         var uid = User.UserId();
 
         var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == uid);
-        if (user is null) return NotFound();
+        if (user is null) throw new ApiException("not_found", "User not found.", 404);
 
         if (req.DisplayName is not null) user.DisplayName = req.DisplayName.Trim();
         user.Bio = req.Bio;
@@ -104,13 +104,18 @@ public class AccountEndpoint : ControllerBase
         var uid = User.UserId();
 
         var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == uid);
-        if (user is null) return NotFound();
+        if (user is null) throw new ApiException("not_found", "User not found.", 404);
 
         var verify = _hasher.VerifyHashedPassword(user, user.PasswordHash, req.CurrentPassword);
         if (verify == PasswordVerificationResult.Failed)
-            return BadRequest("Current password is wrong.");
+            throw new ApiException("not_found", "User not found.", 404);
 
-        user.PasswordHash = _hasher.HashPassword(user, req.NewPassword);
+        if (string.IsNullOrWhiteSpace(req.NewPassword) || req.NewPassword.Length < 8)
+            throw new ApiException("invalid_password", "Password must be at least 8 characters.");
+
+        if (req.NewPassword == req.CurrentPassword)
+            throw new ApiException("invalid_password", "New password must be different.");
+
         await _db.SaveChangesAsync();
 
         return Ok();
