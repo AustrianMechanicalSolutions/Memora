@@ -72,6 +72,7 @@ export interface GroupDetailDto {
     dateStart: string;
     dateEnd: string | null;
     memoryCount: number;
+    coverUrl?: string;
   }
 
   export interface GroupStatsDto {

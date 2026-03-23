@@ -1,0 +1,49 @@
+<div class="timeline-page">
+  <h1 class="title">Timeline</h1>
+
+  <div *ngIf="loading" class="loading">Loading...</div>
+
+  <div class="timeline" *ngIf="!loading && albums.length > 0">
+    <div
+      class="timeline-item"
+      *ngFor="let album of albums; let i = index"
+      [class.left]="i % 2 === 0"
+      [class.right]="i % 2 !== 0"
+    >
+      <div class="timeline-dot"></div>
+
+      <div class="timeline-card clickable" (click)="openAlbum(album)">
+        <!-- Preview -->
+        <div class="preview">
+            <img [src]="album.coverUrl" />
+        </div>
+
+        <ng-template #fallback>
+          <div class="preview fallback">
+            {{ album.title.charAt(0) }}
+          </div>
+        </ng-template>
+
+        <div class="content">
+          <div class="date">
+            {{ album.dateStart | date:'dd MMM yyyy' }}
+          </div>
+
+          <h3>{{ album.title }}</h3>
+
+          <p *ngIf="album.description">
+            {{ album.description }}
+          </p>
+
+          <div class="meta">
+            {{ album.memoryCount }} memories
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && albums.length === 0" class="empty">
+    No albums yet 🚀
+  </div>
+</div>
