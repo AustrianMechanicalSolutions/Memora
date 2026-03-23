@@ -16,6 +16,8 @@ export class TimelineComponent implements OnInit {
   albums: AlbumDto[] = [];
   loading = true;
 
+  groupMode: 'year' | 'month' = 'year';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -52,7 +54,11 @@ export class TimelineComponent implements OnInit {
               (a as any).coverUrl = this.mediaSrc(random.mediaUrl);
             }
           });
+
+          this.groupsService.loadTopMemory(this.groupId, a);
         });
+
+        this.determineGrouping();
 
         this.loading = false;
       },
@@ -73,5 +79,67 @@ export class TimelineComponent implements OnInit {
     const token = localStorage.getItem('token');
 
     return `${environment.apiUrl}${url}?token=${token}`;
+  }
+
+  determineGrouping() {
+    if (this.albums.length === 0) return;
+
+    const dates = this.albums.map(a => new Date(a.dateStart));
+    const min = new Date(Math.min(...dates.map(d => d.getTime())));
+    const max = new Date(Math.max(...dates.map(d => d.getTime())));
+
+    const diffYears = max.getFullYear() - min.getFullYear();
+
+    if (diffYears >= 2) {
+      this.groupMode = 'year';
+    } else {
+      this.groupMode = 'month';
+    }
+  }
+
+  getTimeKey(album: AlbumDto): string {
+    const d = new Date(album.dateStart);
+
+    if (this.groupMode === 'year') {
+      return `${d.getFullYear()}`;
+    }
+
+    return `${d.getFullYear()}-${d.getMonth()}`;
+  }
+
+  isTimeChange(i: number): boolean {
+    if (i === 0) return true;
+
+    return (
+      this.getTimeKey(this.albums[i]) !==
+      this.getTimeKey(this.albums[i - 1])
+    );
+  }
+
+  formatTimeLabel(album: AlbumDto): string {
+    const d = new Date(album.dateStart);
+
+    if (this.groupMode === 'year') {
+      return `${d.getFullYear()}`;
+    }
+
+    return d.toLocaleString('default', {
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+
+  isImageFromType(m: any): boolean {
+    return m?.type === 0;
+  }
+
+  isVideoFromType(m: any): boolean {
+    return m?.type === 1;
+  }
+
+  isVideo(url: string | null | undefined): boolean {
+    if (!url) return false;
+
+    return /\.(mp4|webm|mov)$/i.test(url);
   }
 }

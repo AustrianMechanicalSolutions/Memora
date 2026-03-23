@@ -170,7 +170,7 @@ public class AlbumEndpoint : BaseApiController
             {
                 m.Id,
                 m.Type,
-                m.MediaUrl,
+                MediaUrl = $"/api/groups/{groupId}/memories/{m.Id}/media",
                 m.ThumbUrl,
                 m.QuoteText,
                 m.HappenedAt,

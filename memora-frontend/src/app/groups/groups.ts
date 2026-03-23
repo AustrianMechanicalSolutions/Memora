@@ -72,7 +72,16 @@ export interface GroupDetailDto {
     dateStart: string;
     dateEnd: string | null;
     memoryCount: number;
+
     coverUrl?: string;
+    topMemory?: {
+      id: string;
+      type: number,
+      mediaUrl?: string;
+      thumbUrl?: string;
+      quoteText?: string;
+      likeCount: number;
+    };
   }
 
   export interface GroupStatsDto {
@@ -260,5 +269,15 @@ export class GroupsService {
 
   notifyGroupsChanged() {
     this.groupsChangedSource.next();
+  }
+
+  loadTopMemory(groupId: string, album: AlbumDto) {
+    this.http
+      .get<any>(`${environment.apiUrl}/api/groups/${groupId}/albums/${album.id}/top-memory`)
+      .subscribe({
+        next: (m) => {
+          album.topMemory = m;
+        }
+      });
   }
 }
