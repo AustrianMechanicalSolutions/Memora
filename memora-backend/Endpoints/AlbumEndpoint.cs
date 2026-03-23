@@ -12,7 +12,7 @@ namespace AuthApi.Endpoints;
 [ApiController]
 [Route("api/groups/{groupId:guid}/albums")]
 [Authorize]
-public class AlbumEndpoint : ControllerBase
+public class AlbumEndpoint : BaseApiController
 {
     private readonly AppDbContext _db;
     private readonly IPasswordHasher<AppUser> _hasher;
@@ -140,7 +140,7 @@ public class AlbumEndpoint : ControllerBase
         await _db.SaveChangesAsync();
 
         return NoContent();
-}
+    }
 
     private async Task<bool> CanEditAlbum(Guid albumId, Guid userId)
     {
@@ -151,5 +151,41 @@ public class AlbumEndpoint : ControllerBase
                  a.Group.CreatedByUserId == userId ||
                  a.Group.Members.Any(m => m.UserId == userId && m.Role == GroupRole.Admin))
             );
+    }
+
+    [HttpGet("{albumId:guid}/top-memory")]
+    public async Task<ActionResult<object>> GetTopMemory(Guid groupId, Guid albumId)
+    {
+        var uid = User.UserId();
+        await EnsureGroupMember(_db, groupId, uid);
+
+        var query =
+            from m in _db.Set<Memory>().AsNoTracking()
+            where m.GroupId == groupId && m.AlbumId == albumId
+
+            join l in _db.Set<MemoryLike>()
+                on m.Id equals l.MemoryId into likes
+
+            select new
+            {
+                m.Id,
+                m.Type,
+                m.MediaUrl,
+                m.ThumbUrl,
+                m.QuoteText,
+                m.HappenedAt,
+
+                LikeCount = likes.Count()
+            };
+
+        var memory = await query
+            .OrderByDescending(x => x.LikeCount)
+            .ThenByDescending(x => x.HappenedAt)
+            .FirstOrDefaultAsync();
+
+        if (memory == null)
+            return NotFound();
+
+        return Ok(memory);
     }
 }
