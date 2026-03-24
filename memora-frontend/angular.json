@@ -54,6 +54,10 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "host": "0.0.0.0",
+            "allowedHosts": ["memora.austrianms.at"]
+          },
           "configurations": {
             "production": {
               "buildTarget": "memora-frontend:build:production"

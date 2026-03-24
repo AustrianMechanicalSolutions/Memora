@@ -4,11 +4,11 @@ import { Observable, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../environment';
 
-export interface GroupListItemDto {
-  id: string;
-  name: string;
-  memberCount: number;
-}
+  export interface GroupListItemDto {
+    id: string;
+    name: string;
+    memberCount: number;
+  }
 
 export interface GroupDetailDto {
   id: string;
@@ -18,79 +18,102 @@ export interface GroupDetailDto {
   createdByUserName: string;
 }
 
-export interface MemoryDto {
-  id: string;
-  groupId: string;
-  type: number; // 0 Photo, 1 Video, 2 Quote
-  title?: string;
-  quoteText?: string;
-  quoteBy: string | null;
-  mediaUrl?: string;
-  thumbUrl?: string;
-  happenedAt: string;
-  createdAt: string;
-  createdByUserId: string;
-  tags: string[];
-  likeCount?: number;
-  commentCount?: number;
-  isLiked?: boolean;
-}
+  export interface MemoryDto {
+    id: string;
+    groupId: string;
+    type: number; // 0 Photo, 1 Video, 2 Quote
+    title?: string;
+    quoteText?: string;
+    quoteBy: string | null;
+    mediaUrl?: string;
+    thumbUrl?: string;
+    happenedAt: string;
+    createdAt: string;
+    createdByUserId: string;
+    tags: string[];
+    likeCount?: number;
+    commentCount?: number;
+    isLiked?: boolean;
+  }
 
-export interface CommentDto {
-  id: string;
-  memoryId: string;
-  userId: string;
-  userName: string;
-  avatarUrl?: string | null;
-  content: string;
-  createdAt: string;
-  parentCommentId?: string | null;
-  likeCount: number;
-  isLiked: boolean;
-}
+  export interface CommentDto {
+    id: string;
+    memoryId: string;
+    userId: string;
+    userName: string;
+    avatarUrl?: string | null;
+    content: string;
+    createdAt: string;
+    parentCommentId?: string | null;
+    likeCount: number;
+    isLiked: boolean;
+  }
 
-export interface MemoryQuery {
-  type?: number;
-  from?: string;
-  to?: string;
-  search?: string;
-  sort?: 'newest' | 'oldest';
-  page?: number;
-  pageSize?: number;
-  albumId?: string;
-}
+  export interface MemoryQuery {
+    type?: number;
+    from?: string;
+    to?: string;
+    search?: string;
+    sort?: 'newest' | 'oldest';
+    page?: number;
+    pageSize?: number;
+    albumId?: string;
+  }
 
-export interface CreateGroupRequest {
-  name: string;
-}
+  export interface CreateGroupRequest {
+    name: string;
+  }
 
-export interface AlbumDto {
-  id: string;
-  groupId: string;
-  title: string;
-  description: string | null;
-  dateStart: string;
-  dateEnd: string | null;
-  memoryCount: number;
-}
+  export interface AlbumDto {
+    id: string;
+    groupId: string;
+    title: string;
+    description: string | null;
+    dateStart: string;
+    dateEnd: string | null;
+    memoryCount: number;
 
-export interface GroupStatsDto {
-  memoryCount: number;
-  albumCount: number;
-  timeActive: string;
-}
+    coverUrl?: string;
+    topMemory?: {
+      id: string;
+      type: number,
+      mediaUrl?: string;
+      thumbUrl?: string;
+      quoteText?: string;
+      likeCount: number;
+    };
+    previewMemories?: {
+      id: string;
+      type: number;
+      mediaUrl?: string | null;
+      quoteText?: string;
+      happenedAt: string;
+    }[];
+  }
 
-export interface GroupWeeklyActivityDto {
-  photos: number;
-  videos: number;
-  quotes: number;
-  albums: number;
-  contributors: {
+  export interface GroupStatsDto {
+    memoryCount: number;
+    albumCount: number;
+    timeActive: string;
+  }
+
+  export interface GroupWeeklyActivityDto {
+    photos: number;
+    videos: number;
+    quotes: number;
+    albums: number;
+    contributors: {
+      userId: string;
+      name: string;
+      avatarUrl?: string | null;
+    }[];
+  }
+
+  export interface GroupMemberActivityDto {
     userId: string;
     name: string;
     avatarUrl?: string | null;
   }[];
-}
 
 export interface GroupMemberActivityDto {
   userId: string;
@@ -253,5 +276,21 @@ export class GroupsService {
 
   notifyGroupsChanged() {
     this.groupsChangedSource.next();
+  }
+
+  loadTopMemory(groupId: string, album: AlbumDto) {
+    this.http
+      .get<any>(`${this.baseUrl}/${groupId}/albums/${album.id}/top-memory`)
+      .subscribe({
+        next: (m) => {
+          album.topMemory = m;
+        }
+      });
+  }
+
+  getAlbumPreviewMemories(groupId: string, albumId: string) {
+    return this.http.get<MemoryDto[]>(
+      `${this.baseUrl}/${groupId}/albums/${albumId}/preview-memories`
+    );
   }
 }
