@@ -42,14 +42,17 @@
             "twoFactorHelp": "Gib deinen 2FA-Code aus Microsoft Authenticator ein.",
             "twoFactorInvalid": "Ungültiger 2FA-Code.",
             "failed": "Email oder Password ist Falsch.",
-            "rateLimited": "Zu viele anfragen, bitte warten Sie kurz."
+            "rateLimited": "Zu viele Versuche. Bitte später erneut versuchen"
         },
         "register": {
             "title": "Konto erstellen",
             "button": "Registrieren",
             "haveAccount": "Du hast schon ein Konto?",
             "login": "Einloggen",
-            "failed": "Registrierung fehlgeschlagen."
+            "failed": "Registrierung fehlgeschlagen.",
+            "invalid": "Ungültige Eingaben.",
+            "emailExists": "E-Mail existiert bereits.",
+            "rateLimited": "Zu viele Versuche. Bitte später erneut versuchen."
         }
     },
     "groups": {

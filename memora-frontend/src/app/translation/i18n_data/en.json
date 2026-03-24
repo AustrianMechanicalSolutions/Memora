@@ -50,7 +50,10 @@
             "button": "Register",
             "haveAccount": "Already have an account?",
             "login": "Login",
-            "failed": "Registration failed."
+            "failed": "Registration failed.",
+            "invalid": "Invalid input.",
+            "emailExists": "Email already exists.",
+            "rateLimited": "Too many requests, please slow down."
         }
     },
     "groups": {

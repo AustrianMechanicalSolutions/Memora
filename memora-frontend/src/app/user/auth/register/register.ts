@@ -17,7 +17,7 @@ import { I18nService } from '../../../translation/i18n.service';
 export class RegisterComponent {
   email = '';
   password = '';
-  error = '';
+  errorMsg = '';
 
   constructor(
     private auth: AuthService,
@@ -26,9 +26,36 @@ export class RegisterComponent {
   ) {}
 
   register() {
+    this.errorMsg = '';
+
     this.auth.register(this.email, this.password).subscribe({
       next: () => this.router.navigate(['/']),
-      error: err => this.error = err.error?.message ?? this.i18n.translate('auth.register.failed')
+      error: (e) => {
+        const status = e?.status;
+        const err = e?.error?.error;
+        const message = e?.error?.message;
+
+        // Email already exists
+        if (status === 409 || err === 'conflict') {
+          this.errorMsg = this.i18n.translate('auth.register.emailExists');
+          return;
+        }
+
+        // Validation error
+        if (status === 400) {
+          this.errorMsg = message || this.i18n.translate('auth.register.invalid');
+          return;
+        }
+
+        // Rate limit
+        if (status === 429) {
+          this.errorMsg = message || this.i18n.translate('auth.register.rateLimited');
+          return;
+        }
+
+        // Fallback
+        this.errorMsg = this.i18n.translate('auth.register.failed');
+      }
     });
   }
 }
