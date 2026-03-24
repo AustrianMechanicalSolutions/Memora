@@ -6,11 +6,13 @@ import { Router } from '@angular/router';
 import { GroupsService, GroupListItemDto } from '../groups/groups';
 import { Subscription } from 'rxjs';
 import { ThemeService } from '../theme.service';
+import { TranslatePipe } from '../translate.pipe';
+import { I18nService } from '../i18n.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
@@ -24,7 +26,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
     private auth: AuthService,
     public router: Router,
     private groupsService: GroupsService,
-    private theme: ThemeService
+    private theme: ThemeService,
+    private i18n: I18nService
   ) {}
 
   get themeMode() {
@@ -42,6 +45,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.groupsService.groupsChanged$.subscribe(() => {
         this.loadGroups();
+      })
+    );
+
+    this.subscriptions.add(
+      this.auth.profileChanged$.subscribe(() => {
+        this.loadUserProfile();
       })
     );
   }
@@ -74,6 +83,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.auth.logout();
       this.router.navigate(['/login']);
     }
+  }
+
+  t(key: string, params?: Record<string, string | number>) {
+    return this.i18n.translate(key, params);
   }
 
   ngOnDestroy() {

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environment';
 
 export interface GroupListItemDto {
   id: string;
@@ -14,7 +15,7 @@ export interface GroupDetailDto {
   name: string;
   inviteCode: string;
   memberCount: number;
-  createdByUserId: string;
+  createdByUserName: string;
 }
 
 export interface MemoryDto {
@@ -30,6 +31,22 @@ export interface MemoryDto {
   createdAt: string;
   createdByUserId: string;
   tags: string[];
+  likeCount?: number;
+  commentCount?: number;
+  isLiked?: boolean;
+}
+
+export interface CommentDto {
+  id: string;
+  memoryId: string;
+  userId: string;
+  userName: string;
+  avatarUrl?: string | null;
+  content: string;
+  createdAt: string;
+  parentCommentId?: string | null;
+  likeCount: number;
+  isLiked: boolean;
 }
 
 export interface MemoryQuery {
@@ -99,7 +116,7 @@ export interface AlbumPersonDto {
   providedIn: 'root'
 })
 export class GroupsService {
-  private baseUrl = '/api/groups';
+  private baseUrl = `${environment.apiUrl}/api/groups`;
   private groupsChangedSource = new Subject<void>();
   groupsChanged$ = this.groupsChangedSource.asObservable();
 
@@ -125,6 +142,35 @@ export class GroupsService {
       `${this.baseUrl}/${groupId}/memories`,
       { params }
     );
+  }
+
+  likeMemory(groupId: string, memoryId: string) {
+    return this.http.post(`${this.baseUrl}/${groupId}/memories/${memoryId}/likes`, null);
+  }
+
+  unlikeMemory(groupId: string, memoryId: string) {
+    return this.http.delete(`${this.baseUrl}/${groupId}/memories/${memoryId}/likes`);
+  }
+
+  memoryComments(groupId: string, memoryId: string) {
+    return this.http.get<CommentDto[]>(
+      `${this.baseUrl}/${groupId}/memories/${memoryId}/comments`
+    );
+  }
+
+  addComment(groupId: string, memoryId: string, body: { content: string; parentCommentId?: string | null }) {
+    return this.http.post<CommentDto>(
+      `${this.baseUrl}/${groupId}/memories/${memoryId}/comments`,
+      body
+    );
+  }
+
+  likeComment(groupId: string, commentId: string) {
+    return this.http.post(`${this.baseUrl}/${groupId}/comments/${commentId}/likes`, null);
+  }
+
+  unlikeComment(groupId: string, commentId: string) {
+    return this.http.delete(`${this.baseUrl}/${groupId}/comments/${commentId}/likes`);
   }
 
   createMemory(groupId: string, body: any) {
@@ -203,5 +249,9 @@ export class GroupsService {
     return this.http.delete(
       `${this.baseUrl}/${groupId}/albums/${albumId}/people/${userId}`
     );
+  }
+
+  notifyGroupsChanged() {
+    this.groupsChangedSource.next();
   }
 }

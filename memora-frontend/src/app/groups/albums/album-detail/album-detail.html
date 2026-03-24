@@ -1,7 +1,7 @@
 <div class="page">
   <!-- Top bar -->
   <div class="top-nav">
-    <button class="link" (click)="backToAlbums()">← Back to Albums</button>
+    <button class="link" type="button" (click)="backToAlbums()">&#x2190; {{ 'albums.back' | t }}</button>
   </div>
 
   <!-- Album Hero -->
@@ -20,21 +20,21 @@
         </div>
       </div>
 
-      <button class="btn primary hero-action" (click)="openAddMemory()">
-        + Add Memory
+      <button class="btn primary hero-action" type="button" (click)="openAddMemory()">
+        {{ 'album.addMemory' | t }}
       </button>
     </div>
   </section>
 
   <section class="album-people" *ngIf="albumId !== 'all'">
     <div class="people-header">
-      <h3>People</h3>
+      <h3>{{ 'album.people' | t }}</h3>
 
       <button
         *ngIf="canEditAlbum"
         class="btn ghost"
         (click)="openAddPerson()">
-        + Add Person
+        {{ 'album.addPerson' | t }}
       </button>
     </div>
 
@@ -55,8 +55,9 @@
           <button
             *ngIf="canEditAlbum"
             class="remove-btn"
+            type="button"
             (click)="removePerson(p.userId); $event.stopPropagation()">
-            ×
+            &times;
           </button>
         </div>
 
@@ -67,45 +68,65 @@
 
   <!-- Memory Wall -->
   <section class="wall-section">
-    <h2 class="wall-title">Memory Wall</h2>
+    <h2 class="wall-title">{{ 'album.memoryWall' | t }}</h2>
 
     <div class="wall" *ngIf="items.length > 0; else emptyState">
-      <div class="wall-card" *ngFor="let m of items">
+      <div class="wall-card clickable" *ngFor="let m of items" (click)="openMemory(m)">
         <!-- Photo / Video -->
         <ng-container *ngIf="m.type !== 2">
           <img
-            *ngIf="m.type === 0 && isImage(m.mediaUrl)"
+            *ngIf="m.type === 0 && !mediaFailed(m.mediaUrl)"
             class="wall-media"
-            [src]="'http://localhost:5000' + m.mediaUrl"
+            [src]="imageSrcMap.get(m.mediaUrl!)"
           />
 
           <video
-            *ngIf="m.type === 1 && isVideo(m.mediaUrl)"
+            *ngIf="m.type === 1 && !mediaFailed(m.mediaUrl)"
             class="wall-media"
             controls
-            [src]="'http://localhost:5000' + m.mediaUrl"
+            [src]="mediaSrc(m.mediaUrl)"
           ></video>
 
-          <div *ngIf="m.type === 0 && !isImage(m.mediaUrl)" class="media-error">Unsupported image file</div>
-          <div *ngIf="m.type === 1 && !isVideo(m.mediaUrl)" class="media-error">Unsupported video file</div>
+          <div *ngIf="m.type === 0 && mediaFailed(m.mediaUrl)" class="media-error">{{ 'album.imageLoadError' | t }}</div>
+          <div *ngIf="m.type === 1 && mediaFailed(m.mediaUrl)" class="media-error">{{ 'album.videoLoadError' | t }}</div>
 
           <div class="wall-date">
             {{ m.happenedAt | date:'dd/MM/yyyy' }}
+          </div>
+
+          <div class="wall-actions">
+            <button class="icon-btn" type="button" (click)="toggleMemoryLike(m, $event)">
+              <span class="icon" [class.active]="m.isLiked">&#x2665;</span>
+              <span>{{ m.likeCount || 0 }}</span>
+            </button>
+            <button class="icon-btn" type="button" (click)="openMemory(m); $event.stopPropagation()">
+              &#x1F4AC; <span>{{ m.commentCount || 0 }}</span>
+            </button>
           </div>
         </ng-container>
 
         <!-- Quote -->
         <div class="quote-card" *ngIf="m.type === 2">
           <div class="quote-text">
-            “{{ m.quoteText }}”
+            &ldquo;{{ m.quoteText }}&rdquo;
           </div>
 
           <div class="quote-by" *ngIf="m.quoteBy">
-            — {{ m.quoteBy }}
+            &mdash; {{ m.quoteBy }}
           </div>
 
           <div class="wall-date">
             {{ m.happenedAt | date:'dd/MM/yyyy' }}
+          </div>
+
+          <div class="wall-actions">
+            <button class="icon-btn" type="button" (click)="toggleMemoryLike(m, $event)">
+              <span class="icon" [class.active]="m.isLiked">&#x2665;</span>
+              <span>{{ m.likeCount || 0 }}</span>
+            </button>
+            <button class="icon-btn" type="button" (click)="openMemory(m); $event.stopPropagation()">
+              &#x1F4AC; <span>{{ m.commentCount || 0 }}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -113,33 +134,166 @@
 
     <ng-template #emptyState>
       <div class="empty">
-        <h3>No memories yet</h3>
-        <p>Add your first memory to this album ✨</p>
+        <h3>{{ 'album.noMemories' | t }}</h3>
+        <p>{{ 'album.addFirstMemory' | t }} &#x2728;</p>
       </div>
     </ng-template>
   </section>
 
+  <div class="modal-backdrop" *ngIf="showMemoryModal && activeMemory as m" (click)="closeMemory()">
+    <div class="memory-modal" (click)="$event.stopPropagation()">
+      <button class="modal-close" type="button" (click)="closeMemory()">&times;</button>
+
+      <div class="memory-layout">
+        <div class="memory-media">
+          <ng-container *ngIf="m.type !== 2">
+            <img
+              *ngIf="m.type === 0 && !mediaFailed(m.mediaUrl)"
+              [src]="imageSrcMap.get(m.mediaUrl!)"
+              [alt]="m.title || 'Memory image'"
+              (error)="onMediaError(m.mediaUrl)"
+            />
+
+            <video
+              *ngIf="m.type === 1 && !mediaFailed(m.mediaUrl)"
+              controls
+              [src]="imageSrcMap.get(m.mediaUrl!)"
+              (error)="onMediaError(m.mediaUrl)"
+            ></video>
+
+            <div *ngIf="m.type === 0 && mediaFailed(m.mediaUrl)" class="media-error">{{ 'album.imageLoadError' | t }}</div>
+            <div *ngIf="m.type === 1 && mediaFailed(m.mediaUrl)" class="media-error">{{ 'album.videoLoadError' | t }}</div>
+          </ng-container>
+
+          <div class="quote-full" *ngIf="m.type === 2">
+            <div class="quote-text">
+            &ldquo;{{ m.quoteText }}&rdquo;
+          </div>
+
+          <div class="quote-by" *ngIf="m.quoteBy">
+            &mdash; {{ m.quoteBy }}
+          </div>
+          </div>
+        </div>
+
+        <aside class="memory-comments">
+          <div class="memory-header">
+            <div class="memory-meta">
+              <div class="memory-date">{{ m.happenedAt | date:'dd/MM/yyyy' }}</div>
+              <div class="memory-uploader" *ngIf="activeUploader as uploader">
+                <div class="uploader-avatar">
+                  <img *ngIf="uploader.avatarUrl; else uploaderInitial" [src]="uploader.avatarUrl" />
+                  <ng-template #uploaderInitial>{{ uploader.name.charAt(0) }}</ng-template>
+                </div>
+                <div class="uploader-text">
+                  <div class="uploader-label">{{ 'album.uploadedBy' | t }}</div>
+                  <div class="uploader-name">{{ uploader.name }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="memory-actions">
+              <button class="icon-btn" type="button" (click)="toggleMemoryLike(m, $event)">
+                <span class="icon" [class.active]="m.isLiked">&#x2665;</span>
+                <span>{{ m.likeCount || 0 }}</span>
+              </button>
+              <div class="comment-count">&#x1F4AC; {{ m.commentCount || 0 }}</div>
+            </div>
+          </div>
+
+          <div class="comment-list">
+            <div class="comment muted" *ngIf="commentsLoading">{{ 'album.commentsLoading' | t }}</div>
+
+            <div class="comment muted" *ngIf="!commentsLoading && topLevelComments.length === 0">
+              {{ 'album.noComments' | t }}
+            </div>
+
+            <div class="comment" *ngFor="let c of topLevelComments">
+              <div class="comment-avatar">
+                <img *ngIf="c.avatarUrl" [src]="c.avatarUrl" />
+                <div *ngIf="!c.avatarUrl">{{ c.userName.charAt(0) }}</div>
+              </div>
+
+              <div class="comment-body">
+                <div class="comment-meta">
+                  <strong>{{ c.userName }}</strong>
+                  <span class="muted">{{ c.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <div class="comment-text">{{ c.content }}</div>
+
+                <div class="comment-actions">
+                  <button class="link-btn" type="button" (click)="toggleCommentLike(c, $event)">
+                    <span class="icon" [class.active]="c.isLiked">&#x2665;</span>
+                    <span>{{ c.likeCount || 0 }}</span>
+                  </button>
+                  <button class="link-btn" type="button" (click)="setReply(c)">{{ 'album.reply' | t }}</button>
+                </div>
+
+                <div class="comment-replies" *ngIf="replyMap[c.id]?.length">
+                  <div class="comment reply" *ngFor="let r of replyMap[c.id]">
+                    <div class="comment-avatar">
+                      <img *ngIf="r.avatarUrl" [src]="r.avatarUrl" />
+                      <div *ngIf="!r.avatarUrl">{{ r.userName.charAt(0) }}</div>
+                    </div>
+                    <div class="comment-body">
+                      <div class="comment-meta">
+                        <strong>{{ r.userName }}</strong>
+                        <span class="muted">{{ r.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                      </div>
+                      <div class="comment-text">{{ r.content }}</div>
+                      <div class="comment-actions">
+                        <button class="link-btn" type="button" (click)="toggleCommentLike(r, $event)">
+                          <span class="icon" [class.active]="r.isLiked">&#x2665;</span>
+                          <span>{{ r.likeCount || 0 }}</span>
+                        </button>
+                        <button class="link-btn" type="button" (click)="setReply(r)">{{ 'album.reply' | t }}</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="comment-editor">
+            <div class="replying" *ngIf="replyTo">
+              {{ 'album.replyingTo' | t:{ name: replyTo.userName } }}
+              <button class="link-btn" type="button" (click)="cancelReply()">{{ 'album.cancel' | t }}</button>
+            </div>
+            <textarea
+              class="input textarea"
+              [(ngModel)]="commentText"
+              [placeholder]="'album.writeComment' | t"
+            ></textarea>
+            <div class="comment-submit">
+              <button class="btn primary" type="button" (click)="submitComment()">{{ 'album.send' | t }}</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-backdrop" *ngIf="showAddMemoryModal">
     <div class="modal">
-      <button class="modal-close" (click)="showAddMemoryModal = false">×</button>
+      <button class="modal-close" type="button" (click)="showAddMemoryModal = false">&times;</button>
 
-      <h2>Add Memory</h2>
+      <h2>{{ 'album.addMemory' | t }}</h2>
 
       <!-- Choose -->
       <div *ngIf="addStep === 'choose'" class="choice-grid">
         <div class="choice-card" (click)="addStep='media'; mediaType='photo'">
-          <div class="icon">🖼️</div>
-          <div class="title">Upload Photo</div>
+          <div class="icon">&#x1F5BC;</div>
+          <div class="title">{{ 'album.uploadPhoto' | t }}</div>
         </div>
 
         <div class="choice-card" (click)="addStep='media'; mediaType='video'">
-          <div class="icon">🎥</div>
-          <div class="title">Upload Video</div>
+          <div class="icon">&#x1F3A5;</div>
+          <div class="title">{{ 'album.uploadVideo' | t }}</div>
         </div>
 
         <div class="choice-card" (click)="addStep='quote'">
-          <div class="icon">❝</div>
-          <div class="title">Add Quote</div>
+          <div class="icon">&#x275D;</div>
+          <div class="title">{{ 'album.addQuote' | t }}</div>
         </div>
       </div>
 
@@ -148,12 +302,12 @@
         <div class="form">
           <label class="upload-box">
             <input type="file" hidden (change)="onFileSelected($event)" />
-            <div class="upload-icon">⬆</div>
+            <div class="upload-icon">&#x2B06;</div>
             <div class="upload-title">
               Click to upload {{ mediaType }}
             </div>
             <div class="hint">
-              {{ mediaType === 'photo' ? 'JPG, PNG, GIF' : 'MP4, MOV' }} up to 10MB
+              {{ mediaType === 'photo' ? ('album.uploadHintPhoto' | t) : ('album.uploadHintVideo' | t) }}
             </div>
           </label>
 
@@ -171,15 +325,15 @@
           </div>
 
           <div class="field">
-            <label>Date</label>
+            <label>{{ 'album.date' | t }}</label>
             <input type="date" class="input" [(ngModel)]="newDate" />
           </div>
         </div>
 
         <div class="modal-actions">
-          <button class="btn ghost" (click)="addStep='choose'">Back</button>
+          <button class="btn ghost" (click)="addStep='choose'">{{ 'album.back' | t }}</button>
           <button class="btn primary" (click)="submitMedia()">
-            Add {{ mediaType | titlecase }}
+            {{ mediaType === 'photo' ? ('album.addPhoto' | t) : ('album.addVideo' | t) }}
           </button>
         </div>
       </div>
@@ -188,21 +342,21 @@
       <div *ngIf="addStep === 'quote'" class="modal-body">
         <div class="form">
           <div class="field">
-            <label>Quote Text</label>
+            <label>{{ 'album.quoteText' | t }}</label>
             <textarea
               class="input textarea"
-              placeholder="Write your message or quote here..."
+              [placeholder]="'album.quotePlaceholder' | t"
               [(ngModel)]="newQuoteText"
             ></textarea>
           </div>
 
           <div class="field">
-            <label>Who said it?</label>
+            <label>{{ 'album.quoteBy' | t }}</label>
             <div class="mention-wrap">
               <input
                 class="input"
                 [(ngModel)]="newQuoteBy"
-                placeholder="Type a name... or @ to tag"
+                [placeholder]="'album.quoteByPlaceholder' | t"
                 (input)="onQuoteByInput()"
                 (keydown)="onQuoteByKeydown($event)"
                 (blur)="closeMentionPopup()"
@@ -223,14 +377,14 @@
           </div>
 
           <div class="field">
-            <label>Date</label>
+            <label>{{ 'album.date' | t }}</label>
             <input type="date" class="input" [(ngModel)]="newDate" />
           </div>
         </div>
 
         <div class="modal-actions">
-          <button class="btn ghost" (click)="addStep='choose'">Back</button>
-          <button class="btn primary" (click)="submitQuote()">Add Quote</button>
+          <button class="btn ghost" (click)="addStep='choose'">{{ 'album.back' | t }}</button>
+          <button class="btn primary" (click)="submitQuote()">{{ 'album.addQuote' | t }}</button>
         </div>
       </div>
     </div>
@@ -238,18 +392,18 @@
 
   <div class="modal-backdrop" *ngIf="showAddPersonModal">
     <div class="modal">
-      <button class="modal-close" (click)="closeAddPerson()">×</button>
+      <button class="modal-close" type="button" (click)="closeAddPerson()">&times;</button>
 
-      <h2>Add Person</h2>
+      <h2>{{ 'album.addPerson' | t }}</h2>
 
       <div class="modal-body">
         <div class="field">
-          <label>Search</label>
+          <label>{{ 'album.search' | t }}</label>
           <input
             class="input"
             [(ngModel)]="personQuery"
             (input)="updatePersonResults()"
-            placeholder="Type a name..."
+            [placeholder]="'album.searchPlaceholder' | t"
           />
         </div>
 

@@ -5,7 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { GroupsService, MemoryDto } from '../../groups/groups';
-import { Router } from '@angular/router';
+import { TranslatePipe } from '../../translate.pipe';
+import { I18nService } from '../../i18n.service';
 
 interface UserMeDto {
   id: string;
@@ -13,10 +14,13 @@ interface UserMeDto {
 }
 
 interface StatTile {
+  id: string;
   label: string;
   value: string;
+  description?: string;
   hint?: string;
   placeholder?: boolean;
+  tone?: 'primary' | 'accent' | 'soft';
 }
 
 interface GroupSummary {
@@ -27,11 +31,13 @@ interface GroupSummary {
 @Component({
   selector: 'app-user-stats-page',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslatePipe],
   templateUrl: './user-stats.html',
   styleUrls: ['./user-stats.css']
 })
 export class UserStatsPageComponent {
+  private readonly preferenceKey = 'memora.user-stats.preferences';
+
   loading = true;
   error = '';
 
@@ -49,29 +55,35 @@ export class UserStatsPageComponent {
     { label: 'Videos', value: 0 }
   ];
 
+  showCustomizePanel = false;
+  visibleTileIds = new Set<string>();
+  showDistribution = true;
+  showGroupSwitcher = true;
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly http: HttpClient,
     private readonly groupsService: GroupsService,
-    private readonly router: Router
+    private readonly i18n: I18nService
   ) {}
 
   ngOnInit() {
     this.groupId = this.route.snapshot.paramMap.get('id');
     this.isGroupMode = !!this.groupId;
+    this.loadPreferences();
     this.load();
   }
 
-  switchGroup(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    const id = select.value;
+  get visibleTiles(): StatTile[] {
+    return this.tiles.filter((tile) => this.visibleTileIds.has(tile.id));
+  }
 
-    if (!id) {
-      this.router.navigate(['/stats']);
-      return;
-    }
+  get totalPosts(): number {
+    return this.activityBars.reduce((sum, bar) => sum + bar.value, 0);
+  }
 
-    this.router.navigate(['/groups', id, 'stats']);
+  get visibleTileCount(): number {
+    return this.visibleTiles.length;
   }
 
   private load() {
@@ -113,13 +125,14 @@ export class UserStatsPageComponent {
       }),
       catchError((err) => {
         console.error(err);
-        this.error = 'Stats konnten nicht geladen werden.';
+        this.error = this.i18n.translate('stats.loadFailed');
         return of(null);
       })
     ).subscribe((result) => {
       if (result) {
         this.tiles = result.tiles;
         this.activityBars = result.bars;
+        this.ensureVisibleTiles();
       }
 
       this.loading = false;
@@ -135,7 +148,14 @@ export class UserStatsPageComponent {
       pageSize,
       sort: 'newest'
     }).pipe(
+      catchError((err) => {
+        console.error('Failed to load group memories', err);
+        return of([]);
+      }),
       switchMap((first) => {
+        if (!('total' in first)) {
+          return of(first as MemoryDto[]);
+        }
         const totalPages = Math.max(1, Math.ceil(first.total / pageSize));
         if (totalPages === 1) {
           return of(first.items);
@@ -170,19 +190,71 @@ export class UserStatsPageComponent {
     const groupPosts = memories.length;
     const contributionShare = groupPosts === 0 ? 0 : (postCount / groupPosts) * 100;
 
-    const scopeLabel = isGroup ? 'in dieser Gruppe' : 'gruppenuebergreifend';
+    const scopeLabel = isGroup
+      ? this.i18n.translate('stats.scopeSingleGroup')
+      : this.i18n.translate('stats.scopeAllGroups');
 
     const tiles: StatTile[] = [
-      { label: `Posts ${scopeLabel}`, value: `${postCount}` },
-      { label: `Zitate gepostet ${scopeLabel}`, value: `${quoteCount}` },
-      { label: `Likes gesamt ${scopeLabel}`, value: `${likesTotal}`, hint: 'Placeholder', placeholder: true },
-      { label: 'Likes/Post Ratio', value: likesPerPost.toFixed(2), hint: 'Placeholder', placeholder: true },
-      { label: 'Photos', value: `${photoCount}` },
-      { label: 'Videos', value: `${videoCount}` }
+      {
+        id: 'posts',
+        label: this.i18n.translate('stats.posts'),
+        value: `${postCount}`,
+        description: scopeLabel,
+        tone: 'primary'
+      },
+      {
+        id: 'quotes',
+        label: this.i18n.translate('stats.quotes'),
+        value: `${quoteCount}`,
+        description: this.i18n.translate('stats.byYou'),
+        tone: 'soft'
+      },
+      {
+        id: 'likesTotal',
+        label: this.i18n.translate('stats.likesTotal'),
+        value: `${likesTotal}`,
+        description: scopeLabel,
+        hint: this.i18n.translate('stats.demoValue'),
+        placeholder: true,
+        tone: 'accent'
+      },
+      {
+        id: 'likesRatio',
+        label: this.i18n.translate('stats.likesPerPost'),
+        value: likesPerPost.toFixed(2),
+        description: this.i18n.translate('stats.likesAverage'),
+        hint: this.i18n.translate('stats.demoValue'),
+        placeholder: true,
+        tone: 'accent'
+      },
+      {
+        id: 'photos',
+        label: this.i18n.translate('stats.photos'),
+        value: `${photoCount}`,
+        description: this.i18n.translate('stats.photosArchive'),
+        tone: 'soft'
+      },
+      {
+        id: 'videos',
+        label: this.i18n.translate('stats.videos'),
+        value: `${videoCount}`,
+        description: this.i18n.translate('stats.videosArchive'),
+        tone: 'soft'
+      },
+      {
+        id: 'share',
+        label: this.i18n.translate('stats.share'),
+        value: `${contributionShare.toFixed(1)}%`,
+        description: isGroup
+          ? this.i18n.translate('stats.shareGroup')
+          : this.i18n.translate('stats.shareAll'),
+        tone: 'primary'
+      }
     ];
 
     if (isGroup) {
       tiles.push({
+        id: 'groupShareExtra',
         label: 'Anteil deiner Posts',
         value: `${contributionShare.toFixed(1)}%`
       });
@@ -195,5 +267,90 @@ export class UserStatsPageComponent {
     ];
 
     return { tiles, bars };
+  }
+
+  toggleCustomizePanel() {
+    this.showCustomizePanel = !this.showCustomizePanel;
+  }
+
+  toggleTile(tileId: string) {
+    if (this.visibleTileIds.has(tileId)) {
+      if (this.visibleTileIds.size === 1) return;
+      this.visibleTileIds.delete(tileId);
+    } else {
+      this.visibleTileIds.add(tileId);
+    }
+
+    this.visibleTileIds = new Set(this.visibleTileIds);
+    this.savePreferences();
+  }
+
+  toggleDistribution() {
+    this.showDistribution = !this.showDistribution;
+    this.savePreferences();
+  }
+
+  toggleGroupSwitcher() {
+    this.showGroupSwitcher = !this.showGroupSwitcher;
+    this.savePreferences();
+  }
+
+  resetPreferences() {
+    this.visibleTileIds = new Set(this.tiles.map((tile) => tile.id));
+    this.showDistribution = true;
+    this.showGroupSwitcher = true;
+    this.savePreferences();
+  }
+
+  trackTile(_: number, tile: StatTile) {
+    return tile.id;
+  }
+
+  distributionWidth(value: number): number {
+    return this.totalPosts === 0 ? 0 : (value / this.totalPosts) * 100;
+  }
+
+  private loadPreferences() {
+    if (typeof window === 'undefined') return;
+
+    const raw = window.localStorage.getItem(this.preferenceKey);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw) as {
+        visibleTileIds?: string[];
+        showDistribution?: boolean;
+        showGroupSwitcher?: boolean;
+      };
+
+      this.visibleTileIds = new Set(parsed.visibleTileIds ?? []);
+      this.showDistribution = parsed.showDistribution ?? true;
+      this.showGroupSwitcher = parsed.showGroupSwitcher ?? true;
+    } catch {
+      this.visibleTileIds = new Set();
+    }
+  }
+
+  private ensureVisibleTiles() {
+    const availableIds = new Set(this.tiles.map((tile) => tile.id));
+    const nextVisible = [...this.visibleTileIds].filter((id) => availableIds.has(id));
+
+    if (nextVisible.length === 0) {
+      this.visibleTileIds = new Set(this.tiles.map((tile) => tile.id));
+      this.savePreferences();
+      return;
+    }
+
+    this.visibleTileIds = new Set(nextVisible);
+  }
+
+  private savePreferences() {
+    if (typeof window === 'undefined') return;
+
+    window.localStorage.setItem(this.preferenceKey, JSON.stringify({
+      visibleTileIds: [...this.visibleTileIds],
+      showDistribution: this.showDistribution,
+      showGroupSwitcher: this.showGroupSwitcher
+    }));
   }
 }

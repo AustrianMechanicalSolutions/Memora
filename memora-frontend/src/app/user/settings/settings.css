@@ -1,19 +1,19 @@
 /* PAGE */
 
 .page {
-  width: min(1120px, 100%);
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 28px 20px 40px;
-  color: var(--text-primary);
-  background: transparent;
-  font-family: Inter, "Segoe UI", sans-serif;
+  padding: 32px 24px;
+  min-height: 100vh;
+
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text-secondary);
+  background: var(--page-gradient);
 }
 
-.header {
-  margin-bottom: 18px;
-}
-
-.title {
+.page-header h1 {
+  font-size: 28px;
+  font-weight: 700;
   margin: 0;
   font-size: clamp(30px, 4vw, 48px);
   line-height: 1;
@@ -27,10 +27,14 @@
   font-size: 20px;
 }
 
-.subtitle.small {
-  margin: 0;
-  font-size: 15px;
-  color: var(--text-subtle);
+/* CARD */
+
+.card {
+  background: #121826;
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 24px;
 }
 
 .subtitle.small {
@@ -39,9 +43,9 @@
 }
 
 .panel {
-  border-radius: 18px;
-  padding: 18px;
-  margin-bottom: 14px;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
   background: linear-gradient(180deg, var(--bg-panel), var(--bg-panel-soft));
   border: 1px solid var(--border);
   box-shadow: 0 12px 28px var(--shadow-soft);
@@ -67,14 +71,14 @@
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 8px;
 }
 
 .form-group.full {
@@ -96,8 +100,8 @@ label {
 .input {
   width: 100%;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 11px 12px;
+  border-radius: 10px;
+  padding: 10px 12px;
   outline: none;
   box-sizing: border-box;
   background: var(--bg-surface-alt);
@@ -128,15 +132,15 @@ label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
-  padding: 10px 14px;
-  border-radius: 12px;
+  min-height: 38px;
+  padding: 9px 12px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--bg-card);
   color: var(--text-primary);
   cursor: pointer;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
@@ -204,8 +208,8 @@ label {
 }
 
 .twofa {
-  padding: 14px;
-  border-radius: 14px;
+  padding: 12px;
+  border-radius: 12px;
   border: 1px dashed var(--border-soft);
   background: var(--bg-card);
 }
@@ -221,8 +225,8 @@ label {
 }
 
 .state {
-  font-size: 12px;
-  padding: 6px 10px;
+  font-size: 11px;
+  padding: 5px 9px;
   border-radius: 999px;
   border: 1px solid var(--border-soft);
   background: var(--bg-card);
@@ -268,8 +272,8 @@ label {
 }
 
 .qr-wrap {
-  padding: 12px;
-  border-radius: 16px;
+  padding: 10px;
+  border-radius: 14px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   display: flex;
@@ -373,6 +377,21 @@ label {
 
   .form-group.full {
     grid-column: span 1;
+  }
+}
+
+@media (max-width: 560px) {
+  .btn {
+    width: 100%;
+  }
+
+  .code-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input.code {
+    max-width: 100%;
   }
 }
 

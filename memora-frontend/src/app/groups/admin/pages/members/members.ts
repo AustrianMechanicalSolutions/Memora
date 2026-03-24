@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { GroupAdminService, GroupMemberDto } from '../../services/admin';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../../../translate.pipe';
 
 @Component({
   selector: 'app-group-admin-members',
@@ -11,7 +12,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    TranslatePipe
   ],
   templateUrl: './members.html',
   styleUrls: ['./members.css']
@@ -21,6 +23,9 @@ export class MembersComponent implements OnInit, OnDestroy {
   members: GroupMemberDto[] = [];
   loading = true;
   error?: string;
+
+  openMenuFor?: string; //userId
+  roles = ['Admin', 'Member'];
 
   filter = '';
 
@@ -40,7 +45,13 @@ export class MembersComponent implements OnInit, OnDestroy {
     this.sub.add(
       this.service.getMembers(this.groupId).subscribe({
         next: (res) => {
-          this.members = res;
+          this.members = res.map(m => ({
+            userId: m.userId,
+            name: m.name,
+            role: m.role,
+            profileImageUrl: m.avatarUrl,
+            displayName: m.displayName
+          }));
           this.loading = false;
         },
         error: (err) => {
@@ -55,15 +66,48 @@ export class MembersComponent implements OnInit, OnDestroy {
   get filtered(): GroupMemberDto[] {
     const s = this.filter.trim().toLowerCase();
     if (!s) return this.members;
-    return this.members.filter(m => (m.displayName || '').toLowerCase().includes(s));
+
+    return this.members.filter(m =>
+      (m.displayName || '').toLowerCase().includes(s) ||
+      (m.role || '').toLowerCase().includes(s)
+    );
   }
 
   changeRole(m: GroupMemberDto): void {
-    alert('PLACEHOLDER: Role-Change Endpoint fehlt im Backend.');
+    const newRole = m.role === 'Admin' ? 'Member' : 'Admin';
+
+    this.service.changeMemberRole(this.groupId, m.userId, newRole).subscribe({
+      next: () => this.load(),
+      error: err => console.error(err)
+    });
   }
 
   remove(m: GroupMemberDto): void {
-    alert('PLACEHOLDER: Remove-Member Endpoint fehlt im Backend.');
+    const confirmDelete = confirm(`Remove ${m.displayName}?`);
+    if (!confirmDelete) return;
+
+    this.service.removeMember(this.groupId, m.userId).subscribe({
+      next: () => this.load(),
+      error: err => console.error(err.error)
+    });
+  }
+
+  toggleMenu(userId: string) {
+    this.openMenuFor = this.openMenuFor === userId ? undefined : userId;
+  }
+
+  confirmChangeRole(m: GroupMemberDto, newRole: string) {
+    this.openMenuFor = undefined;
+
+    if (m.role === newRole) return;
+
+    const ok = confirm(`Change role of ${m.name} to ${newRole}?`);
+    if (!ok) return;
+
+    this.service.changeMemberRole(this.groupId, m.userId, newRole).subscribe({
+      next: () => this.load(),
+      error: err => console.error(err.error)
+    });
   }
 
   ngOnDestroy(): void {

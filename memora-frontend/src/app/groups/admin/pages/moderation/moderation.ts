@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../../../translate.pipe';
 
 @Component({
   selector: 'app-group-admin-moderation',
@@ -8,7 +9,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    TranslatePipe
   ],
   templateUrl: './moderation.html',
   styleUrls: ['./moderation.css']

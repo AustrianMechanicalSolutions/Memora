@@ -18,13 +18,13 @@
 
 .home-main {
   flex: 1;
-  padding: 3rem;
+  padding: 2.5rem;
   overflow-y: auto;
   text-align: left;
 }
 
 .welcome-section {
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
   animation: fadeInUp 0.6s ease-out forwards;
   opacity: 0;
 }
@@ -41,7 +41,7 @@
 }
 
 .section-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.6rem;
   animation: fadeInUp 0.6s ease-out 0.1s forwards;
   opacity: 0;
 }
@@ -60,8 +60,8 @@
 
 .groups-dashboard {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
 }
 
 .group-card {
@@ -92,20 +92,20 @@
 }
 
 .group-header {
-  padding: 16px;
+  padding: 12px;
   border-bottom: 1px solid var(--border);
 }
 
 .group-header h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   color: var(--text-primary);
 }
 
 .group-preview {
   display: flex;
   gap: 1px;
-  height: 100px;
+  height: 84px;
   background: var(--bg-muted);
   overflow: hidden;
 }
@@ -117,7 +117,7 @@
 }
 
 .group-footer {
-  padding: 16px;
+  padding: 12px;
   border-top: 1px solid var(--border);
 }
 
@@ -134,7 +134,7 @@
   }
 
   .home-main {
-    padding: 3rem;
+    padding: 2.5rem;
   }
 
   .groups-dashboard {
