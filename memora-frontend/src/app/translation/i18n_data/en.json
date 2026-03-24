@@ -2,6 +2,9 @@
     "app": {
         "impressum": "Legal Notice"
     },
+    "common": {
+        "error": "An error occured."
+    },
     "sidebar": {
         "home": "Your Memora",
         "groups": "Groups",

@@ -2,6 +2,9 @@
     "app": {
         "impressum": "Impressum"
     },
+    "common": {
+        "error": "Ein Fehler ist aufgetreten"
+    },
     "sidebar": {
         "home": "Dein Memora",
         "groups": "Gruppen",
