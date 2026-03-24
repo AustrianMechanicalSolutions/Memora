@@ -39,8 +39,10 @@ export class LoginComponent {
           this.router.navigateByUrl(returnUrl);
         },
         error: (e) => {
+          const status = e?.status;
           const err = e?.error?.error;
-
+          
+          // 2FA handling
           if (err === '2fa_required') {
             this.show2fa = true;
             this.errorMsg = this.i18n.translate('auth.login.twoFactorHelp');
@@ -52,7 +54,18 @@ export class LoginComponent {
             return;
           }
 
-          this.errorMsg = this.i18n.translate('auth.login.failed');
+          // Unauthorized (wrong login)
+          if (status === 401) {
+            this.errorMsg = this.i18n.translate('auth.login.failed');
+            return;
+          }
+
+          if (status === 429) {
+            this.errorMsg = this.i18n.translate('auth.login.ratelimited');
+            return;
+          }
+
+          this.errorMsg = this.i18n.translate('common.error');
         }
       });
   }
