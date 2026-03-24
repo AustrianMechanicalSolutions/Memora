@@ -1,15 +1,26 @@
 <div class="timeline-page">
-  <h1 class="title">Timeline</h1>
+    <h1 class="title">Timeline</h1>
 
-  <div *ngIf="loading" class="loading">Loading...</div>
+    <div *ngIf="loading" class="loading">Loading...</div>
 
-  <div class="timeline" *ngIf="!loading && albums.length > 0">
-    <div
-      class="timeline-item"
-      *ngFor="let album of albums; let i = index"
-      [class.left]="i % 2 === 0"
-      [class.right]="i % 2 !== 0"
-    >
+    <div *ngIf="storyMode" class="story-overlay"></div>
+
+    <div *ngIf="storyMode" class="story-hint">
+        Press ESC to cancel
+    </div>
+
+    <button class="story-btn" (click)="toggleStoryMode()">
+        {{ storyMode ? 'Stop Story' : 'Play Story' }}
+    </button>
+
+    <div class="timeline" [class.story-mode]="storyMode" *ngIf="!loading && albums.length > 0">
+        <div
+        #timelineItem
+        class="timeline-item"
+        *ngFor="let album of albums; let i = index"
+        [class.left]="i % 2 === 0"
+        [class.right]="i % 2 !== 0"
+        >
     <div *ngIf="isTimeChange(i)" class="time-separator">
         <div class="line"></div>
             <div class="label">
@@ -64,6 +75,30 @@
             <div class="likes">
                 ❤️ {{ m.likeCount || 0 }}
             </div>
+        </div>
+
+        <div class="story-expanded" *ngIf="storyMode && activeStoryIndex === i">
+
+            <ng-container *ngIf="album.previewMemories as memories">
+
+                <ng-container *ngIf="memories[activeMemoryIndex] as m">
+
+                <img *ngIf="m.type === 0"
+                    [src]="mediaSrc(m.mediaUrl)" />
+
+                <video *ngIf="m.type === 1"
+                        [src]="mediaSrc(m.mediaUrl)"
+                        autoplay muted playsinline>
+                </video>
+
+                <div *ngIf="m.type === 2" class="quote big">
+                    “{{ m.quoteText }}”
+                </div>
+
+                </ng-container>
+
+            </ng-container>
+
         </div>
 
     </div>

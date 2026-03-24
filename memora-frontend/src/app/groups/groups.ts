@@ -82,6 +82,13 @@ export interface GroupDetailDto {
       quoteText?: string;
       likeCount: number;
     };
+    previewMemories?: {
+      id: string;
+      type: number;
+      mediaUrl?: string | null;
+      quoteText?: string;
+      happenedAt: string;
+    }[];
   }
 
   export interface GroupStatsDto {
@@ -273,11 +280,17 @@ export class GroupsService {
 
   loadTopMemory(groupId: string, album: AlbumDto) {
     this.http
-      .get<any>(`${environment.apiUrl}/api/groups/${groupId}/albums/${album.id}/top-memory`)
+      .get<any>(`${this.baseUrl}/${groupId}/albums/${album.id}/top-memory`)
       .subscribe({
         next: (m) => {
           album.topMemory = m;
         }
       });
+  }
+
+  getAlbumPreviewMemories(groupId: string, albumId: string) {
+    return this.http.get<MemoryDto[]>(
+      `${this.baseUrl}/${groupId}/albums/${albumId}/preview-memories`
+    );
   }
 }

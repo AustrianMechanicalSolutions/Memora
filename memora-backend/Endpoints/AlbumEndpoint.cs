@@ -188,4 +188,28 @@ public class AlbumEndpoint : BaseApiController
 
         return Ok(memory);
     }
+
+    [HttpGet("{albumId:guid}/preview-memories")]
+    public async Task<ActionResult<List<object>>> GetPreviewMemories(Guid groupId, Guid albumId)
+    {
+        var uid = User.UserId();
+        await EnsureGroupMember(_db, groupId, uid);
+
+        var memories = await _db.Set<Memory>()
+            .AsNoTracking()
+            .Where(m => m.GroupId == groupId && m.AlbumId == albumId)
+            .OrderByDescending(m => m.HappenedAt)
+            .Take(5) // 👈 small set for story mode
+            .Select(m => new
+            {
+                m.Id,
+                m.Type,
+                MediaUrl = $"/api/groups/{groupId}/memories/{m.Id}/media",
+                m.QuoteText,
+                m.HappenedAt
+            })
+            .ToListAsync();
+
+        return Ok(memories);
+    }
 }
