@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Subject, tap } from 'rxjs';
 import { I18nService } from '../i18n.service';
+import { environment } from '../../environment';
 
 interface AuthResponse {
   token: string;
@@ -26,8 +27,8 @@ export interface CurrentUser {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly apiUrl = 'http://localhost:5000/api/auth';
-  private readonly accountUrl = 'http://localhost:5000/api/account';
+  private readonly apiUrl = `${environment.apiUrl}/api/auth`;
+  private readonly accountUrl = `${environment.apiUrl}/api/account`;
   private loggedInSubject = new BehaviorSubject<boolean>(!!this.token);
   loggedIn$ = this.loggedInSubject.asObservable();
   private profileChangedSubject = new Subject<void>();
