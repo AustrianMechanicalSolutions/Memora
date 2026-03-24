@@ -3,7 +3,8 @@
         "impressum": "Legal Notice"
     },
     "common": {
-        "error": "An error occured."
+        "error": "An error occured.",
+        "badRequest": "Invalid input"
     },
     "sidebar": {
         "home": "Your Memora",
@@ -41,7 +42,8 @@
             "twoFactor": "2FA Code",
             "twoFactorHelp": "Enter your 2FA code from Microsoft Authenticator.",
             "twoFactorInvalid": "Invalid 2FA code.",
-            "failed": "Login failed."
+            "failed": "Email or Password is invalid.",
+            "rateLimited": "Too many requests, please slow down."
         },
         "register": {
             "title": "Create Account",

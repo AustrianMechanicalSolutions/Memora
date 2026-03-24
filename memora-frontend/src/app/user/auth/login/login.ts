@@ -54,6 +54,12 @@ export class LoginComponent {
             return;
           }
 
+          // Bad Request
+          if (status === 400) {
+            this.errorMsg = this.i18n.translate('common.badRequest');
+            return;
+          }
+
           // Unauthorized (wrong login)
           if (status === 401) {
             this.errorMsg = this.i18n.translate('auth.login.failed');

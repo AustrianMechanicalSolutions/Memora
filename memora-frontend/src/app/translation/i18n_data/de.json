@@ -41,7 +41,8 @@
             "twoFactor": "2FA-Code",
             "twoFactorHelp": "Gib deinen 2FA-Code aus Microsoft Authenticator ein.",
             "twoFactorInvalid": "Ungültiger 2FA-Code.",
-            "failed": "Login fehlgeschlagen."
+            "failed": "Email oder Password ist Falsch.",
+            "rateLimited": "Zu viele anfragen, bitte warten Sie kurz."
         },
         "register": {
             "title": "Konto erstellen",
