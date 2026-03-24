@@ -3,6 +3,10 @@
 /node_modules
 /Migrations
 /wwwroot
+<<<<<<< HEAD
 memora.db
 memora.db-shm
 memora.db-wal
+=======
+memora-backend/memora.db
+>>>>>>> origin/main
