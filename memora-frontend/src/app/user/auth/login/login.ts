@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../auth.service';
-import { TranslatePipe } from '../../../translate.pipe';
-import { I18nService } from '../../../i18n.service';
+import { TranslatePipe } from '../../../translation/translate.pipe';
+import { I18nService } from '../../../translation/i18n.service';
 
 @Component({
   standalone: true,

@@ -5,8 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { GroupsService, MemoryDto } from '../../groups/groups';
-import { TranslatePipe } from '../../translate.pipe';
-import { I18nService } from '../../i18n.service';
+import { TranslatePipe } from '../../translation/translate.pipe';
+import { I18nService } from '../../translation/i18n.service';
 
 interface UserMeDto {
   id: string;

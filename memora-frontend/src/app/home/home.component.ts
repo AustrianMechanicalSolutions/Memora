@@ -6,7 +6,7 @@ import { GroupsService, GroupListItemDto } from '../groups/groups';
 import { OverviewSidebarComponent } from './overview-sidebar/overview-sidebar';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { TranslatePipe } from '../translate.pipe';
+import { TranslatePipe } from '../translation/translate.pipe';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environment';
 

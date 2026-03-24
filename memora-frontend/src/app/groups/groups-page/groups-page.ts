@@ -4,8 +4,8 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { GroupsService, GroupListItemDto } from '../groups';
-import { TranslatePipe } from '../../translate.pipe';
-import { I18nService } from '../../i18n.service';
+import { TranslatePipe } from '../../translation/translate.pipe';
+import { I18nService } from '../../translation/i18n.service';
 
 @Component({
   selector: 'app-groups-page',
