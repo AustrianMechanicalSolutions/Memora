@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../auth.service';
-import { TranslatePipe } from '../../../translate.pipe';
-import { I18nService } from '../../../i18n.service';
+import { TranslatePipe } from '../../../translation/translate.pipe';
+import { I18nService } from '../../../translation/i18n.service';
 
 @Component({
   standalone: true,
@@ -39,8 +39,10 @@ export class LoginComponent {
           this.router.navigateByUrl(returnUrl);
         },
         error: (e) => {
+          const status = e?.status;
           const err = e?.error?.error;
-
+          
+          // 2FA handling
           if (err === '2fa_required') {
             this.show2fa = true;
             this.errorMsg = this.i18n.translate('auth.login.twoFactorHelp');
@@ -52,7 +54,24 @@ export class LoginComponent {
             return;
           }
 
-          this.errorMsg = this.i18n.translate('auth.login.failed');
+          // Bad Request
+          if (status === 400) {
+            this.errorMsg = this.i18n.translate('common.badRequest');
+            return;
+          }
+
+          // Unauthorized (wrong login)
+          if (status === 401) {
+            this.errorMsg = this.i18n.translate('auth.login.failed');
+            return;
+          }
+
+          if (status === 429) {
+            this.errorMsg = this.i18n.translate('auth.login.ratelimited');
+            return;
+          }
+
+          this.errorMsg = this.i18n.translate('common.error');
         }
       });
   }

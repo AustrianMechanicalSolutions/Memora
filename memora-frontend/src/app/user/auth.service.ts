@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Subject, tap } from 'rxjs';
-import { I18nService } from '../i18n.service';
+import { I18nService } from '../translation/i18n.service';
 import { environment } from '../../environment';
 
 interface AuthResponse {

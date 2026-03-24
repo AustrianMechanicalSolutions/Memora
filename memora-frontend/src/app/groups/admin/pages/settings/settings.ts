@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { GroupAdminService, GroupDetailInfoDto } from '../../services/admin';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../../../translate.pipe';
+import { TranslatePipe } from '../../../../translation/translate.pipe';
 
 @Component({
   selector: 'app-group-admin-settings',
