@@ -97,8 +97,8 @@
         [routerLink]="['/groups', g.id, 'stats']"
       >
         {{ g.name }}
-      </option>
-    </select>
+      </a>
+    </div>
   </section>
 
   <section class="glass-panel state" *ngIf="loading">{{ 'stats.loading' | t }}</section>
