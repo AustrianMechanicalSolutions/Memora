@@ -34,15 +34,16 @@
 .glass-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.18);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
-    radial-gradient(circle at top left, rgba(168, 85, 247, 0.12), transparent 35%),
-    rgba(11, 14, 22, 0.72);
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
+    radial-gradient(circle at top left, var(--accent-soft), transparent 40%),
+    radial-gradient(circle at bottom right, rgba(79, 70, 229, 0.12), transparent 45%),
+    rgba(10, 12, 20, 0.65);
   backdrop-filter: blur(24px) saturate(140%);
   box-shadow:
     0 24px 70px rgba(0, 0, 0, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .glass-panel::after,
@@ -159,8 +160,8 @@
 }
 
 .btn.accent {
-  background: linear-gradient(135deg, #be7bff, #8b5cf6 52%, #f6b562);
-  box-shadow: 0 16px 32px rgba(139, 92, 246, 0.24);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  box-shadow: 0 12px 28px rgba(168, 85, 247, 0.35);
   color: #fff;
 }
 
@@ -310,18 +311,12 @@
   border-radius: 18px;
 }
 
-.tile.primary {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.04)),
-    radial-gradient(circle at top right, rgba(246, 181, 98, 0.16), transparent 34%),
-    rgba(12, 16, 24, 0.78);
-}
-
+.tile.primary,
 .tile.accent {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.04)),
-    radial-gradient(circle at top right, rgba(168, 85, 247, 0.2), transparent 34%),
-    rgba(12, 16, 24, 0.78);
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+    radial-gradient(circle at top right, var(--accent-soft), transparent 40%),
+    rgba(12, 16, 28, 0.75);
 }
 
 .tile-topline {
@@ -406,8 +401,8 @@
 .bar-fill {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #64d2ff, #5e5ce6 56%, #a855f7);
-  box-shadow: 0 0 24px rgba(94, 92, 230, 0.36);
+  background: linear-gradient(90deg, var(--accent-strong), var(--accent));
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.35);
 }
 
 .bar-value {
@@ -448,11 +443,16 @@ html[data-theme='light'] .aurora-right {
 
 html[data-theme='light'] .glass-panel,
 html[data-theme='light'] .glass-card {
-  border: 1px solid rgba(203, 213, 225, 0.7);
-  background: linear-gradient(180deg, #ffffff 0%, #f7f8fd 100%);
+  border: 1px solid rgba(99, 102, 241, 0.18);
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.9)),
+    radial-gradient(circle at top left, rgb(255, 255, 255), transparent 50%),
+    radial-gradient(circle at bottom right, rgb(255, 255, 255), transparent 55%);
+
   box-shadow:
-    0 12px 26px rgba(15, 23, 42, 0.08),
-    0 6px 12px rgba(15, 23, 42, 0.04);
+    0 10px 30px rgba(15, 23, 42, 0.08),
+    0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 html[data-theme='light'] .glass-panel::after,
@@ -524,7 +524,10 @@ html[data-theme='light'] .tile {
 html[data-theme='light'] .tile.primary,
 html[data-theme='light'] .tile.accent {
   background:
-    linear-gradient(160deg, #ffffff 0%, #f7f9ff 100%);
+    linear-gradient(180deg, #ffffff, #f8faff),
+    radial-gradient(circle at top right, rgba(168, 85, 247, 0.08), transparent 50%);
+
+  border: 1px solid rgba(99, 102, 241, 0.18);
 }
 
 html[data-theme='light'] .tile.accent {
