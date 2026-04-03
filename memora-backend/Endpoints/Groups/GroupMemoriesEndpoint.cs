@@ -88,6 +88,11 @@ public class GroupMemoriesController : BaseApiController
                 .Where(v => !string.IsNullOrWhiteSpace(v))
                 .ToList();
 
+            var people = x.People?
+                .Select(t => t.Name)
+                .Where(v => !string.IsNullOrWhiteSpace(v))
+                .ToList();
+
             var protectedMediaUrl = !string.IsNullOrWhiteSpace(x.MediaUrl)
                 ? $"/api/groups/{groupId}/memories/{x.Id}/media"
                 : null;
@@ -96,10 +101,15 @@ public class GroupMemoriesController : BaseApiController
                 x.Id, x.GroupId, x.Type, x.Title, x.QuoteText, x.QuoteBy, protectedMediaUrl, x.ThumbUrl,
                 x.HappenedAt, x.CreatedAt, x.CreatedByUserId,
                 tags != null && tags.Count > 0 ? tags : null,
+                people != null && people.Count > 0 ? people : null,
                 x.AlbumId,
                 likeCounts.TryGetValue(x.Id, out var likeCount) ? likeCount : 0,
                 commentCounts.TryGetValue(x.Id, out var commentCount) ? commentCount : 0,
-                likedSet.Contains(x.Id)
+                likedSet.Contains(x.Id),
+
+                x.LocationName,
+                x.Latitude,
+                x.Longitude
             );
         }).ToList();
 
@@ -140,15 +150,21 @@ public class GroupMemoriesController : BaseApiController
         await _db.SaveChangesAsync();
 
         var tags = m.Tags.Select(t => t.Value).ToList();
+        var people = m.People.Select(t => t.Name).ToList();
 
         return Ok(new MemoryDto(
             m.Id, m.GroupId, m.Type, m.Title, m.QuoteText, m.QuoteBy, m.MediaUrl, m.ThumbUrl,
             m.HappenedAt, m.CreatedAt, m.CreatedByUserId,
             tags.Count == 0 ? null : tags,
+            people.Count == 0 ? null : people,
             m.AlbumId,
             0,
             0,
-            false
+            false,
+
+            m.LocationName,
+            m.Latitude,
+            m.Longitude
         ));
     }
 
@@ -201,6 +217,10 @@ public class GroupMemoriesController : BaseApiController
             HappenedAt = req.HappenedAt,
             CreatedByUserId = uid,
             AlbumId = req.AlbumId,
+
+            LocationName = req.LocationName,
+            Latitude = req.Latitude,
+            Longitude = req.Longitude
         };
 
         if (req.Tags?.Any() == true)
@@ -216,6 +236,20 @@ public class GroupMemoriesController : BaseApiController
                 .ToList();
         }
 
+        if (req.People?.Any() == true)
+        {
+            m.People = req.People
+                .Select(p => p.Trim().ToLower())
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct()
+                .Select(p => new MemoryPerson
+                {
+                    MemoryId = m.Id,
+                    Name = p
+                })
+                .ToList();
+        }
+
         _db.Add(m);
         await _db.SaveChangesAsync();
 
@@ -223,10 +257,15 @@ public class GroupMemoriesController : BaseApiController
             m.Id, m.GroupId, m.Type, m.Title, m.QuoteText, m.QuoteBy, m.MediaUrl, m.ThumbUrl,
             m.HappenedAt, m.CreatedAt, m.CreatedByUserId,
             m.Tags.Select(t => t.Value).ToList(),
+            m.People.Select(t => t.Name).ToList(),
             m.AlbumId,
             0,
             0,
-            false
+            false,
+
+            m.LocationName,
+            m.Latitude,
+            m.Longitude
         ));
     }
 
