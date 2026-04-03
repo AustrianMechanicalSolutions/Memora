@@ -31,9 +31,14 @@ export interface MemoryDto {
   createdAt: string;
   createdByUserId: string;
   tags: string[];
+  people: string[];
   likeCount?: number;
   commentCount?: number;
   isLiked?: boolean;
+
+  locationName: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface CommentDto {
@@ -138,10 +143,14 @@ export class GroupsService {
       }
     });
 
-    return this.http.get<{ total: number; items: MemoryDto[] }>(
+    const gotten = this.http.get<{ total: number; items: MemoryDto[] }>(
       `${this.baseUrl}/${groupId}/memories`,
       { params }
     );
+    gotten.forEach(x => {
+      console.log(x);
+    })
+    return gotten;
   }
 
   likeMemory(groupId: string, memoryId: string) {
@@ -184,6 +193,9 @@ export class GroupsService {
     formData.append("title", data.title ?? "");
     formData.append("quoteText", data.quoteText ?? "");
     formData.append("happenedAt", data.happenedAt);
+    formData.append("locationName", data.location);
+    formData.append("latitude", data.latitude);
+    formData.append("longitude", data.longitude);
     for (const tag of (data.tags ?? [])) formData.append("tags", tag);
 
     formData.append("file", file);

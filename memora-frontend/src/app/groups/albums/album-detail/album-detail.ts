@@ -7,6 +7,7 @@ import { GroupsService, AlbumDto, MemoryDto, AlbumPersonDto, CommentDto } from '
 import { TranslatePipe } from '../../../translate.pipe';
 import { I18nService } from '../../../i18n.service';
 import { environment } from '../../../../environment';
+import * as exifr from 'exifr';
 
 @Component({
   selector: 'app-album-detail',
@@ -66,6 +67,12 @@ export class AlbumDetailComponent {
   // Security
   imageSrcMap = new Map<string, string>();
   loadingSet = new Set<string>();
+
+  // Location
+  newLocationName = '';
+  autoLat?: number;
+  autoLong?: number;
+  useGps = true;
 
   constructor(
     private route: ActivatedRoute,
@@ -354,7 +361,11 @@ export class AlbumDetailComponent {
       quoteBy: this.newType === 2 ? (this.newQuoteBy || null) : null,
       happenedAt: new Date(this.newDate).toISOString(),
       tags: [],
-      albumId: this.albumId !== 'all' ? this.albumId : null
+      albumId: this.albumId !== 'all' ? this.albumId : null,
+
+      location: this.newLocationName ?? null,
+      latitude: this.autoLat ?? null,
+      longitude: this.autoLong ?? null
     };
 
     if (this.newType === 2) {
@@ -474,12 +485,32 @@ export class AlbumDetailComponent {
     this.addStep = 'choose';
   }
 
-  onFileSelected(e: any) {
+  async onFileSelected(e: any) {
     const file = e.target.files?.[0];
     if (!file) return;
 
     this.selectedFile = file;
     this.previewUrl = URL.createObjectURL(file);  
+
+    try {
+      const meta: any = await exifr.parse(file);
+
+      // GPS
+      if (meta?.latitude && meta?.longitude)  {
+        this.autoLat = meta.latitude;
+        this.autoLong = meta.longitude;
+
+        this.useGps = true;
+      } else {
+        this.autoLat = undefined;
+        this.autoLong = undefined;
+      }
+
+    } catch (err) {
+      console.warn('No EXIF metadata found');
+      this.autoLat = undefined;
+      this.autoLong = undefined;
+    }
   }
 
   submitMedia() {
