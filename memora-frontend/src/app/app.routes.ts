@@ -12,6 +12,7 @@ import { UserStatsPageComponent } from './stats/user-stats/user-stats';
 import { ImpressumComponent } from './legal/impressum/impressum';
 import { authGuard } from './user/auth.guard';
 import { guestGuard } from './user/guest.guard';
+import { adminGuard } from './groups/admin/admin.guard';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -27,7 +28,7 @@ export const routes: Routes = [
     { path: 'groups/:id/albums', component: GroupAlbumsComponent, canActivate: [authGuard] },
     { path: 'groups/:id/albums/:albumId', component: AlbumDetailComponent, canActivate: [authGuard] },
     { path: 'groups/:id/stats', component: UserStatsPageComponent, canActivate: [authGuard] },
-    { path: 'groups/:id/admin', canActivate: [authGuard], loadChildren: () => import('./groups/admin/admin.routes')
+    { path: 'groups/:id/admin', canActivate: [authGuard, adminGuard], loadChildren: () => import('./groups/admin/admin.routes')
         .then(m => m.ADMIN_ROUTES)},
     
     { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },

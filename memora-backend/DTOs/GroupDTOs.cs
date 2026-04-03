@@ -1,8 +1,11 @@
 public record GroupListItemDto(Guid Id, string Name, int MemberCount);
 public record GroupDetailDto(Guid Id, string Name, string InviteCode, int MemberCount, Guid CreatedByUserId);
+public record GroupDetailInfoDto(Guid Id, string Name, string InviteCode, int MemberCount, string CreatedByUserName);
 public record GroupMemberDto(Guid UserId, string Name, string Role, string? AvatarUrl);
 
 public record GroupStatsDto(int memoryCount, int albumCount, DateTime timeActive);
+
+public class RenameGroupRequest { public string Name { get; set; } = ""; }
 
 public record MemoryDto(
     Guid Id,

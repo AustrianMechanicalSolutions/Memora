@@ -1,30 +1,195 @@
 <div class="ga-page">
+
+  <!-- Header -->
   <div class="ga-page-header">
-    <h2>{{ 'admin.settings' | t }}</h2>
-    <button (click)="load()">{{ 'admin.refresh' | t }}</button>
+    <div class="ga-header-left">
+      <div class="ga-header-icon">⚙</div>
+      <div>
+        <h2>{{ 'admin.settings' | t }}</h2>
+      </div>
+    </div>
+    <button class="ga-btn-ghost" (click)="load()">
+      <span class="ga-btn-icon">↺</span>
+      {{ 'admin.refresh' | t }}
+    </button>
   </div>
 
-  <div *ngIf="loading" class="ga-note">{{ 'admin.loading' | t }}</div>
-  <div *ngIf="error" class="ga-error">{{ error }}</div>
+  <!-- Loading -->
+  <div *ngIf="loading" class="ga-skeleton-wrap">
+    <div class="ga-skeleton"></div>
+    <div class="ga-skeleton short"></div>
+    <div class="ga-skeleton"></div>
+  </div>
 
-  <div class="ga-card" *ngIf="!loading && !error && group">
-    <h3>{{ 'admin.group' | t }}</h3>
+  <!-- Error -->
+  <div *ngIf="error" class="ga-error-banner">
+    <span class="ga-error-icon">⚠</span>
+    {{ error }}
+  </div>
 
-    <div class="ga-kv">
-      <div><span>{{ 'admin.name' | t }}</span><strong>{{ group.name }}</strong></div>
-      <div><span>{{ 'admin.inviteCode' | t }}</span><strong>{{ group.inviteCode }}</strong></div>
-      <div><span>{{ 'sidebar.members' | t }}</span><strong>{{ group.memberCount }}</strong></div>
-      <div><span>{{ 'admin.owner' | t }}</span><strong>{{ group.createdByUserId }}</strong></div>
+  <!-- Main Card -->
+  <div class="ga-settings-grid" *ngIf="!loading && !error && group">
+
+    <!-- Group Info -->
+    <div class="ga-card ga-card--info">
+      <div class="ga-card-header">
+        <span class="ga-card-label">{{ 'admin.group' | t }}</span>
+        <div class="ga-badge">Active</div>
+      </div>
+
+      <h3 class="ga-group-name">{{ group.name }}</h3>
+
+      <div class="ga-kv">
+        <div class="ga-kv-item">
+          <span class="ga-kv-label">{{ 'admin.inviteCode' | t }}</span>
+          <div class="ga-kv-value ga-code">
+            <code>{{ group.inviteCode }}</code>
+            <button class="ga-copy-btn" (click)="copyInviteCode()" title="Copy">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="ga-kv-item">
+          <span class="ga-kv-label">{{ 'sidebar.members' | t }}</span>
+          <strong class="ga-kv-value">{{ group.memberCount }}</strong>
+        </div>
+        <div class="ga-kv-item">
+          <span class="ga-kv-label">{{ 'admin.owner' | t }}</span>
+          <strong class="ga-kv-value ga-truncate">{{ group.createdByUserName }}</strong>
+        </div>
+      </div>
     </div>
 
-    <div class="ga-actions">
-      <button (click)="renameGroup()">{{ 'admin.renameGroup' | t }}</button>
-      <button (click)="regenerateInvite()">{{ 'admin.regenerateInvite' | t }}</button>
-      <button class="danger" (click)="deleteGroup()">{{ 'admin.deleteGroup' | t }}</button>
+    <!-- Actions -->
+    <div class="ga-card ga-card--actions">
+      <div class="ga-card-header">
+        <span class="ga-card-label">Actions</span>
+      </div>
+
+      <div class="ga-action-list">
+        <button class="ga-action-item" (click)="openRename()">
+          <div class="ga-action-icon ga-action-icon--blue">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+          <div class="ga-action-text">
+            <strong>{{ 'admin.renameGroup' | t }}</strong>
+            <span>Change the display name of this group</span>
+          </div>
+          <svg class="ga-action-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+        </button>
+
+        <button class="ga-action-item" (click)="openRegenerateInvite()">
+          <div class="ga-action-icon ga-action-icon--amber">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </div>
+          <div class="ga-action-text">
+            <strong>{{ 'admin.regenerateInvite' | t }}</strong>
+            <span>Invalidate current code and generate a new one</span>
+          </div>
+          <svg class="ga-action-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+        </button>
+
+        <button class="ga-action-item ga-action-item--danger" (click)="openDeleteGroup()">
+          <div class="ga-action-icon ga-action-icon--red">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </div>
+          <div class="ga-action-text">
+            <strong>{{ 'admin.deleteGroup' | t }}</strong>
+            <span>Permanently delete this group and all its data</span>
+          </div>
+          <svg class="ga-action-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+        </button>
+      </div>
     </div>
 
-    <div class="ga-note small">
-      {{ 'admin.settingsPlaceholder' | t }}
+  </div>
+</div>
+
+<!-- ── RENAME MODAL ── -->
+<div class="ga-modal-overlay" *ngIf="showRenameModal" (click)="closeModals()">
+  <div class="ga-modal" (click)="$event.stopPropagation()">
+    <div class="ga-modal-header">
+      <h3>Rename Group</h3>
+      <button class="ga-modal-close" (click)="closeModals()">✕</button>
+    </div>
+    <div class="ga-modal-body">
+      <label class="ga-label">New Name</label>
+      <input
+        class="ga-input"
+        [(ngModel)]="renameValue"
+        placeholder="Enter group name…"
+        maxlength="60"
+        (keyup.enter)="submitRename()"
+        #renameInput
+      />
+      <p class="ga-modal-hint">The name is visible to all group members.</p>
+    </div>
+    <div class="ga-modal-footer">
+      <button class="ga-btn-ghost" (click)="closeModals()">Cancel</button>
+      <button class="ga-btn-primary" (click)="submitRename()" [disabled]="renameLoading || !renameValue.trim()">
+        <span *ngIf="renameLoading" class="ga-spinner"></span>
+        {{ renameLoading ? 'Saving…' : 'Save Name' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── REGENERATE INVITE MODAL ── -->
+<div class="ga-modal-overlay" *ngIf="showRegenerateModal" (click)="closeModals()">
+  <div class="ga-modal" (click)="$event.stopPropagation()">
+    <div class="ga-modal-header">
+      <h3>Regenerate Invite Code</h3>
+      <button class="ga-modal-close" (click)="closeModals()">✕</button>
+    </div>
+    <div class="ga-modal-body">
+      <div class="ga-warning-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div class="ga-warning-text">
+          The current invite code <strong>{{ group?.inviteCode }}</strong> will stop working immediately. Anyone with the old link won't be able to join.
+        </div>
+      </div>
+    </div>
+    <div class="ga-modal-footer">
+      <button class="ga-btn-ghost" (click)="closeModals()">Cancel</button>
+      <button class="ga-btn-amber" (click)="submitRegenerateInvite()" [disabled]="regenerateLoading">
+        <span *ngIf="regenerateLoading" class="ga-spinner"></span>
+        {{ regenerateLoading ? 'Regenerating…' : 'Yes, Regenerate' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DELETE MODAL ── -->
+<div class="ga-modal-overlay" *ngIf="showDeleteModal" (click)="closeModals()">
+  <div class="ga-modal ga-modal--danger" (click)="$event.stopPropagation()">
+    <div class="ga-modal-header">
+      <h3>Delete Group</h3>
+      <button class="ga-modal-close" (click)="closeModals()">✕</button>
+    </div>
+    <div class="ga-modal-body">
+      <div class="ga-warning-box ga-warning-box--red">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div class="ga-warning-text">
+          This will permanently delete <strong>{{ group?.name }}</strong> and all its memories, albums, and member data. This cannot be undone.
+        </div>
+      </div>
+      <label class="ga-label ga-label--mt">Type the group name to confirm</label>
+      <input
+        class="ga-input ga-input--danger"
+        [(ngModel)]="deleteConfirmValue"
+        [placeholder]="group?.name"
+      />
+    </div>
+    <div class="ga-modal-footer">
+      <button class="ga-btn-ghost" (click)="closeModals()">Cancel</button>
+      <button
+        class="ga-btn-danger"
+        (click)="submitDeleteGroup()"
+        [disabled]="deleteLoading || deleteConfirmValue !== group?.name"
+      >
+        <span *ngIf="deleteLoading" class="ga-spinner ga-spinner--white"></span>
+        {{ deleteLoading ? 'Deleting…' : 'Delete Group' }}
+      </button>
     </div>
   </div>
 </div>
