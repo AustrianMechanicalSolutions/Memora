@@ -143,14 +143,10 @@ export class GroupsService {
       }
     });
 
-    const gotten = this.http.get<{ total: number; items: MemoryDto[] }>(
+    return this.http.get<{ total: number; items: MemoryDto[] }>(
       `${this.baseUrl}/${groupId}/memories`,
       { params }
     );
-    gotten.forEach(x => {
-      console.log(x);
-    })
-    return gotten;
   }
 
   likeMemory(groupId: string, memoryId: string) {
@@ -197,6 +193,7 @@ export class GroupsService {
     formData.append("latitude", data.latitude);
     formData.append("longitude", data.longitude);
     for (const tag of (data.tags ?? [])) formData.append("tags", tag);
+    for (const person of (data.people ?? [])) formData.append("people", person);
 
     formData.append("file", file);
 

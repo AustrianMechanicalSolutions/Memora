@@ -184,7 +184,7 @@
           <div class="memory-header">
             <div class="memory-meta">
               <div class="memory-date">{{ m.happenedAt | date:'dd/MM/yyyy' }}</div>
-              <div class="memory-location">{{ m.locationName || 'Loading location...' }}</div>
+              <div class="memory-location">{{ m.locationName || 'No location provided.' }}</div>
 
               <div class="memory-uploader" *ngIf="activeUploader as uploader">
                 <div class="uploader-avatar">
@@ -194,6 +194,22 @@
                 <div class="uploader-text">
                   <div class="uploader-label">{{ 'album.uploadedBy' | t }}</div>
                   <div class="uploader-name">{{ uploader.name }}</div>
+                </div>
+              </div>
+
+              <div class="memory-tagged" *ngIf="getTaggedUsers(m).length">
+                <div class="tagged-label">👥 With</div>
+
+                <div class="tagged-list">
+                  <div class="tagged-user" *ngFor="let u of getTaggedUsers(m)">
+                    <img *ngIf="u.avatarUrl; else initials" [src]="u.avatarUrl" />
+                    
+                    <ng-template #initials>
+                      <div class="avatar">{{ u.name.charAt(0) }}</div>
+                    </ng-template>
+
+                    <span>{{ u.name }}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -377,6 +393,42 @@
               </div>
               <div class="hint subtle">
                 Some details like the picture coordinates may be auto-filled from file metadata. You can turn this off in your settings.
+              </div>
+            </div>
+
+            <div class="field">
+              <label>👥 People</label>
+
+              <!-- selected -->
+              <div class="tag-list" *ngIf="taggedUserIds.length">
+                <div class="tag" *ngFor="let id of taggedUserIds">
+                  {{ memberById[id]?.name }}
+                  <button type="button" (click)="removeTaggedUser(id)">×</button>
+                </div>
+              </div>
+
+              <!-- input -->
+              <div class="mention-wrap">
+                <input
+                  class="input"
+                  [(ngModel)]="mediaTagInput"
+                  placeholder="Type @ to tag people"
+                  (input)="onMediaTagInput()"
+                  (keydown)="onMediaTagKeydown($event)"
+                  (blur)="closeMentionPopup()"
+                />
+
+                <div class="mention-popup" *ngIf="showMentionPopup">
+                  <div
+                    class="mention-item"
+                    *ngFor="let u of mentionResults; let i = index"
+                    [class.active]="i === mentionIndex"
+                    (mousedown)="selectMediaTag(u)"
+                  >
+                    @{{ u.name }}
+                    <span class="muted">({{ u.role }})</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

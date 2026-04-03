@@ -20,7 +20,7 @@ public class GroupMemoriesController : BaseApiController
     }
 
     [HttpGet()]
-    public async Task<ActionResult<object>> Memories(Guid groupId, [FromQuery] MemoryQuery q)
+        public async Task<ActionResult<object>> Memories(Guid groupId, [FromQuery] MemoryQuery q)
     {
         var uid = User.UserId();
         await EnsureGroupMember(_db, groupId, uid);
@@ -31,6 +31,7 @@ public class GroupMemoriesController : BaseApiController
         var query = _db.Set<Memory>()
             .AsNoTracking()
             .Include(x => x.Tags)
+            .Include(x => x.People)
             .Where(x => x.GroupId == groupId);
 
         if (q.AlbumId.HasValue) query = query.Where(x => x.AlbumId == q.AlbumId.Value);
@@ -217,6 +218,7 @@ public class GroupMemoriesController : BaseApiController
             HappenedAt = req.HappenedAt,
             CreatedByUserId = uid,
             AlbumId = req.AlbumId,
+            //Tags = req.Tags,
 
             LocationName = req.LocationName,
             Latitude = req.Latitude,

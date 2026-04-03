@@ -50,6 +50,10 @@ export class AlbumDetailComponent {
   mentionResults: { userId: string, name: string; role: string }[] = [];
   mentionIndex = 0;
 
+  // Media tagging (multi)
+  taggedUserIds: string[] = [];
+  mediaTagInput = '';
+
   // Adding a memory
   showAddMemoryModal = false;
   addStep: 'choose' | 'media' | 'quote' = 'choose';
@@ -361,6 +365,7 @@ export class AlbumDetailComponent {
       quoteBy: this.newType === 2 ? (this.newQuoteBy || null) : null,
       happenedAt: new Date(this.newDate).toISOString(),
       tags: [],
+      people: this.taggedUserIds,
       albumId: this.albumId !== 'all' ? this.albumId : null,
 
       location: this.newLocationName ?? null,
@@ -636,5 +641,73 @@ export class AlbumDetailComponent {
         },
         error: err => console.error(err)
       });
+  }
+
+  // Mentioning in media
+  onMediaTagInput() {
+    const ctx = this.getMentionContext(this.mediaTagInput || '');
+    if (!ctx) {
+      this.showMentionPopup = false;
+      return;
+    }
+
+    this.mentionQuery = ctx.query.toLowerCase();
+
+    this.mentionResults = this.members
+      .filter(u =>
+        u.name.toLowerCase().includes(this.mentionQuery) &&
+        !this.taggedUserIds.includes(u.userId) // prevent duplicates
+      )
+      .slice(0, 8);
+
+    this.showMentionPopup = true;
+    this.mentionIndex = 0;
+  }
+
+  selectMediaTag(u: { userId: string; name: string }) {
+    if (!this.taggedUserIds.includes(u.userId)) {
+      this.taggedUserIds.push(u.userId);
+    }
+
+    this.mediaTagInput = '';
+    this.showMentionPopup = false;
+  }
+
+  onMediaTagKeydown(event: KeyboardEvent) {
+    if (!this.showMentionPopup) return;
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.mentionIndex = Math.min(this.mentionIndex + 1, this.mentionResults.length - 1);
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.mentionIndex = Math.max(this.mentionIndex - 1, 0);
+    }
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const u = this.mentionResults[this.mentionIndex];
+      if (u) this.selectMediaTag(u);
+    }
+
+    if (event.key === 'Escape') {
+      this.showMentionPopup = false;
+    }
+  }
+
+  removeTaggedUser(userId: string) {
+    this.taggedUserIds = this.taggedUserIds.filter(id => id !== userId);
+  }
+
+  getTaggedUsers(memory: MemoryDto) {
+    console.log(memory)
+    return (memory.people || [])
+      .map(id => ({
+        userId: id,
+        name: this.memberById[id]?.name || 'Unknown',
+        avatarUrl: this.memberById[id]?.avatarUrl || null
+      }));
   }
 }
