@@ -273,6 +273,15 @@ namespace memorabackend.Migrations
                     b.Property<DateTime>("HappenedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("LocationName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("REAL");
+
                     b.Property<string>("MediaUrl")
                         .HasColumnType("TEXT");
 
@@ -298,6 +307,26 @@ namespace memorabackend.Migrations
                     b.HasIndex("GroupId");
 
                     b.ToTable("Memory");
+                });
+
+            modelBuilder.Entity("MemoryPerson", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("MemoryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemoryId");
+
+                    b.ToTable("MemoryPerson");
                 });
 
             modelBuilder.Entity("MemoryTag", b =>
@@ -443,6 +472,17 @@ namespace memorabackend.Migrations
                     b.Navigation("Group");
                 });
 
+            modelBuilder.Entity("MemoryPerson", b =>
+                {
+                    b.HasOne("Memory", "Memory")
+                        .WithMany("People")
+                        .HasForeignKey("MemoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Memory");
+                });
+
             modelBuilder.Entity("MemoryTag", b =>
                 {
                     b.HasOne("Memory", "Memory")
@@ -475,6 +515,8 @@ namespace memorabackend.Migrations
 
             modelBuilder.Entity("Memory", b =>
                 {
+                    b.Navigation("People");
+
                     b.Navigation("Tags");
                 });
 #pragma warning restore 612, 618

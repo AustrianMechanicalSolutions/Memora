@@ -94,6 +94,10 @@
             {{ m.happenedAt | date:'dd/MM/yyyy' }}
           </div>
 
+          <div class="wall-location" *ngIf="m.locationName || m.latitude">
+            📍 {{ m.locationName || '...' }}
+          </div>
+
           <div class="wall-actions">
             <button class="icon-btn" type="button" (click)="toggleMemoryLike(m, $event)">
               <span class="icon" [class.active]="m.isLiked">&#x2665;</span>
@@ -180,6 +184,8 @@
           <div class="memory-header">
             <div class="memory-meta">
               <div class="memory-date">{{ m.happenedAt | date:'dd/MM/yyyy' }}</div>
+              <div class="memory-location">{{ m.locationName || 'No location provided.' }}</div>
+
               <div class="memory-uploader" *ngIf="activeUploader as uploader">
                 <div class="uploader-avatar">
                   <img *ngIf="uploader.avatarUrl; else uploaderInitial" [src]="uploader.avatarUrl" />
@@ -188,6 +194,22 @@
                 <div class="uploader-text">
                   <div class="uploader-label">{{ 'album.uploadedBy' | t }}</div>
                   <div class="uploader-name">{{ uploader.name }}</div>
+                </div>
+              </div>
+
+              <div class="memory-tagged" *ngIf="getTaggedUsers(m).length">
+                <div class="tagged-label">👥 With</div>
+
+                <div class="tagged-list">
+                  <div class="tagged-user" *ngFor="let u of getTaggedUsers(m)">
+                    <img *ngIf="u.avatarUrl; else initials" [src]="u.avatarUrl" />
+                    
+                    <ng-template #initials>
+                      <div class="avatar">{{ u.name.charAt(0) }}</div>
+                    </ng-template>
+
+                    <span>{{ u.name }}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -274,7 +296,7 @@
   </div>
 
   <div class="modal-backdrop" *ngIf="showAddMemoryModal">
-    <div class="modal">
+    <div class="modal" [class.media-mode]="addStep === 'media'">
       <button class="modal-close" type="button" (click)="showAddMemoryModal = false">&times;</button>
 
       <h2>{{ 'album.addMemory' | t }}</h2>
@@ -298,35 +320,117 @@
       </div>
 
       <!-- Media -->
-      <div *ngIf="addStep === 'media'" class="modal-body">
-        <div class="form">
-          <label class="upload-box">
-            <input type="file" hidden (change)="onFileSelected($event)" />
-            <div class="upload-icon">&#x2B06;</div>
-            <div class="upload-title">
-              Click to upload {{ mediaType }}
-            </div>
-            <div class="hint">
-              {{ mediaType === 'photo' ? ('album.uploadHintPhoto' | t) : ('album.uploadHintVideo' | t) }}
-            </div>
+      <div *ngIf="addStep === 'media'" class="modal-body media-layout">
+        <!-- LEFT -->
+        <div class="media-left">
+          <label class="upload-box" [class.has-preview]="previewUrl">
+            <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
+
+            <!-- No file -> show upload UI -->
+            <ng-container *ngIf="!previewUrl; else previewBlock">
+              <div class="upload-icon">&#x2B06;</div>
+              <div class="upload-title">
+                Click to upload {{ mediaType }}
+              </div>
+              <div class="hint">
+                {{ mediaType === 'photo' ? ('album.uploadHintPhoto' | t) : ('album.uploadHintVideo' | t) }}
+              </div>
+              <div class="hint subtle">
+                Some details like the location may be auto-filled from file metadata. You can turn this off in your settings.
+              </div>
+            </ng-container>
+
+            <!-- File exists -> show preview -->
+            <ng-template #previewBlock>
+              <ng-container *ngIf="previewUrl">
+                <img
+                  *ngIf="mediaType === 'photo'"
+                  class="media-preview"
+                  [src]="previewUrl"
+                />
+
+                <video
+                  *ngIf="mediaType === 'video'"
+                  class="media-preview"
+                  [src]="previewUrl"
+                  controls
+                ></video>
+              </ng-container>
+            </ng-template>
           </label>
+        </div>
 
-          <div class="media-preview" *ngIf="previewUrl">
-            <img
-              *ngIf="mediaType === 'photo'"
-              [src]="previewUrl"
-            />
+        <!-- RIGHT -->
+        <div class="media-right">
+          <div class="form">
+            <div class="field">
+              <label>{{ 'album.date' | t }}</label>
+              <input type="date" class="input" [(ngModel)]="newDate" />
+            </div>
 
-            <video
-              *ngIf="mediaType === 'video'"
-              [src]="previewUrl"
-              controls
-            ></video>
-          </div>
+            <div class="field">
+              <label>📍 Location</label>
+              <input
+                class="input"
+                [(ngModel)]="newLocationName"
+                placeholder="City, place, or memory location"
+              />
+            </div>
 
-          <div class="field">
-            <label>{{ 'album.date' | t }}</label>
-            <input type="date" class="input" [(ngModel)]="newDate" />
+            <div class="field" *ngIf="autoLat && autoLong">
+              <label>🌍 GPS</label>
+
+              <div class="gps-box">
+                <div>Lat: {{ autoLat }}</div>
+                <div>Long: {{ autoLong }}</div>
+
+                <button
+                  type="button"
+                  class="btn ghost small"
+                  (click)="useGps = !useGps">
+                  {{ useGps ? "Using GPS ✓" : "Use GPS location" }}
+                </button>
+              </div>
+              <div class="hint subtle">
+                Some details like the picture coordinates may be auto-filled from file metadata. You can turn this off in your settings.
+              </div>
+            </div>
+
+            <div class="field">
+              <label>👥 People</label>
+
+              <!-- selected -->
+              <div class="tag-list" *ngIf="taggedUserIds.length">
+                <div class="tag" *ngFor="let id of taggedUserIds">
+                  {{ memberById[id]?.name }}
+                  <button type="button" (click)="removeTaggedUser(id)">×</button>
+                </div>
+              </div>
+
+              <!-- input -->
+              <div class="mention-wrap">
+                <input
+                  class="input"
+                  [(ngModel)]="mediaTagInput"
+                  placeholder="Type @ to tag people"
+                  (input)="onMediaTagInput()"
+                  (keydown)="onMediaTagKeydown($event)"
+                  (blur)="closeMentionPopup()"
+                />
+
+                <div class="mention-popup" *ngIf="showMentionPopup">
+                  <div
+                    class="mention-item"
+                    *ngFor="let u of mentionResults; let i = index"
+                    [class.active]="i === mentionIndex"
+                    (mousedown)="selectMediaTag(u)"
+                  >
+                    @{{ u.name }}
+                    <span class="muted">({{ u.role }})</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

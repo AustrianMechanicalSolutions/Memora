@@ -7,6 +7,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { GroupsService, MemoryDto } from '../../groups/groups';
 import { TranslatePipe } from '../../translate.pipe';
 import { I18nService } from '../../i18n.service';
+import { environment } from '../../../environment';
 
 interface UserMeDto {
   id: string;
@@ -37,6 +38,7 @@ interface GroupSummary {
 })
 export class UserStatsPageComponent {
   private readonly preferenceKey = 'memora.user-stats.preferences';
+  private baseUrl = `${environment.apiUrl}/api/account`;
 
   loading = true;
   error = '';
@@ -90,7 +92,7 @@ export class UserStatsPageComponent {
     this.loading = true;
     this.error = '';
 
-    this.http.get<UserMeDto>('/api/account/me').pipe(
+    this.http.get<UserMeDto>(`${this.baseUrl}/me`).pipe(
       switchMap((me) => {
         this.userDisplayName = me.displayName?.trim() || 'You';
 

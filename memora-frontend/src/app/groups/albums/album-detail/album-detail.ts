@@ -7,6 +7,7 @@ import { GroupsService, AlbumDto, MemoryDto, AlbumPersonDto, CommentDto } from '
 import { TranslatePipe } from '../../../translate.pipe';
 import { I18nService } from '../../../i18n.service';
 import { environment } from '../../../../environment';
+import * as exifr from 'exifr';
 
 @Component({
   selector: 'app-album-detail',
@@ -49,6 +50,10 @@ export class AlbumDetailComponent {
   mentionResults: { userId: string, name: string; role: string }[] = [];
   mentionIndex = 0;
 
+  // Media tagging (multi)
+  taggedUserIds: string[] = [];
+  mediaTagInput = '';
+
   // Adding a memory
   showAddMemoryModal = false;
   addStep: 'choose' | 'media' | 'quote' = 'choose';
@@ -66,6 +71,12 @@ export class AlbumDetailComponent {
   // Security
   imageSrcMap = new Map<string, string>();
   loadingSet = new Set<string>();
+
+  // Location
+  newLocationName = '';
+  autoLat?: number;
+  autoLong?: number;
+  useGps = true;
 
   constructor(
     private route: ActivatedRoute,
@@ -354,7 +365,12 @@ export class AlbumDetailComponent {
       quoteBy: this.newType === 2 ? (this.newQuoteBy || null) : null,
       happenedAt: new Date(this.newDate).toISOString(),
       tags: [],
-      albumId: this.albumId !== 'all' ? this.albumId : null
+      people: this.taggedUserIds,
+      albumId: this.albumId !== 'all' ? this.albumId : null,
+
+      location: this.newLocationName ?? null,
+      latitude: this.autoLat ?? null,
+      longitude: this.autoLong ?? null
     };
 
     if (this.newType === 2) {
@@ -474,12 +490,32 @@ export class AlbumDetailComponent {
     this.addStep = 'choose';
   }
 
-  onFileSelected(e: any) {
+  async onFileSelected(e: any) {
     const file = e.target.files?.[0];
     if (!file) return;
 
     this.selectedFile = file;
     this.previewUrl = URL.createObjectURL(file);  
+
+    try {
+      const meta: any = await exifr.parse(file);
+
+      // GPS
+      if (meta?.latitude && meta?.longitude)  {
+        this.autoLat = meta.latitude;
+        this.autoLong = meta.longitude;
+
+        this.useGps = true;
+      } else {
+        this.autoLat = undefined;
+        this.autoLong = undefined;
+      }
+
+    } catch (err) {
+      console.warn('No EXIF metadata found');
+      this.autoLat = undefined;
+      this.autoLong = undefined;
+    }
   }
 
   submitMedia() {
@@ -605,5 +641,73 @@ export class AlbumDetailComponent {
         },
         error: err => console.error(err)
       });
+  }
+
+  // Mentioning in media
+  onMediaTagInput() {
+    const ctx = this.getMentionContext(this.mediaTagInput || '');
+    if (!ctx) {
+      this.showMentionPopup = false;
+      return;
+    }
+
+    this.mentionQuery = ctx.query.toLowerCase();
+
+    this.mentionResults = this.members
+      .filter(u =>
+        u.name.toLowerCase().includes(this.mentionQuery) &&
+        !this.taggedUserIds.includes(u.userId) // prevent duplicates
+      )
+      .slice(0, 8);
+
+    this.showMentionPopup = true;
+    this.mentionIndex = 0;
+  }
+
+  selectMediaTag(u: { userId: string; name: string }) {
+    if (!this.taggedUserIds.includes(u.userId)) {
+      this.taggedUserIds.push(u.userId);
+    }
+
+    this.mediaTagInput = '';
+    this.showMentionPopup = false;
+  }
+
+  onMediaTagKeydown(event: KeyboardEvent) {
+    if (!this.showMentionPopup) return;
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.mentionIndex = Math.min(this.mentionIndex + 1, this.mentionResults.length - 1);
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.mentionIndex = Math.max(this.mentionIndex - 1, 0);
+    }
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const u = this.mentionResults[this.mentionIndex];
+      if (u) this.selectMediaTag(u);
+    }
+
+    if (event.key === 'Escape') {
+      this.showMentionPopup = false;
+    }
+  }
+
+  removeTaggedUser(userId: string) {
+    this.taggedUserIds = this.taggedUserIds.filter(id => id !== userId);
+  }
+
+  getTaggedUsers(memory: MemoryDto) {
+    console.log(memory)
+    return (memory.people || [])
+      .map(id => ({
+        userId: id,
+        name: this.memberById[id]?.name || 'Unknown',
+        avatarUrl: this.memberById[id]?.avatarUrl || null
+      }));
   }
 }
