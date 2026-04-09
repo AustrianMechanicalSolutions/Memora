@@ -190,8 +190,15 @@ export class GroupsService {
     formData.append("quoteText", data.quoteText ?? "");
     formData.append("happenedAt", data.happenedAt);
     formData.append("locationName", data.location);
-    formData.append("latitude", data.latitude);
-    formData.append("longitude", data.longitude);
+    
+    if (data.latitude !== null && data.latitude !== undefined) {
+      formData.append("latitude", String(data.latitude));
+    }
+
+    if (data.longitude !== null && data.longitude !== undefined) {
+      formData.append("longitude", String(data.longitude));
+    }
+
     for (const tag of (data.tags ?? [])) formData.append("tags", tag);
     for (const person of (data.people ?? [])) formData.append("people", person);
 

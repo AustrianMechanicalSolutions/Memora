@@ -90,6 +90,10 @@
           <div *ngIf="m.type === 0 && mediaFailed(m.mediaUrl)" class="media-error">{{ 'album.imageLoadError' | t }}</div>
           <div *ngIf="m.type === 1 && mediaFailed(m.mediaUrl)" class="media-error">{{ 'album.videoLoadError' | t }}</div>
 
+          <div class="wall-title-text" *ngIf="m.title">
+            {{ m.title }}
+          </div>
+
           <div class="wall-date">
             {{ m.happenedAt | date:'dd/MM/yyyy' }}
           </div>
@@ -183,6 +187,8 @@
         <aside class="memory-comments">
           <div class="memory-header">
             <div class="memory-meta">
+              <div class="memory-title" *ngIf="m.title"> {{ m.title }} </div>
+
               <div class="memory-date">{{ m.happenedAt | date:'dd/MM/yyyy' }}</div>
               <div class="memory-location">{{ m.locationName || 'No location provided.' }}</div>
 
@@ -363,6 +369,15 @@
         <!-- RIGHT -->
         <div class="media-right">
           <div class="form">
+            <div class="field">
+              <label>Name</label>
+              <input
+                class="input"
+                [(ngModel)]="newTitle"
+                placeholder="What's happening here?"
+              />
+            </div>
+
             <div class="field">
               <label>{{ 'album.date' | t }}</label>
               <input type="date" class="input" [(ngModel)]="newDate" />
