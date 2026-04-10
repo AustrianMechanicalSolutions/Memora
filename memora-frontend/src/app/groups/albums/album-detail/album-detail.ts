@@ -72,11 +72,12 @@ export class AlbumDetailComponent {
   imageSrcMap = new Map<string, string>();
   loadingSet = new Set<string>();
 
-  // Location
+  // Metadata
   newLocationName = '';
   autoLat?: number;
   autoLong?: number;
   useGps = true;
+  autoTime?: Date;
 
   constructor(
     private route: ActivatedRoute,
