@@ -79,6 +79,10 @@ export class AlbumDetailComponent {
   useGps = true;
   autoTime?: Date;
 
+  // Searching
+  searchQuery = '';
+  filteredItems: MemoryDto[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -143,6 +147,9 @@ export class AlbumDetailComponent {
             this.loadMedia(m.mediaUrl);
           }
         });
+
+        this.items = r.items;
+        this.filteredItems = [...this.items];
       },
       error: (err) => console.error(err)
     });
@@ -710,5 +717,150 @@ export class AlbumDetailComponent {
         name: this.memberById[id]?.name || 'Unknown',
         avatarUrl: this.memberById[id]?.avatarUrl || null
       }));
+  }
+
+  // Searching
+  applySearch() {
+    const tokens = this.tokenize(this.searchQuery);
+
+    if (!tokens.length) {
+      this.filteredItems = [...this.items];
+      return;
+    }
+
+    const scored = this.items.map(m => ({
+      memory: m,
+      score: this.scoreMemory(m, tokens)
+    }));
+
+    this.filteredItems = scored
+      .filter(x => x.score > 0.5)
+      .sort((a, b) => b.score - a.score)
+      .map(x => x.memory);
+  }
+
+  tokenize(query: string): string[] {
+    return query
+      .toLowerCase()
+      .split(/\s+/)
+      .map(t => t.trim())
+      .filter(Boolean);
+  }
+
+  classifyToken(token: string) {
+    if (this.members.some(m => m.name.toLowerCase().includes(token))) {
+      return 'person';
+    }
+
+    if (this.isLocation(token)) {
+      return 'place';
+    }
+
+    if (this.isTimeWord(token)) {
+      return 'time';
+    }
+
+    return 'tag';
+  }
+
+  isLocation(token: string) {
+    return [''] // Fill up later
+  }
+
+  isTimeWord(token: string) {
+    return [''] // Fill up later
+  }
+
+  scoreMemory(memory: MemoryDto, tokens: string[]): number {
+    let totalScore = 0;
+    let matchedTokens = 0;
+
+    for (const token of tokens) {
+      // Title and location
+      const titleMatch = this.bestMatch(memory.title || '', token);
+      const locationMatch = this.bestMatch(memory.locationName || '', token);
+
+      if (titleMatch > 0.8) {
+        matchedTokens++;
+        totalScore += titleMatch;
+      } else if (locationMatch > 0.8) {
+        matchedTokens++;
+        totalScore += locationMatch;
+      }
+
+      // People
+    }
+
+    const ratio = matchedTokens / tokens.length;
+
+    if (ratio <= 0.7) return 0;
+
+    return totalScore;
+  }
+
+  similarity(a: string, b: string): number {
+    if (!a || !b) return 0;
+
+    a = a.toLowerCase();
+    b = b.toLowerCase();
+
+    if (a.includes(b)) return 1;
+
+    const dist = this.levensthein(a, b);
+    const maxLen = Math.max(a.length, b.length);
+
+    return 1 - dist / maxLen;
+  }
+
+  bestMatch(text: string, token: string): number {
+    if (!text) return 0;
+
+    const words = text.toLowerCase().split(/\s+/);
+
+    let best = 0;
+
+    for (const w of words) {
+      const sim = this.similarity(w, token);
+      if (sim > best) best = sim;
+    }
+
+    return best;
+  }
+
+  matchesTime(dateStr: string, token: string): boolean {
+    const d = new Date(dateStr);
+
+    if (token === 'summer') return d.getMonth() >= 5 && d.getMonth() <= 7;
+    // Need more
+
+    return false;
+  }
+
+  levensthein(a: string, b: string) {
+    const m = a.length;
+    const n = b.length;
+
+    // Create matrix
+    const dp: number[][] = Array.from({ length: m + 1 }, () => 
+      new Array(n + 1).fill(0)
+    );
+
+    // Initialize edges
+    for (let i = 0; i <= m; i++) dp[i][0] = i
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+
+        dp[i][j] = Math.min(
+          dp[i - 1][j] + 1,
+          dp[i][j - 1] + 1,
+          dp[i - 1][j - 1] + cost
+        );
+      }
+    }
+
+    return dp[m][n];
   }
 }

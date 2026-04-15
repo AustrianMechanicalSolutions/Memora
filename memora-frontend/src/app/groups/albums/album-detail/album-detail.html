@@ -66,12 +66,23 @@
     </div>
   </section>
 
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <input
+      class="input"
+      type="text"
+      [(ngModel)]="searchQuery"
+      (input)="applySearch()"
+      placeholder="Search memories..."
+    />
+  </div>
+
   <!-- Memory Wall -->
   <section class="wall-section">
     <h2 class="wall-title">{{ 'album.memoryWall' | t }}</h2>
 
     <div class="wall" *ngIf="items.length > 0; else emptyState">
-      <div class="wall-card clickable" *ngFor="let m of items" (click)="openMemory(m)">
+      <div class="wall-card clickable" *ngFor="let m of filteredItems" (click)="openMemory(m)">
         <!-- Photo / Video -->
         <ng-container *ngIf="m.type !== 2">
           <img
