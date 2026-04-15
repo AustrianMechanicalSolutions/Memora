@@ -26,7 +26,7 @@ public class EntitesController : BaseApiController
     public async Task<IActionResult> Search([FromQuery] string query)
     {
         if (string.IsNullOrWhiteSpace(query))
-            return Ok(new List<object>());
+            return Ok(false);
 
         query = query.Trim().ToLower();
 

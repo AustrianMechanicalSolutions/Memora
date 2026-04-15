@@ -776,6 +776,11 @@ export class AlbumDetailComponent {
     let matchedTokens = 0;
 
     for (const token of tokens) {
+      // People
+      // We try to match the input with a person. If a token is 100% a person,
+      // we, ignore everything else and only look for that.
+      
+
       // Title and location
       const titleMatch = this.bestMatch(memory.title || '', token);
       const locationMatch = this.bestMatch(memory.locationName || '', token);
@@ -787,8 +792,6 @@ export class AlbumDetailComponent {
         matchedTokens++;
         totalScore += locationMatch;
       }
-
-      // People
     }
 
     const ratio = matchedTokens / tokens.length;

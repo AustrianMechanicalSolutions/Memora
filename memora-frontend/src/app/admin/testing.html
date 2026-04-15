@@ -1,13 +1,19 @@
-<div style="padding: 16px;">
-  <input [(ngModel)]="query" placeholder="Enter name" />
+<div style="padding: 16px">
+    <input [(ngModel)]="query" placeholder="Enter name" />
 
-  <button (click)="testSearch()">Test Search Speed</button>
+    <button (click)="testSearch()">Test Search Speed</button>
 
-  <div *ngIf="duration !== null">
-    ⏱️ Time taken: {{ duration }} ms
-  </div>
+    <div *ngIf="duration !== null">
+        Time: {{ duration }} ms
+    </div>
 
-  <div *ngIf="result !== null">
-    Result: {{ result ? 'Found ✅' : 'Not Found ❌' }}
-  </div>
+    <div *ngIf="result !== null">
+        <span *ngIf="result" style="color: green;">
+            Name found in dataset
+        </span>
+
+        <span *ngIf="!result" style="color: red;">
+            Name NOT found
+        </span>
+    </div>
 </div>
