@@ -1,0 +1,13 @@
+<div style="padding: 16px;">
+  <input [(ngModel)]="query" placeholder="Enter name" />
+
+  <button (click)="testSearch()">Test Search Speed</button>
+
+  <div *ngIf="duration !== null">
+    ⏱️ Time taken: {{ duration }} ms
+  </div>
+
+  <div *ngIf="result !== null">
+    Result: {{ result ? 'Found ✅' : 'Not Found ❌' }}
+  </div>
+</div>
