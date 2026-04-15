@@ -43,7 +43,7 @@ public class EntitesController : BaseApiController
             var line = await reader.ReadLineAsync();
             if (line == null) continue;
 
-            var name = line.Split(',')[0].Trim().ToLower();
+            var name = line.Split(',')[4].Trim().ToLower();
 
             if (name == query)
             {

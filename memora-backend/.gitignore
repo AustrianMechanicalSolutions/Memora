@@ -4,3 +4,5 @@
 /Migrations
 /wwwroot
 memora.db
+memora.db-shm
+memora.db-wal
