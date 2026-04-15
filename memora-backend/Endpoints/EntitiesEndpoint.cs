@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using OtpNet;
 using CsvHelper.Configuration;
 using System.Globalization;
+using Microsoft.Data.Sqlite;
 
 namespace AuthApi.Endpoints;
 
@@ -28,29 +29,22 @@ public class EntitesController : BaseApiController
         if (string.IsNullOrWhiteSpace(query))
             return Ok(false);
 
-        query = query.Trim().ToLower();
+        var dbPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "..", "..", "..",
+            "dataset",
+            "names.db"
+        );
 
-        var path = Path.Combine(AppContext.BaseDirectory, "dataset", "person_names.csv");
+        using var connection = new SqliteConnection($"Data Source={dbPath}");
+        await connection.OpenAsync();
 
-        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-        using var reader = new StreamReader(stream);
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT 1 FROM PersonNames WHERE Name = $name COLLATE NOCASE LIMIT 1";
+        command.Parameters.AddWithValue("$name", query.Trim());
 
-        // Skip header if needed
-        await reader.ReadLineAsync();
+        var result = await command.ExecuteScalarAsync();
 
-        while (!reader.EndOfStream)
-        {
-            var line = await reader.ReadLineAsync();
-            if (line == null) continue;
-
-            var name = line.Split(',')[4].Trim().ToLower();
-
-            if (name == query)
-            {
-                return Ok(true);
-            }
-        }
-
-        return Ok(false);
+        return Ok(result != null);
     }
 }

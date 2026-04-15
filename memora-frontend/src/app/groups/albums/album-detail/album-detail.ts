@@ -779,15 +779,27 @@ export class AlbumDetailComponent {
       // People
       // We try to match the input with a person. If a token is 100% a person,
       // we, ignore everything else and only look for that.
-      
+      console.log("t")
+      if (memory.people) {
+        memory.people.forEach(p => {
+          console.log(p)
+          const personMatch = this.bestMatch(this.memberById[p].name || '', token);
+          if (personMatch > 0.95) { // You normally dont misspell names
+            matchedTokens++;
+            totalScore += personMatch;
+          }
+        })
+      }
 
       // Title and location
       const titleMatch = this.bestMatch(memory.title || '', token);
       const locationMatch = this.bestMatch(memory.locationName || '', token);
 
+
       if (titleMatch > 0.8) {
         matchedTokens++;
-        totalScore += titleMatch;
+        totalScore += titleMatch * 1.5; // Higher value for title
+        console.log(titleMatch, totalScore);
       } else if (locationMatch > 0.8) {
         matchedTokens++;
         totalScore += locationMatch;
@@ -833,7 +845,7 @@ export class AlbumDetailComponent {
   matchesTime(dateStr: string, token: string): boolean {
     const d = new Date(dateStr);
 
-    if (token === 'summer') return d.getMonth() >= 5 && d.getMonth() <= 7;
+    if (token === 'summer')   return d.getMonth() >= 5 && d.getMonth() <= 7;
     // Need more
 
     return false;

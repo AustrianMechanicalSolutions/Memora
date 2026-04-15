@@ -270,4 +270,11 @@ export class GroupsService {
   notifyGroupsChanged() {
     this.groupsChangedSource.next();
   }
+
+  // Searching
+  searchPersonName(name: string) {
+    return this.http.get(
+      `${this.baseUrl}/entites?search=${name}`
+    );
+  }
 }
