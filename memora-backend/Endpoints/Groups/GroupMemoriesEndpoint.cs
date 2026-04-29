@@ -241,7 +241,7 @@ public class GroupMemoriesController : BaseApiController
         if (req.People?.Any() == true)
         {
             m.People = req.People
-                .Select(p => p.Trim().ToLower())
+                .Select(p => p.Trim())
                 .Where(p => !string.IsNullOrWhiteSpace(p))
                 .Distinct()
                 .Select(p => new MemoryPerson

@@ -52,6 +52,7 @@ export class AlbumDetailComponent {
 
   // Media tagging (multi)
   taggedUserIds: string[] = [];
+  freeTextPeople: string[] = [];
   mediaTagInput = '';
 
   // Adding a memory
@@ -695,9 +696,17 @@ export class AlbumDetailComponent {
     }
 
     if (event.key === 'Enter') {
-      event.preventDefault();
-      const u = this.mentionResults[this.mentionIndex];
-      if (u) this.selectMediaTag(u);
+      if (event.key === 'Enter') {
+        const u = this.mentionResults[this.mentionIndex];
+
+        if (u) {
+          this.selectMediaTag(u);
+        } else {
+          this.addFreeTextPerson(this.mediaTagInput);
+        }
+
+        event.preventDefault();
+      }
     }
 
     if (event.key === 'Escape') {
@@ -717,6 +726,17 @@ export class AlbumDetailComponent {
         name: this.memberById[id]?.name || 'Unknown',
         avatarUrl: this.memberById[id]?.avatarUrl || null
       }));
+  }
+
+  addFreeTextPerson(name: string) {
+    const clean = name.trim();
+    if (!clean) return;
+
+    if (!this.freeTextPeople.includes(clean)) {
+      this.freeTextPeople.push(clean);
+    }
+
+    this.mediaTagInput = '';
   }
 
   // Searching
@@ -800,7 +820,7 @@ export class AlbumDetailComponent {
         matchedTokens++;
         totalScore += titleMatch * 1.5; // Higher value for title
         console.log(titleMatch, totalScore);
-      } else if (locationMatch > 0.8) {
+      } else if (locationMatch > 0.6) {
         matchedTokens++;
         totalScore += locationMatch;
       }
