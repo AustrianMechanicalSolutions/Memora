@@ -3,6 +3,7 @@
 /node_modules
 /Migrations
 /wwwroot
+/dataset
 memora.db
 memora.db-shm
 memora.db-wal
