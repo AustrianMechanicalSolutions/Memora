@@ -22,6 +22,8 @@ public class Memory
     public string? LocationName { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
+    public string? LocationCity { get; set; }
+    public string? LocationCountry { get; set; }
 
     public ICollection<MemoryTag> Tags { get; set; } = new List<MemoryTag>();
 }

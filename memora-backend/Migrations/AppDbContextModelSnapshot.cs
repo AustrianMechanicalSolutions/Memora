@@ -276,6 +276,12 @@ namespace memorabackend.Migrations
                     b.Property<double?>("Latitude")
                         .HasColumnType("REAL");
 
+                    b.Property<string>("LocationCity")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LocationCountry")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("LocationName")
                         .HasColumnType("TEXT");
 
