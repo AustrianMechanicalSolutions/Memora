@@ -24,6 +24,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // ---- Security services ----
 builder.Services.AddSingleton<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
+builder.Services.AddSingleton<ICityLookupService, GeoNamesCityLookupService>();
+builder.Services.AddSingleton<ICountryLookupService, CsvCountryLookupService>();
 
 // ---- Auth ----
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()!;

@@ -39,6 +39,8 @@ export interface MemoryDto {
   locationName: string | null;
   latitude: number | null;
   longitude: number | null;
+  locationCity?: string | null;
+  locationCountry?: string | null;
 }
 
 export interface CommentDto {

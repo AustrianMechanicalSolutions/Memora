@@ -814,7 +814,8 @@ export class AlbumDetailComponent {
       // Title and location
       const titleMatch = this.bestMatch(memory.title || '', token);
       const locationMatch = this.bestMatch(memory.locationName || '', token);
-
+      const cityMatch = this.bestMatch(memory.locationCity || '', token);
+      const countryMatch = this.bestMatch(memory.locationCountry || '', token);
 
       if (titleMatch > 0.8) {
         matchedTokens++;
@@ -823,6 +824,12 @@ export class AlbumDetailComponent {
       } else if (locationMatch > 0.6) {
         matchedTokens++;
         totalScore += locationMatch;
+      } else if (cityMatch > 0.8) {
+        matchedTokens++;
+        totalScore += cityMatch * 0.7;
+      } else if (countryMatch > 0.8) {
+        matchedTokens++;
+        totalScore += countryMatch * 0.7;
       }
     }
 
