@@ -6,7 +6,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OtpNet;
+<<<<<<< HEAD
+<<<<<<< HEAD
 using Microsoft.AspNetCore.RateLimiting;
+=======
+>>>>>>> origin/main
+=======
+using Microsoft.AspNetCore.RateLimiting;
+>>>>>>> origin/main
 
 namespace AuthApi.Endpoints;
 
@@ -29,7 +36,14 @@ public class AuthController : BaseApiController
     }
 
     [HttpPost("register")]
+<<<<<<< HEAD
+<<<<<<< HEAD
     [EnableRateLimiting("auth-register")]
+=======
+>>>>>>> origin/main
+=======
+    [EnableRateLimiting("auth-register")]
+>>>>>>> origin/main
     public async Task<IActionResult> Register([FromBody] RegisterRequest req)
     {
         var email = req.Email.Trim().ToLowerInvariant();
@@ -52,7 +66,14 @@ public class AuthController : BaseApiController
     }
 
     [HttpPost("login")]
+<<<<<<< HEAD
+<<<<<<< HEAD
     [EnableRateLimiting("auth-login")]
+=======
+>>>>>>> origin/main
+=======
+    [EnableRateLimiting("auth-login")]
+>>>>>>> origin/main
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
     {
         var email = req.Email.Trim().ToLowerInvariant();

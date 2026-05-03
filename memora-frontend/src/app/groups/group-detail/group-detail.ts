@@ -4,8 +4,8 @@ import { GroupsService, GroupDetailDto, MemoryDto, AlbumDto, GroupStatsDto, Grou
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '../../translate.pipe';
-import { AppLanguage, I18nService } from '../../i18n.service';
+import { TranslatePipe } from '../../translation/translate.pipe';
+import { AppLanguage, I18nService } from '../../translation/i18n.service';
 import { AuthService } from '../../user/auth.service';
 
 @Component({

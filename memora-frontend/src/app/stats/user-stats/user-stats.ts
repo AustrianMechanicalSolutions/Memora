@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { GroupsService, MemoryDto } from '../../groups/groups';
-import { TranslatePipe } from '../../translate.pipe';
-import { I18nService } from '../../i18n.service';
+import { TranslatePipe } from '../../translation/translate.pipe';
+import { I18nService } from '../../translation/i18n.service';
 import { environment } from '../../../environment';
-import { Router } from '@angular/router';
 
 interface UserMeDto {
   id: string;
@@ -94,7 +93,7 @@ export class UserStatsPageComponent {
     this.loading = true;
     this.error = '';
 
-    this.http.get<UserMeDto>(environment.apiUrl + '/api/account/me').pipe(
+    this.http.get<UserMeDto>(`${this.baseUrl}/me`).pipe(
       switchMap((me) => {
         this.userDisplayName = me.displayName?.trim() || 'You';
 
