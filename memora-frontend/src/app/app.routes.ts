@@ -13,6 +13,7 @@ import { ImpressumComponent } from './legal/impressum/impressum';
 import { authGuard } from './user/auth.guard';
 import { guestGuard } from './user/guest.guard';
 import { adminGuard } from './groups/admin/admin.guard';
+import { TestingComponent } from './admin/testing';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -34,6 +35,11 @@ export const routes: Routes = [
     { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
     { path: 'stats', component: UserStatsPageComponent, canActivate: [authGuard] },
     { path: 'impressum', component: ImpressumComponent },
+
+
+    // This is temporary
+    { path: 'testing', component: TestingComponent },
+
 
     { path: '**', redirectTo: 'home' },
 ];

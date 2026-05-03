@@ -3,4 +3,7 @@
 /node_modules
 /Migrations
 /wwwroot
-memora-backend/memora.db
+/dataset
+memora.db
+memora.db-shm
+memora.db-wal

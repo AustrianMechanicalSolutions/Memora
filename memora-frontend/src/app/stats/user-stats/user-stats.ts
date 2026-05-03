@@ -39,6 +39,7 @@ interface GroupSummary {
 })
 export class UserStatsPageComponent {
   private readonly preferenceKey = 'memora.user-stats.preferences';
+  private baseUrl = `${environment.apiUrl}/api/account`;
 
   loading = true;
   error = '';
