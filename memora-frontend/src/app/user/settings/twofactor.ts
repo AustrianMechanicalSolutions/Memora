@@ -9,7 +9,7 @@ export interface TwoFactorSetupResponse {
 
 @Injectable({ providedIn: 'root' })
 export class TwoFactorService {
-    private api = environment.apiUrl + '/api/2fa';
+    private api = `${environment.apiUrl}/api/2fa`;
 
     constructor(private http: HttpClient) {}
 

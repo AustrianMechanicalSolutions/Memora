@@ -1,8 +1,11 @@
 public record GroupListItemDto(Guid Id, string Name, int MemberCount);
 public record GroupDetailDto(Guid Id, string Name, string InviteCode, int MemberCount, Guid CreatedByUserId);
+public record GroupDetailInfoDto(Guid Id, string Name, string InviteCode, int MemberCount, string CreatedByUserName);
 public record GroupMemberDto(Guid UserId, string Name, string Role, string? AvatarUrl);
 
 public record GroupStatsDto(int memoryCount, int albumCount, DateTime timeActive);
+
+public class RenameGroupRequest { public string Name { get; set; } = ""; }
 
 public record MemoryDto(
     Guid Id,
@@ -17,7 +20,28 @@ public record MemoryDto(
     DateTime CreatedAt,
     Guid CreatedByUserId,
     List<string>? Tags,
-    Guid? AlbumId
+    List<string>? People,
+    Guid? AlbumId,
+    int LikeCount,
+    int CommentCount,
+    bool IsLiked,
+
+    string? LocationName,
+    double? Latitude,
+    double? Longitude
+);
+
+public record CommentDto(
+    Guid Id,
+    Guid MemoryId,
+    Guid UserId,
+    string UserName,
+    string? AvatarUrl,
+    string Content,
+    DateTime CreatedAt,
+    Guid? ParentCommentId,
+    int LikeCount,
+    bool IsLiked
 );
 
 public record CreateGroupRequest(string Name);
@@ -30,6 +54,12 @@ public record CreateMemoryRequest(
     string? ThumbUrl,
     DateTime HappenedAt,
     List<string>? Tags,
+    List<string>? People,
+
+    string? LocationName,
+    double? Latitude,
+    double? Longitude,
+
     IFormFile? File,
     Guid? AlbumId
 );
@@ -43,6 +73,11 @@ public class CreateQuoteRequest
     public List<string>? Tags { get; set; }
     public Guid? AlbumId { get; set; }
 };
+
+public record CreateCommentRequest(
+    string Content,
+    Guid? ParentCommentId
+);
 
 public class MemoryQuery
 {

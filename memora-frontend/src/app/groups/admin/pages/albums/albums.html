@@ -1,26 +1,26 @@
 <div class="ga-page">
   <div class="ga-page-header">
-    <h2>Alben</h2>
-    <button (click)="load()">Refresh</button>
+    <h2>{{ 'admin.albums' | t }}</h2>
+    <button (click)="load()">{{ 'admin.refresh' | t }}</button>
   </div>
 
   <div class="ga-card">
-    <h3>Neues Album</h3>
+    <h3>{{ 'admin.newAlbum' | t }}</h3>
 
     <div class="ga-form">
-      <input placeholder="Titel" [formControl]="form.controls.title" />
-      <input placeholder="Beschreibung (optional)" [formControl]="form.controls.description" />
+      <input [placeholder]="'admin.title' | t" [formControl]="form.controls.title" />
+      <input [placeholder]="'admin.descriptionOptional' | t" [formControl]="form.controls.description" />
       <input type="date" [formControl]="form.controls.dateStart" />
       <input type="date" [formControl]="form.controls.dateEnd" />
-      <button (click)="create()">Erstellen</button>
+      <button (click)="create()">{{ 'admin.create' | t }}</button>
     </div>
 
     <div class="ga-error" *ngIf="form.controls.title.touched && form.controls.title.invalid">
-      Titel ist erforderlich (min 2 Zeichen).
+      {{ 'admin.titleRequired' | t }}
     </div>
   </div>
 
-  <div *ngIf="loading" class="ga-note">Lade...</div>
+  <div *ngIf="loading" class="ga-note">{{ 'admin.loading' | t }}</div>
   <div *ngIf="error" class="ga-error">{{ error }}</div>
 
   <div class="ga-grid" *ngIf="!loading && !error">

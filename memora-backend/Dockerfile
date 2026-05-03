@@ -15,8 +15,4 @@ WORKDIR /app
 COPY --from=build /app/out .
 
 EXPOSE 8080
-<<<<<<< HEAD
 ENTRYPOINT ["dotnet", "memora-backend.dll"] 
-=======
-ENTRYPOINT ["dotnet", "memora-backend.dll"] 
->>>>>>> parent of d859e98 (Merge remote-tracking branch 'origin/main' into feature/hosting)

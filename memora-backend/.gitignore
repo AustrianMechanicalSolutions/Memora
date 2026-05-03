@@ -2,3 +2,7 @@
 /obj
 /node_modules
 /wwwroot
+/dataset
+memora.db
+memora.db-shm
+memora.db-wal
