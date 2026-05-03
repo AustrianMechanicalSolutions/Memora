@@ -7,6 +7,8 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { GroupsService, MemoryDto } from '../../groups/groups';
 import { TranslatePipe } from '../../translate.pipe';
 import { I18nService } from '../../i18n.service';
+import { environment } from '../../../environment';
+import { Router } from '@angular/router';
 
 interface UserMeDto {
   id: string;
@@ -64,7 +66,8 @@ export class UserStatsPageComponent {
     private readonly route: ActivatedRoute,
     private readonly http: HttpClient,
     private readonly groupsService: GroupsService,
-    private readonly i18n: I18nService
+    private readonly i18n: I18nService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -90,7 +93,7 @@ export class UserStatsPageComponent {
     this.loading = true;
     this.error = '';
 
-    this.http.get<UserMeDto>('/api/account/me').pipe(
+    this.http.get<UserMeDto>(environment.apiUrl + '/api/account/me').pipe(
       switchMap((me) => {
         this.userDisplayName = me.displayName?.trim() || 'You';
 
@@ -252,6 +255,14 @@ export class UserStatsPageComponent {
       }
     ];
 
+    if (isGroup) {
+      tiles.push({
+        id: 'groupShareExtra',
+        label: 'Anteil deiner Posts',
+        value: `${contributionShare.toFixed(1)}%`
+      });
+    }
+
     const bars = [
       { label: 'Quotes', value: quoteCount },
       { label: 'Photos', value: photoCount },
@@ -300,6 +311,12 @@ export class UserStatsPageComponent {
 
   distributionWidth(value: number): number {
     return this.totalPosts === 0 ? 0 : (value / this.totalPosts) * 100;
+  }
+
+  goToGroup(): void {
+    if (!this.groupId) return;
+
+    this.router.navigate(['/groups', this.groupId]);
   }
 
   private loadPreferences() {
