@@ -20,10 +20,15 @@ public record MemoryDto(
     DateTime CreatedAt,
     Guid CreatedByUserId,
     List<string>? Tags,
+    List<string>? People,
     Guid? AlbumId,
     int LikeCount,
     int CommentCount,
-    bool IsLiked
+    bool IsLiked,
+
+    string? LocationName,
+    double? Latitude,
+    double? Longitude
 );
 
 public record CommentDto(
@@ -49,6 +54,12 @@ public record CreateMemoryRequest(
     string? ThumbUrl,
     DateTime HappenedAt,
     List<string>? Tags,
+    List<string>? People,
+
+    string? LocationName,
+    double? Latitude,
+    double? Longitude,
+
     IFormFile? File,
     Guid? AlbumId
 );

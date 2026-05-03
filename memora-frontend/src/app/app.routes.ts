@@ -38,6 +38,11 @@ export const routes: Routes = [
     { path: 'stats', component: UserStatsPageComponent, canActivate: [authGuard] },
     { path: 'impressum', component: ImpressumComponent },
 
+
+    // This is temporary
+    { path: 'testing', component: TestingComponent },
+
+
     { path: '**', redirectTo: 'home' },
 ];
 

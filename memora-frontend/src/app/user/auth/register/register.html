@@ -13,6 +13,8 @@
       [placeholder]="'auth.password' | t"
       [(ngModel)]="password"
     />
+    
+    <p class="error" *ngIf="errorMsg">{{ errorMsg }}</p>
 
     <button (click)="register()">{{ 'auth.register.button' | t }}</button>
 
@@ -20,5 +22,6 @@
       {{ 'auth.register.haveAccount' | t }}
       <a routerLink="/login">{{ 'auth.register.login' | t }}</a>
     </p>
+
   </div>
 </div>

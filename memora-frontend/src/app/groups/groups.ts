@@ -18,23 +18,28 @@ export interface GroupDetailDto {
   createdByUserName: string;
 }
 
-  export interface MemoryDto {
-    id: string;
-    groupId: string;
-    type: number; // 0 Photo, 1 Video, 2 Quote
-    title?: string;
-    quoteText?: string;
-    quoteBy: string | null;
-    mediaUrl?: string;
-    thumbUrl?: string;
-    happenedAt: string;
-    createdAt: string;
-    createdByUserId: string;
-    tags: string[];
-    likeCount?: number;
-    commentCount?: number;
-    isLiked?: boolean;
-  }
+export interface MemoryDto {
+  id: string;
+  groupId: string;
+  type: number; // 0 Photo, 1 Video, 2 Quote
+  title?: string;
+  quoteText?: string;
+  quoteBy: string | null;
+  mediaUrl?: string;
+  thumbUrl?: string;
+  happenedAt: string;
+  createdAt: string;
+  createdByUserId: string;
+  tags: string[];
+  people: string[];
+  likeCount?: number;
+  commentCount?: number;
+  isLiked?: boolean;
+
+  locationName: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}
 
   export interface CommentDto {
     id: string;
@@ -207,7 +212,18 @@ export class GroupsService {
     formData.append("title", data.title ?? "");
     formData.append("quoteText", data.quoteText ?? "");
     formData.append("happenedAt", data.happenedAt);
+    formData.append("locationName", data.location);
+    
+    if (data.latitude !== null && data.latitude !== undefined) {
+      formData.append("latitude", String(data.latitude));
+    }
+
+    if (data.longitude !== null && data.longitude !== undefined) {
+      formData.append("longitude", String(data.longitude));
+    }
+
     for (const tag of (data.tags ?? [])) formData.append("tags", tag);
+    for (const person of (data.people ?? [])) formData.append("people", person);
 
     formData.append("file", file);
 
@@ -278,6 +294,7 @@ export class GroupsService {
     this.groupsChangedSource.next();
   }
 
+<<<<<<< HEAD
   loadTopMemory(groupId: string, album: AlbumDto) {
     this.http
       .get<any>(`${this.baseUrl}/${groupId}/albums/${album.id}/top-memory`)
@@ -291,6 +308,12 @@ export class GroupsService {
   getAlbumPreviewMemories(groupId: string, albumId: string) {
     return this.http.get<MemoryDto[]>(
       `${this.baseUrl}/${groupId}/albums/${albumId}/preview-memories`
+=======
+  // Searching
+  searchPersonName(name: string) {
+    return this.http.get(
+      `${this.baseUrl}/entites?search=${name}`
+>>>>>>> origin/main
     );
   }
 }
