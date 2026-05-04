@@ -18,23 +18,28 @@ export interface GroupDetailDto {
   createdByUserName: string;
 }
 
-  export interface MemoryDto {
-    id: string;
-    groupId: string;
-    type: number; // 0 Photo, 1 Video, 2 Quote
-    title?: string;
-    quoteText?: string;
-    quoteBy: string | null;
-    mediaUrl?: string;
-    thumbUrl?: string;
-    happenedAt: string;
-    createdAt: string;
-    createdByUserId: string;
-    tags: string[];
-    likeCount?: number;
-    commentCount?: number;
-    isLiked?: boolean;
-  }
+export interface MemoryDto {
+  id: string;
+  groupId: string;
+  type: number; // 0 Photo, 1 Video, 2 Quote
+  title?: string;
+  quoteText?: string;
+  quoteBy: string | null;
+  mediaUrl?: string;
+  thumbUrl?: string;
+  happenedAt: string;
+  createdAt: string;
+  createdByUserId: string;
+  tags: string[];
+  people: string[];
+  likeCount?: number;
+  commentCount?: number;
+  isLiked?: boolean;
+
+  locationName: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}
 
   export interface CommentDto {
     id: string;
@@ -72,6 +77,23 @@ export interface GroupDetailDto {
     dateStart: string;
     dateEnd: string | null;
     memoryCount: number;
+
+    coverUrl?: string;
+    topMemory?: {
+      id: string;
+      type: number,
+      mediaUrl?: string;
+      thumbUrl?: string;
+      quoteText?: string;
+      likeCount: number;
+    };
+    previewMemories?: {
+      id: string;
+      type: number;
+      mediaUrl?: string | null;
+      quoteText?: string;
+      happenedAt: string;
+    }[];
   }
 
   export interface GroupStatsDto {
@@ -190,7 +212,18 @@ export class GroupsService {
     formData.append("title", data.title ?? "");
     formData.append("quoteText", data.quoteText ?? "");
     formData.append("happenedAt", data.happenedAt);
+    formData.append("locationName", data.location);
+    
+    if (data.latitude !== null && data.latitude !== undefined) {
+      formData.append("latitude", String(data.latitude));
+    }
+
+    if (data.longitude !== null && data.longitude !== undefined) {
+      formData.append("longitude", String(data.longitude));
+    }
+
     for (const tag of (data.tags ?? [])) formData.append("tags", tag);
+    for (const person of (data.people ?? [])) formData.append("people", person);
 
     formData.append("file", file);
 
@@ -259,5 +292,21 @@ export class GroupsService {
 
   notifyGroupsChanged() {
     this.groupsChangedSource.next();
+  }
+
+  loadTopMemory(groupId: string, album: AlbumDto) {
+    this.http
+      .get<any>(`${this.baseUrl}/${groupId}/albums/${album.id}/top-memory`)
+      .subscribe({
+        next: (m) => {
+          album.topMemory = m;
+        }
+      });
+  }
+
+  getAlbumPreviewMemories(groupId: string, albumId: string) {
+    return this.http.get<MemoryDto[]>(
+      `${this.baseUrl}/${groupId}/albums/${albumId}/preview-memories`
+    );
   }
 }
