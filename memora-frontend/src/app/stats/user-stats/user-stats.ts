@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { GroupsService, MemoryDto } from '../../groups/groups';
-import { TranslatePipe } from '../../translate.pipe';
-import { I18nService } from '../../i18n.service';
+import { TranslatePipe } from '../../translation/translate.pipe';
+import { I18nService } from '../../translation/i18n.service';
 import { environment } from '../../../environment';
 
 interface UserMeDto {
@@ -38,6 +38,7 @@ interface GroupSummary {
 })
 export class UserStatsPageComponent {
   private readonly preferenceKey = 'memora.user-stats.preferences';
+  private baseUrl = `${environment.apiUrl}/api/account`;
 
   loading = true;
   error = '';
@@ -65,7 +66,8 @@ export class UserStatsPageComponent {
     private readonly route: ActivatedRoute,
     private readonly http: HttpClient,
     private readonly groupsService: GroupsService,
-    private readonly i18n: I18nService
+    private readonly i18n: I18nService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -91,7 +93,7 @@ export class UserStatsPageComponent {
     this.loading = true;
     this.error = '';
 
-    this.http.get<UserMeDto>(environment.apiUrl + '/api/account/me').pipe(
+    this.http.get<UserMeDto>(`${this.baseUrl}/me`).pipe(
       switchMap((me) => {
         this.userDisplayName = me.displayName?.trim() || 'You';
 
@@ -309,6 +311,12 @@ export class UserStatsPageComponent {
 
   distributionWidth(value: number): number {
     return this.totalPosts === 0 ? 0 : (value / this.totalPosts) * 100;
+  }
+
+  goToGroup(): void {
+    if (!this.groupId) return;
+
+    this.router.navigate(['/groups', this.groupId]);
   }
 
   private loadPreferences() {

@@ -6,8 +6,8 @@ import { Router } from '@angular/router';
 import { GroupsService, GroupListItemDto } from '../groups/groups';
 import { Subscription } from 'rxjs';
 import { ThemeService } from '../theme.service';
-import { TranslatePipe } from '../translate.pipe';
-import { I18nService } from '../i18n.service';
+import { TranslatePipe } from '../translation/translate.pipe';
+import { I18nService } from '../translation/i18n.service';
 
 @Component({
   selector: 'app-sidebar',

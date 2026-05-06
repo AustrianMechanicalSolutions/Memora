@@ -4,7 +4,7 @@ import { AuthService } from '../../user/auth.service';
 import { GroupsService, MemoryDto } from '../../groups/groups';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { TranslatePipe } from '../../translate.pipe';
+import { TranslatePipe } from '../../translation/translate.pipe';
 
 @Component({
   standalone: true,

@@ -22,6 +22,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/app/translation/i18n_data",
+                "output": "/i18n_data"
               }
             ],
             "styles": [
@@ -54,6 +59,10 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "host": "0.0.0.0",
+            "allowedHosts": ["memora.austrianms.at"]
+          },
           "configurations": {
             "production": {
               "buildTarget": "memora-frontend:build:production"
@@ -79,6 +88,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/app/translation/i18n_data",
+                "output": "/i18n_data"
               }
             ],
             "styles": [

@@ -4,62 +4,21 @@
       <h1>{{ 'settings.headerTitle' | t }}</h1>
       <p>{{ 'settings.headerSub' | t }}</p>
     </div>
-  </div>
 
-  <div class="panel stats-link-panel">
-    <div class="panel-head">
-      <h2 class="panel-title">Meine Stats</h2>
-      <a class="btn primary" routerLink="/stats">Stats ansehen</a>
+    <div class="header-actions">
+      <button class="btn primary" (click)="saveProfile()" [disabled]="saving">
+        {{ saving ? ('settings.saving' | t) : ('settings.save' | t) }}
+      </button>
     </div>
-    <p class="subtitle small">
-      Hier findest du gruppenuebergreifende Statistiken und kannst in Gruppen-Stats wechseln.
-    </p>
   </div>
 
   <div class="panel" *ngIf="loading">Loading...</div>
-
-  <div class="panel" *ngIf="!loading">
-    <div class="panel-head">
-      <h2 class="panel-title">{{ 'settings.appearance' | t }}</h2>
-      <button class="btn toggle" type="button" (click)="toggleTheme()">
-        {{ themeMode === 'dark' ? ('settings.switchToLight' | t) : ('settings.switchToDark' | t) }}
-      </button>
-    </div>
-    <p class="subtitle small">{{ 'settings.appearanceHint' | t }}</p>
-  </div>
-
-  <div class="panel appearance-panel">
-    <div class="panel-head">
-      <h2 class="panel-title">{{ 'settings.language' | t }}</h2>
-    </div>
-    <p class="subtitle small">{{ 'settings.languageHint' | t }}</p>
-    <div class="panel-head">
-      <button class="btn toggle" type="button" [class.primary]="language === 'de'" (click)="setLanguage('de')">
-        {{ 'settings.languageGerman' | t }}
-      </button>
-      <button class="btn toggle" type="button" [class.primary]="language === 'en'" (click)="setLanguage('en')">
-        {{ 'settings.languageEnglish' | t }}
-      </button>
-    </div>
-  </div>
-
-  <div class="panel stats-link-panel">
-    <div class="panel-head">
-      <h2 class="panel-title">{{ 'settings.statsTitle' | t }}</h2>
-      <a class="btn primary" routerLink="/stats">{{ 'settings.statsButton' | t }}</a>
-    </div>
-    <p class="subtitle small">{{ 'settings.statsHint' | t }}</p>
-  </div>
 
   <!-- PROFILE -->
   <section class="card">
     <div class="card-header">
       <h2>{{ 'settings.profile' | t }}</h2>
-      <button class="btn primary" (click)="saveProfile()" [disabled]="saving">
-        {{ saving ? ('settings.saving' | t) : ('settings.save' | t) }}
-      </button>
     </div>
-
     <div class="form-grid">
       <div class="form-group">
         <label>{{ 'settings.displayName' | t }}</label>
@@ -120,6 +79,33 @@
       </div>
     </div>
   </section>
+
+  <!-- APPEARANCE -->
+  <div class="panel" *ngIf="!loading">
+    <div class="panel-head">
+      <h2 class="panel-title">{{ 'settings.appearance' | t }}</h2>
+      <button class="btn toggle" type="button" (click)="toggleTheme()">
+        {{ themeMode === 'dark' ? ('settings.switchToLight' | t) : ('settings.switchToDark' | t) }}
+      </button>
+    </div>
+    <p class="subtitle small">{{ 'settings.appearanceHint' | t }}</p>
+  </div>
+
+  <!-- LANGUAGE -->
+  <div class="panel appearance-panel">
+    <div class="panel-head">
+      <h2 class="panel-title">{{ 'settings.language' | t }}</h2>
+    </div>
+    <p class="subtitle small">{{ 'settings.languageHint' | t }}</p>
+    <div class="panel-head">
+      <button class="btn toggle" type="button" [class.primary]="language === 'de'" (click)="setLanguage('de')">
+        {{ 'settings.languageGerman' | t }}
+      </button>
+      <button class="btn toggle" type="button" [class.primary]="language === 'en'" (click)="setLanguage('en')">
+        {{ 'settings.languageEnglish' | t }}
+      </button>
+    </div>
+  </div>
 
   <!-- CONTACT -->
   <section class="card">
