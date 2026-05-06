@@ -39,10 +39,6 @@ export const routes: Routes = [
     { path: 'impressum', component: ImpressumComponent },
 
 
-    // This is temporary
-    { path: 'testing', component: TestingComponent },
-
-
     { path: '**', redirectTo: 'home' },
 ];
 

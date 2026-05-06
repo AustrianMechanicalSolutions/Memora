@@ -3,6 +3,7 @@ using System;
 using AuthApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace memorabackend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260503204835_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.6");
@@ -275,12 +278,6 @@ namespace memorabackend.Migrations
 
                     b.Property<double?>("Latitude")
                         .HasColumnType("REAL");
-
-                    b.Property<string>("LocationCity")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("LocationCountry")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("LocationName")
                         .HasColumnType("TEXT");

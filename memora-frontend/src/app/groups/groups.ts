@@ -39,6 +39,8 @@ export interface MemoryDto {
   locationName: string | null;
   latitude: number | null;
   longitude: number | null;
+  locationCity?: string | null;
+  locationCountry?: string | null;
 }
 
   export interface CommentDto {
@@ -294,7 +296,6 @@ export class GroupsService {
     this.groupsChangedSource.next();
   }
 
-<<<<<<< HEAD
   loadTopMemory(groupId: string, album: AlbumDto) {
     this.http
       .get<any>(`${this.baseUrl}/${groupId}/albums/${album.id}/top-memory`)
@@ -308,12 +309,6 @@ export class GroupsService {
   getAlbumPreviewMemories(groupId: string, albumId: string) {
     return this.http.get<MemoryDto[]>(
       `${this.baseUrl}/${groupId}/albums/${albumId}/preview-memories`
-=======
-  // Searching
-  searchPersonName(name: string) {
-    return this.http.get(
-      `${this.baseUrl}/entites?search=${name}`
->>>>>>> origin/main
     );
   }
 }

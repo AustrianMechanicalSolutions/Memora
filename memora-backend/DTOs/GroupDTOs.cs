@@ -28,7 +28,10 @@ public record MemoryDto(
 
     string? LocationName,
     double? Latitude,
-    double? Longitude
+    double? Longitude,
+
+    string? LocationCity,
+    string? LocationCountry
 );
 
 public record CommentDto(
@@ -45,7 +48,7 @@ public record CommentDto(
 );
 
 public record CreateGroupRequest(string Name);
-public record JoinGroupRequest(string InviteCode);
+public record JoinGroupRequest(string InviteCode);  
 public record CreateMemoryRequest(
     MemoryType Type,
     string? Title,
