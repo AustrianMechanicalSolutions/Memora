@@ -4,8 +4,8 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { GroupsService, AlbumDto, MemoryDto, AlbumPersonDto, CommentDto } from '../../groups';
-import { TranslatePipe } from '../../../translate.pipe';
-import { I18nService } from '../../../i18n.service';
+import { TranslatePipe } from '../../../translation/translate.pipe';
+import { I18nService } from '../../../translation/i18n.service';
 import { environment } from '../../../../environment';
 import * as exifr from 'exifr';
 
@@ -572,6 +572,7 @@ export class AlbumDetailComponent {
   }
 
   mediaFailed(url: string | null | undefined): boolean {
+    console.log("media failed");
     return !!url && this.failedMedia.has(url);
   }
 

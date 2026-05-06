@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.FileProviders;
+using System.Threading.RateLimiting;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,28 +66,80 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// ---- Rate Limiting ----
+builder.Services.AddRateLimiter(options =>
+{
+    // Global default
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
+
+    options.AddPolicy("auth-login", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            }));
+
+    options.AddPolicy("auth-register", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromMinutes(5),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            }));
+
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+        context.HttpContext.Response.ContentType = "application/json";
+
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            error = "rate_limited",
+            message = "Too many requests."
+        });
+    };
+});
+
 // ---- CORS (Angular) ----
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200")
+            .WithOrigins("http://localhost:4200", "https://austrianms.at", "https://www.austrianms.at", "https://memora.austrianms.at")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
 var app = builder.Build();
 var webRootPath = app.Environment.WebRootPath ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
-var uploadsPath = Path.Combine(webRootPath, "uploads");
+var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
 
 Directory.CreateDirectory(uploadsPath);
 
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseRateLimiter();
 
 app.UseHttpsRedirection();
 app.UseCors("frontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -93,7 +147,7 @@ app.UseAuthorization();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.ExecuteSqlRaw(@"
+    /*db.Database.ExecuteSqlRaw(@"
 CREATE TABLE IF NOT EXISTS MemoryLikes (
     MemoryId TEXT NOT NULL,
     UserId TEXT NOT NULL,
@@ -115,7 +169,7 @@ CREATE TABLE IF NOT EXISTS CommentLikes (
     UserId TEXT NOT NULL,
     CreatedAt TEXT NOT NULL,
     PRIMARY KEY (CommentId, UserId)
-);");
+);");*/
 }
 
 app.MapControllers();
@@ -128,5 +182,11 @@ app.MapGet("/api/me", (System.Security.Claims.ClaimsPrincipal user) =>
         email = user.FindFirst("email")?.Value
     });
 }).RequireAuthorization();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.Run();

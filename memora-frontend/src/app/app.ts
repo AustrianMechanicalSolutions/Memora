@@ -6,7 +6,7 @@ import { ThemeService } from './theme.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { TranslatePipe } from './translate.pipe';
+import { TranslatePipe } from './translation/translate.pipe';
 
 @Component({
   selector: 'app-root',
