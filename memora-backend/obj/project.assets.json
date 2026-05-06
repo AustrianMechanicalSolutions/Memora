@@ -2952,25 +2952,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\nicok\\.nuget\\packages\\": {}
+    "/home/nico/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Schule\\S4\\Heiko_Doli\\Projekt\\Memora\\memora-backend\\memora-backend.csproj",
+      "projectUniqueName": "/home/nico/Documents/Memora/memora-backend/memora-backend.csproj",
       "projectName": "memora-backend",
-      "projectPath": "C:\\Schule\\S4\\Heiko_Doli\\Projekt\\Memora\\memora-backend\\memora-backend.csproj",
-      "packagesPath": "C:\\Users\\nicok\\.nuget\\packages\\",
-      "outputPath": "C:\\Schule\\S4\\Heiko_Doli\\Projekt\\Memora\\memora-backend\\obj\\",
+      "projectPath": "/home/nico/Documents/Memora/memora-backend/memora-backend.csproj",
+      "packagesPath": "/home/nico/.nuget/packages/",
+      "outputPath": "/home/nico/Documents/Memora/memora-backend/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\nicok\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/home/nico/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2989,7 +2988,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "10.0.200"
     },
     "frameworks": {
       "net8.0": {
@@ -3029,24 +3028,6 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[8.0.22, 8.0.22]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Host.win-x64",
-            "version": "[8.0.22, 8.0.22]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Ref",
-            "version": "[8.0.22, 8.0.22]"
-          },
-          {
-            "name": "Microsoft.WindowsDesktop.App.Ref",
-            "version": "[8.0.22, 8.0.22]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.AspNetCore.App": {
             "privateAssets": "none"
@@ -3055,7 +3036,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/home/nico/.dotnet/sdk/10.0.201/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
