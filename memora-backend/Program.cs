@@ -135,10 +135,12 @@ var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
 Directory.CreateDirectory(uploadsPath);
 
 app.UseMiddleware<ExceptionMiddleware>();
-app.UseRateLimiter();
 
 app.UseHttpsRedirection();
+
 app.UseCors("frontend");
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
