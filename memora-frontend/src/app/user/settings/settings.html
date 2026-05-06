@@ -6,7 +6,19 @@
     </div>
   </div>
 
-  <div class="panel appearance-panel">
+  <div class="panel stats-link-panel">
+    <div class="panel-head">
+      <h2 class="panel-title">Meine Stats</h2>
+      <a class="btn primary" routerLink="/stats">Stats ansehen</a>
+    </div>
+    <p class="subtitle small">
+      Hier findest du gruppenuebergreifende Statistiken und kannst in Gruppen-Stats wechseln.
+    </p>
+  </div>
+
+  <div class="panel" *ngIf="loading">Loading...</div>
+
+  <div class="panel" *ngIf="!loading">
     <div class="panel-head">
       <h2 class="panel-title">{{ 'settings.appearance' | t }}</h2>
       <button class="btn toggle" type="button" (click)="toggleTheme()">
