@@ -3,3 +3,10 @@ ping 100.96.250.70
 sudo systemctl restart dotnet-app
 sudo systemctl restart angular-app
 sudo systemctl restart cloudflared
+
+
+restart frontend on pi
+
+rm -rf .angular/cache dist
+npm run build
+sudo systemctl restart <your-frontend-service>
