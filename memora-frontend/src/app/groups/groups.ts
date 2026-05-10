@@ -311,4 +311,10 @@ export class GroupsService {
       `${this.baseUrl}/${groupId}/albums/${albumId}/preview-memories`
     );
   }
+
+  deleteMemory(groupId: string, memoryId: string) {
+    return this.http.delete<void>(
+      `${this.baseUrl}/${groupId}/memories/${memoryId}`
+    );
+  }
 }

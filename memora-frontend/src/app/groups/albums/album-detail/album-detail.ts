@@ -8,6 +8,7 @@ import { TranslatePipe } from '../../../translation/translate.pipe';
 import { I18nService } from '../../../translation/i18n.service';
 import { environment } from '../../../../environment';
 import * as exifr from 'exifr';
+import { AuthService } from '../../../user/auth.service';
 
 @Component({
   selector: 'app-album-detail',
@@ -84,17 +85,27 @@ export class AlbumDetailComponent {
   searchQuery = '';
   filteredItems: MemoryDto[] = [];
 
+  // Delete a memory
+  currentUserId: string | null = null;
+  isAdmin = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private groupsService: GroupsService,
     private i18n: I18nService,
-    private http: HttpClient
+    private http: HttpClient,
+    private auth: AuthService
   ) {}
 
   ngOnInit() {
     this.groupId = this.route.snapshot.paramMap.get('id')!;
     this.albumId = this.route.snapshot.paramMap.get('albumId')!;
+    
+    this.auth.currentUser().subscribe(u => {
+      this.currentUserId = u.id;
+      this.updateAdminState();
+    });
 
     this.loadAlbum();
     this.loadAlbumPeople();
@@ -160,14 +171,23 @@ export class AlbumDetailComponent {
     this.groupsService.groupMembers(this.groupId).subscribe({
       next: (r) => {
         this.members = r;
+
         this.memberById = r.reduce((acc, m) => {
           acc[m.userId] = { name: m.name, avatarUrl: m.avatarUrl ?? null };
           return acc;
         }, {} as { [key: string]: { name: string; avatarUrl?: string | null } });
+
+        this.updateAdminState();
         this.updateActiveUploader();
       },
       error: (err) => console.error(err)
     });
+  }
+
+  private updateAdminState() {
+    this.isAdmin = this.members.some(
+      m => m.userId === this.currentUserId && m.role === 'Admin'
+    );
   }
 
   loadMedia(url?: string | null) {
@@ -378,8 +398,8 @@ export class AlbumDetailComponent {
       albumId: this.albumId !== 'all' ? this.albumId : null,
 
       location: this.newLocationName ?? null,
-      latitude: this.autoLat ?? null,
-      longitude: this.autoLong ?? null
+      latitude: this.useGps ? (this.autoLat ?? null) : null,
+      longitude: this.useGps ? (this.autoLong ?? null) : null,
     };
 
     if (this.newType === 2) {
@@ -572,7 +592,6 @@ export class AlbumDetailComponent {
   }
 
   mediaFailed(url: string | null | undefined): boolean {
-    console.log("media failed");
     return !!url && this.failedMedia.has(url);
   }
 
@@ -720,7 +739,6 @@ export class AlbumDetailComponent {
   }
 
   getTaggedUsers(memory: MemoryDto) {
-    console.log(memory)
     return (memory.people || [])
       .map(id => ({
         userId: id,
@@ -905,5 +923,30 @@ export class AlbumDetailComponent {
     }
 
     return dp[m][n];
+  }
+
+  // Removing memories
+  canRemoveMemory(memory: MemoryDto): boolean {
+    return this.isAdmin || memory.createdByUserId === this.currentUserId;
+  }
+
+  removeMemory(memory: MemoryDto, event?: Event) {
+    event?.stopPropagation();
+
+    if (!this.canRemoveMemory(memory)) return;
+
+    if (!confirm('Remove this memory?')) return;
+
+    this.groupsService.deleteMemory(this.groupId, memory.id).subscribe({
+      next: () => {
+        this.items = this.items.filter(m => m.id !== memory.id);
+        this.filteredItems = this.filteredItems.filter(m => m.id !== memory.id);
+
+        if (this.activeMemory?.id === memory.id) {
+          this.closeMemory();
+        }
+      },
+      error: err => console.error(err)
+    });
   }
 }
