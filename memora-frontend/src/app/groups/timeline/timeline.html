@@ -1,0 +1,109 @@
+<div class="timeline-page">
+    <h1 class="title">Timeline</h1>
+
+    <div *ngIf="loading" class="loading">Loading...</div>
+
+    <div *ngIf="storyMode" class="story-overlay"></div>
+
+    <div *ngIf="storyMode" class="story-hint">
+        Press ESC to cancel
+    </div>
+
+    <button class="story-btn" (click)="toggleStoryMode()">
+        {{ storyMode ? 'Stop Story' : 'Play Story' }}
+    </button>
+
+    <div class="timeline" [class.story-mode]="storyMode" *ngIf="!loading && albums.length > 0">
+        <div
+        #timelineItem
+        class="timeline-item"
+        *ngFor="let album of albums; let i = index"
+        [class.left]="i % 2 === 0"
+        [class.right]="i % 2 !== 0"
+        >
+    <div *ngIf="isTimeChange(i)" class="time-separator">
+        <div class="line"></div>
+            <div class="label">
+                {{ formatTimeLabel(album) }}
+            </div>
+        <div class="line"></div>
+    </div>
+
+    <div class="timeline-dot"></div>
+
+    <div class="timeline-card clickable" (click)="openAlbum(album)">
+
+        <div class="card-top">
+
+            <div class="preview">
+            <img [src]="album.coverUrl" />
+            </div>
+
+            <div class="content">
+            <div class="date">
+                {{ album.dateStart | date:'dd MMM yyyy' }}
+            </div>
+
+            <h3>{{ album.title }}</h3>
+
+            <p *ngIf="album.description">
+                {{ album.description }}
+            </p>
+
+            <div class="meta">
+                {{ album.memoryCount }} memories
+            </div>
+            </div>
+
+        </div>
+
+        <div class="highlight" *ngIf="album.topMemory as m">
+
+            <img *ngIf="m.type === 0"
+                [src]="mediaSrc(m.mediaUrl)" />
+
+            <video *ngIf="m.type === 1"
+                    [src]="mediaSrc(m.mediaUrl)"
+                    muted
+                    playsinline>
+            </video>
+
+            <div *ngIf="m.type === 2" class="quote">
+                “{{ m.quoteText }}”
+            </div>
+
+            <div class="likes">
+                ❤️ {{ m.likeCount || 0 }}
+            </div>
+        </div>
+
+        <div class="story-expanded" *ngIf="storyMode && activeStoryIndex === i">
+
+            <ng-container *ngIf="album.previewMemories as memories">
+
+                <ng-container *ngIf="memories[activeMemoryIndex] as m">
+
+                <img *ngIf="m.type === 0"
+                    [src]="mediaSrc(m.mediaUrl)" />
+
+                <video *ngIf="m.type === 1"
+                        [src]="mediaSrc(m.mediaUrl)"
+                        autoplay muted playsinline>
+                </video>
+
+                <div *ngIf="m.type === 2" class="quote big">
+                    “{{ m.quoteText }}”
+                </div>
+
+                </ng-container>
+
+            </ng-container>
+
+        </div>
+
+    </div>
+
+  <div *ngIf="!loading && albums.length === 0" class="empty">
+    No albums yet 🚀
+  </div>
+</div>

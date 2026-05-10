@@ -22,6 +22,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/app/translation/i18n_data",
+                "output": "/i18n_data"
               }
             ],
             "styles": [
@@ -55,7 +60,8 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "host": "0.0.0.0",
+            "allowedHosts": ["memora.austrianms.at"]
           },
           "configurations": {
             "production": {
@@ -82,6 +88,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/app/translation/i18n_data",
+                "output": "/i18n_data"
               }
             ],
             "styles": [

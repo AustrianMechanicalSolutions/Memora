@@ -2,19 +2,20 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environment';
 
-export interface GroupListItemDto {
-  id: string;
-  name: string;
-  memberCount: number;
-}
+  export interface GroupListItemDto {
+    id: string;
+    name: string;
+    memberCount: number;
+  }
 
 export interface GroupDetailDto {
   id: string;
   name: string;
   inviteCode: string;
   memberCount: number;
-  createdByUserId: string;
+  createdByUserName: string;
 }
 
 export interface MemoryDto {
@@ -30,50 +31,96 @@ export interface MemoryDto {
   createdAt: string;
   createdByUserId: string;
   tags: string[];
+  people: string[];
+  likeCount?: number;
+  commentCount?: number;
+  isLiked?: boolean;
+
+  locationName: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  locationCity?: string | null;
+  locationCountry?: string | null;
 }
 
-export interface MemoryQuery {
-  type?: number;
-  from?: string;
-  to?: string;
-  search?: string;
-  sort?: 'newest' | 'oldest';
-  page?: number;
-  pageSize?: number;
-  albumId?: string;
-}
+  export interface CommentDto {
+    id: string;
+    memoryId: string;
+    userId: string;
+    userName: string;
+    avatarUrl?: string | null;
+    content: string;
+    createdAt: string;
+    parentCommentId?: string | null;
+    likeCount: number;
+    isLiked: boolean;
+  }
 
-export interface CreateGroupRequest {
-  name: string;
-}
+  export interface MemoryQuery {
+    type?: number;
+    from?: string;
+    to?: string;
+    search?: string;
+    sort?: 'newest' | 'oldest';
+    page?: number;
+    pageSize?: number;
+    albumId?: string;
+  }
 
-export interface AlbumDto {
-  id: string;
-  groupId: string;
-  title: string;
-  description: string | null;
-  dateStart: string;
-  dateEnd: string | null;
-  memoryCount: number;
-}
+  export interface CreateGroupRequest {
+    name: string;
+  }
 
-export interface GroupStatsDto {
-  memoryCount: number;
-  albumCount: number;
-  timeActive: string;
-}
+  export interface AlbumDto {
+    id: string;
+    groupId: string;
+    title: string;
+    description: string | null;
+    dateStart: string;
+    dateEnd: string | null;
+    memoryCount: number;
 
-export interface GroupWeeklyActivityDto {
-  photos: number;
-  videos: number;
-  quotes: number;
-  albums: number;
-  contributors: {
+    coverUrl?: string;
+    topMemory?: {
+      id: string;
+      type: number,
+      mediaUrl?: string;
+      thumbUrl?: string;
+      quoteText?: string;
+      likeCount: number;
+    };
+    previewMemories?: {
+      id: string;
+      type: number;
+      mediaUrl?: string | null;
+      quoteText?: string;
+      happenedAt: string;
+    }[];
+  }
+
+  export interface GroupStatsDto {
+    memoryCount: number;
+    albumCount: number;
+    timeActive: string;
+  }
+
+  export interface GroupWeeklyActivityDto {
+    photos: number;
+    videos: number;
+    quotes: number;
+    albums: number;
+    contributors: {
+      userId: string;
+      name: string;
+      avatarUrl?: string | null;
+    }[];
+  }
+
+  export interface GroupMemberActivityDto {
     userId: string;
     name: string;
     avatarUrl?: string | null;
   }[];
-}
 
 export interface GroupMemberActivityDto {
   userId: string;
@@ -99,7 +146,7 @@ export interface AlbumPersonDto {
   providedIn: 'root'
 })
 export class GroupsService {
-  private baseUrl = 'http://localhost:5000/api/groups'; 
+  private baseUrl = `${environment.apiUrl}/api/groups`;
   private groupsChangedSource = new Subject<void>();
   groupsChanged$ = this.groupsChangedSource.asObservable();
 
@@ -127,6 +174,35 @@ export class GroupsService {
     );
   }
 
+  likeMemory(groupId: string, memoryId: string) {
+    return this.http.post(`${this.baseUrl}/${groupId}/memories/${memoryId}/likes`, null);
+  }
+
+  unlikeMemory(groupId: string, memoryId: string) {
+    return this.http.delete(`${this.baseUrl}/${groupId}/memories/${memoryId}/likes`);
+  }
+
+  memoryComments(groupId: string, memoryId: string) {
+    return this.http.get<CommentDto[]>(
+      `${this.baseUrl}/${groupId}/memories/${memoryId}/comments`
+    );
+  }
+
+  addComment(groupId: string, memoryId: string, body: { content: string; parentCommentId?: string | null }) {
+    return this.http.post<CommentDto>(
+      `${this.baseUrl}/${groupId}/memories/${memoryId}/comments`,
+      body
+    );
+  }
+
+  likeComment(groupId: string, commentId: string) {
+    return this.http.post(`${this.baseUrl}/${groupId}/comments/${commentId}/likes`, null);
+  }
+
+  unlikeComment(groupId: string, commentId: string) {
+    return this.http.delete(`${this.baseUrl}/${groupId}/comments/${commentId}/likes`);
+  }
+
   createMemory(groupId: string, body: any) {
     return this.http.post(`${this.baseUrl}/${groupId}/memories`, body);
   }
@@ -138,7 +214,18 @@ export class GroupsService {
     formData.append("title", data.title ?? "");
     formData.append("quoteText", data.quoteText ?? "");
     formData.append("happenedAt", data.happenedAt);
+    formData.append("locationName", data.location);
+    
+    if (data.latitude !== null && data.latitude !== undefined) {
+      formData.append("latitude", String(data.latitude));
+    }
+
+    if (data.longitude !== null && data.longitude !== undefined) {
+      formData.append("longitude", String(data.longitude));
+    }
+
     for (const tag of (data.tags ?? [])) formData.append("tags", tag);
+    for (const person of (data.people ?? [])) formData.append("people", person);
 
     formData.append("file", file);
 
@@ -154,52 +241,74 @@ export class GroupsService {
   }
 
   joinGroup(inviteCode: string) {
-    return this.http.post('/api/groups/join', { inviteCode }).pipe(
+    return this.http.post(`${this.baseUrl}/join`, { inviteCode }).pipe(
       tap(() => this.groupsChangedSource.next())
     );
   }
 
   groupMembers(groupId: string) {
-    return this.http.get<{ userId: string; name: string, role: string; avatarUrl: string; }[]>(`/api/groups/${groupId}/members`);
+    return this.http.get<{ userId: string; name: string, role: string; avatarUrl: string; }[]>(
+      `${this.baseUrl}/${groupId}/members`
+    );
   }
 
   // Albums
   groupAlbums(groupId: string) {
-    return this.http.get<AlbumDto[]>(`/api/groups/${groupId}/albums`);
+    return this.http.get<AlbumDto[]>(`${this.baseUrl}/${groupId}/albums`);
   }
 
   createAlbum(groupId: string, body: any) {
-    return this.http.post<AlbumDto>(`/api/groups/${groupId}/albums`, body);
+    return this.http.post<AlbumDto>(`${this.baseUrl}/${groupId}/albums`, body);
   }
 
   // Groups page data
   groupStats(groupId: string) {
-    return this.http.get<GroupStatsDto>(`/api/groups/${groupId}/stats`);
+    return this.http.get<GroupStatsDto>(`${this.baseUrl}/${groupId}/stats`);
   }
 
   weeklyActivity(groupId: string) {
-    return this.http.get<GroupWeeklyActivityDto>(`/api/groups/${groupId}/activity/week`);
+    return this.http.get<GroupWeeklyActivityDto>(`${this.baseUrl}/${groupId}/activity/week`);
   }
 
   memberActivity(groupId: string) {
-    return this.http.get<GroupMemberActivityDto[]>(`/api/groups/${groupId}/activity/members`);
+    return this.http.get<GroupMemberActivityDto[]>(`${this.baseUrl}/${groupId}/activity/members`);
   }
 
   // People in album
   albumPeople(groupId: string, albumId: string) {
-    return this.http.get<AlbumPersonDto[]>(`/api/groups/${groupId}/albums/${albumId}/people`);
+    return this.http.get<AlbumPersonDto[]>(`${this.baseUrl}/${groupId}/albums/${albumId}/people`);
   }
 
   addAlbumPerson(groupId: string, albumId: string, userId: string) {
     return this.http.post(
-      `/api/groups/${groupId}/albums/${albumId}/people/${userId}`,
+      `${this.baseUrl}/${groupId}/albums/${albumId}/people/${userId}`,
       null
     );
   }
 
   removeAlbumPerson(groupId: string, albumId: string, userId: string) {
     return this.http.delete(
-      `/api/groups/${groupId}/albums/${albumId}/people/${userId}`
+      `${this.baseUrl}/${groupId}/albums/${albumId}/people/${userId}`
+    );
+  }
+
+  notifyGroupsChanged() {
+    this.groupsChangedSource.next();
+  }
+
+  loadTopMemory(groupId: string, album: AlbumDto) {
+    this.http
+      .get<any>(`${this.baseUrl}/${groupId}/albums/${album.id}/top-memory`)
+      .subscribe({
+        next: (m) => {
+          album.topMemory = m;
+        }
+      });
+  }
+
+  getAlbumPreviewMemories(groupId: string, albumId: string) {
+    return this.http.get<MemoryDto[]>(
+      `${this.baseUrl}/${groupId}/albums/${albumId}/preview-memories`
     );
   }
 }

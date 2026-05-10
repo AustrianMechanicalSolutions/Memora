@@ -2,21 +2,21 @@
   <!-- Header -->
   <header class="header">
     <div class="header-left">
-      <h1 class="title">Albums</h1>
+      <h1 class="title">{{ 'albums.title' | t }}</h1>
 
       <div class="meta">
-        <span class="meta-item">{{ albums.length }} albums</span>
+        <span class="meta-item">{{ 'albums.count' | t:{ count: albums.length } }}</span>
         <span class="sep">•</span>
-        <span class="meta-item muted">Collections of memories</span>
+        <span class="meta-item muted">{{ 'albums.collections' | t }}</span>
       </div>
     </div>
 
     <div class="header-actions">
-      <button class="btn ghost" (click)="backToGroup()">← Back</button>
-      <button class="btn ghost" (click)="reload()">Refresh</button>
+      <button class="btn ghost" (click)="backToGroup()">← {{ 'albums.back' | t }}</button>
+      <button class="btn ghost" (click)="reload()">{{ 'albums.refresh' | t }}</button>
 
       <button class="btn primary" (click)="showCreate = !showCreate">
-        {{ showCreate ? 'Close' : '+ New Album' }}
+        {{ showCreate ? ('albums.close' | t) : ('albums.new' | t) }}
       </button>
     </div>
   </header>
@@ -25,40 +25,40 @@
   <section class="panel create" *ngIf="showCreate">
     <div class="panel-head">
       <div>
-        <h2 class="panel-title">New Album</h2>
-        <span class="muted">Create a new collection ✨</span>
+        <h2 class="panel-title">{{ 'albums.newTitle' | t }}</h2>
+        <span class="muted">{{ 'albums.newSub' | t }}</span>
       </div>
     </div>
 
     <div class="create-grid">
       <div class="field full">
-        <label>Title</label>
-        <input class="input" [(ngModel)]="aTitle" placeholder="e.g. Summer Memories" />
+        <label>{{ 'albums.fieldTitle' | t }}</label>
+        <input class="input" [(ngModel)]="aTitle" [placeholder]="'albums.titlePlaceholder' | t" />
       </div>
 
       <div class="field full">
-        <label>Description</label>
+        <label>{{ 'albums.fieldDescription' | t }}</label>
         <textarea
           class="input textarea"
           [(ngModel)]="aDescription"
-          placeholder="What is this album about?"
+          [placeholder]="'albums.descriptionPlaceholder' | t"
         ></textarea>
       </div>
 
       <div class="field">
-        <label>Date Start</label>
+        <label>{{ 'albums.dateStart' | t }}</label>
         <input class="input" type="date" [(ngModel)]="aDateStart" />
       </div>
 
       <div class="field">
-        <label>Date End (optional)</label>
+        <label>{{ 'albums.dateEnd' | t }}</label>
         <input class="input" type="date" [(ngModel)]="aDateEnd" />
       </div>
     </div>
 
     <div class="actions">
-      <button class="btn" (click)="showCreate = false">Cancel</button>
-      <button class="btn primary" (click)="createAlbum()">Create Album</button>
+      <button class="btn" (click)="showCreate = false">{{ 'albums.cancel' | t }}</button>
+      <button class="btn primary" (click)="createAlbum()">{{ 'albums.create' | t }}</button>
     </div>
   </section>
 
@@ -66,8 +66,8 @@
   <section class="panel">
     <div class="panel-head">
       <div>
-        <h2 class="panel-title">Your Albums</h2>
-        <span class="muted">{{ albums.length }} total</span>
+        <h2 class="panel-title">{{ 'albums.yourAlbums' | t }}</h2>
+        <span class="muted">{{ 'groups.total' | t:{ count: albums.length } }}</span>
       </div>
     </div>
 
@@ -75,7 +75,7 @@
       <div class="album-card" *ngFor="let a of albumsWithAll" [class.all-album]="a.id === 'all'">
         <div class="album-header">
           <div class="album-title">{{ a.title }}</div>
-          <div class="album-pill">{{ a.memoryCount }} memories</div>
+          <div class="album-pill">{{ 'albums.memories' | t:{ count: a.memoryCount } }}</div>
         </div>
 
         <div class="album-desc" *ngIf="a.description">
@@ -90,7 +90,7 @@
 
         <div class="album-actions">
           <button class="btn ghost" (click)="openAlbum(a.id)">
-            Open →
+            {{ 'albums.open' | t }} →
           </button>
         </div>
       </div>
@@ -98,8 +98,8 @@
 
     <ng-template #emptyState>
       <div class="empty">
-        <div class="empty-title">No albums yet</div>
-        <div class="empty-sub">Click “+ New Album” to create your first album ✨</div>
+        <div class="empty-title">{{ 'albums.emptyTitle' | t }}</div>
+        <div class="empty-sub">{{ 'albums.emptySub' | t }}</div>
       </div>
     </ng-template>
   </section>

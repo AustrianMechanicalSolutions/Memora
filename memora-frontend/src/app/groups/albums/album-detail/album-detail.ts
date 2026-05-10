@@ -2,21 +2,37 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { GroupsService, AlbumDto, MemoryDto, AlbumPersonDto } from '../../groups';
+import { HttpClient } from '@angular/common/http';
+import { GroupsService, AlbumDto, MemoryDto, AlbumPersonDto, CommentDto } from '../../groups';
+import { TranslatePipe } from '../../../translation/translate.pipe';
+import { I18nService } from '../../../translation/i18n.service';
+import { environment } from '../../../../environment';
+import * as exifr from 'exifr';
 
 @Component({
   selector: 'app-album-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
+  imports: [CommonModule, FormsModule, DatePipe, TranslatePipe],
   templateUrl: './album-detail.html',
   styleUrls: ['./album-detail.css']
 })
 export class AlbumDetailComponent {
+  private readonly backendOrigin = `${window.location.protocol}//${window.location.hostname}:5000`;
   groupId!: string;
   albumId!: string;
 
   album?: AlbumDto;
   items: MemoryDto[] = [];
+
+  // Memory viewer + comments
+  showMemoryModal = false;
+  activeMemory: MemoryDto | null = null;
+  comments: CommentDto[] = [];
+  topLevelComments: CommentDto[] = [];
+  replyMap: { [key: string]: CommentDto[] } = {};
+  commentText = '';
+  replyTo: CommentDto | null = null;
+  commentsLoading = false;
 
   newType: number = 0;
   newTitle = '';
@@ -26,17 +42,25 @@ export class AlbumDetailComponent {
 
   // Mentioning
   members: { userId: string, name: string; role: string; avatarUrl: string; }[] = [];
+  memberById: { [key: string]: { name: string; avatarUrl?: string | null } } = {};
+  activeUploader: { name: string; avatarUrl?: string | null } | null = null;
   newQuoteBy = '';
   showMentionPopup = false;
   mentionQuery = '';
   mentionResults: { userId: string, name: string; role: string }[] = [];
   mentionIndex = 0;
 
+  // Media tagging (multi)
+  taggedUserIds: string[] = [];
+  freeTextPeople: string[] = [];
+  mediaTagInput = '';
+
   // Adding a memory
   showAddMemoryModal = false;
   addStep: 'choose' | 'media' | 'quote' = 'choose';
   mediaType: 'photo' | 'video' = 'photo';
   previewUrl: string | null = null;
+  failedMedia = new Set<string>();
 
   // Adding people
   albumPeople: AlbumPersonDto[] = [];
@@ -45,10 +69,27 @@ export class AlbumDetailComponent {
   personQuery = '';
   personResults: { userId: string; name: string; role: string; avatarUrl?: string | null }[] = [];
 
+  // Security
+  imageSrcMap = new Map<string, string>();
+  loadingSet = new Set<string>();
+
+  // Metadata
+  newLocationName = '';
+  autoLat?: number;
+  autoLong?: number;
+  useGps = true;
+  autoTime?: Date;
+
+  // Searching
+  searchQuery = '';
+  filteredItems: MemoryDto[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private groupsService: GroupsService
+    private groupsService: GroupsService,
+    private i18n: I18nService,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -70,8 +111,8 @@ export class AlbumDetailComponent {
       this.album = {
         id: 'all',
         groupId: this.groupId,
-        title: 'All Memories',
-        description: 'Photos, videos & quotes — everything in one place',
+        title: this.i18n.translate('albums.allMemories'),
+        description: this.i18n.translate('albums.collections'),
         dateStart: new Date(0).toISOString(),
         dateEnd: null,
         memoryCount: 0
@@ -99,16 +140,220 @@ export class AlbumDetailComponent {
     if (this.albumId != 'all') query.albumId = this.albumId;
     
     this.groupsService.memories(this.groupId, query).subscribe({
-      next: (r) => this.items = r.items,
+      next: (r) => {
+        this.items = r.items;
+
+        this.items.forEach(m => {
+          if (m.type === 0 || m.type === 1) {
+            this.loadMedia(m.mediaUrl);
+          }
+        });
+
+        this.items = r.items;
+        this.filteredItems = [...this.items];
+      },
       error: (err) => console.error(err)
     });
   }
 
   loadMembers() {
     this.groupsService.groupMembers(this.groupId).subscribe({
-      next: (r) => this.members = r,
+      next: (r) => {
+        this.members = r;
+        this.memberById = r.reduce((acc, m) => {
+          acc[m.userId] = { name: m.name, avatarUrl: m.avatarUrl ?? null };
+          return acc;
+        }, {} as { [key: string]: { name: string; avatarUrl?: string | null } });
+        this.updateActiveUploader();
+      },
       error: (err) => console.error(err)
     });
+  }
+
+  loadMedia(url?: string | null) {
+    if (!url || this.imageSrcMap.has(url) || this.loadingSet.has(url)) return;
+
+    this.loadingSet.add(url);
+
+    const fullUrl = environment.apiUrl + url;
+
+    this.http.get(fullUrl, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const objectUrl = URL.createObjectURL(blob);
+        this.imageSrcMap.set(url, objectUrl);
+        this.loadingSet.delete(url);
+      },
+      error: (err) => {
+        console.error('Media load failed', err);
+        this.loadingSet.delete(url);
+      }
+    });
+  }
+
+  openMemory(m: MemoryDto) {
+    this.activeMemory = m;
+    this.updateActiveUploader();
+    this.showMemoryModal = true;
+    this.commentText = '';
+    this.replyTo = null;
+    this.loadComments();
+  }
+
+  closeMemory() {
+    this.showMemoryModal = false;
+    this.activeMemory = null;
+    this.activeUploader = null;
+    this.comments = [];
+    this.topLevelComments = [];
+    this.replyMap = {};
+    this.commentText = '';
+    this.replyTo = null;
+    this.commentsLoading = false;
+  }
+
+  private updateActiveUploader() {
+    if (!this.activeMemory) {
+      this.activeUploader = null;
+      return;
+    }
+
+    const found = this.memberById[this.activeMemory.createdByUserId];
+    this.activeUploader = found
+      ? { name: found.name, avatarUrl: found.avatarUrl ?? null }
+      : { name: this.i18n.translate('album.unknownUser'), avatarUrl: null };
+  }
+
+  loadComments() {
+    if (!this.activeMemory) return;
+
+    this.commentsLoading = true;
+    this.groupsService.memoryComments(this.groupId, this.activeMemory.id).subscribe({
+      next: (r) => {
+        this.comments = r;
+        this.rebuildCommentTree();
+        this.commentsLoading = false;
+        this.activeMemory!.commentCount = this.comments.length;
+      },
+      error: (err) => {
+        console.error(err);
+        this.commentsLoading = false;
+      }
+    });
+  }
+
+  private rebuildCommentTree() {
+    const top: CommentDto[] = [];
+    const map: { [key: string]: CommentDto[] } = {};
+    const byId = new Map<string, CommentDto>();
+
+    for (const c of this.comments) {
+      byId.set(c.id, c);
+    }
+
+    const rootIdFor = (comment: CommentDto): string => {
+      let current: CommentDto = comment;
+      const seen = new Set<string>();
+
+      while (current.parentCommentId && byId.has(current.parentCommentId)) {
+        if (seen.has(current.parentCommentId)) break;
+        seen.add(current.parentCommentId);
+        current = byId.get(current.parentCommentId)!;
+      }
+
+      return current.id;
+    };
+
+    for (const c of this.comments) {
+      if (c.parentCommentId) {
+        const rootId = rootIdFor(c);
+        if (!map[rootId]) map[rootId] = [];
+        map[rootId].push(c);
+      } else {
+        top.push(c);
+      }
+    }
+
+    const byDate = (a: CommentDto, b: CommentDto) =>
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+
+    top.sort(byDate);
+    Object.keys(map).forEach(k => map[k].sort(byDate));
+
+    this.topLevelComments = top;
+    this.replyMap = map;
+  }
+
+  submitComment() {
+    if (!this.activeMemory) return;
+
+    const content = (this.commentText || '').trim();
+    if (!content) return;
+
+    this.groupsService.addComment(this.groupId, this.activeMemory.id, {
+      content,
+      parentCommentId: this.replyTo?.id ?? null
+    }).subscribe({
+      next: (comment) => {
+        this.comments = [...this.comments, comment];
+        this.rebuildCommentTree();
+        this.commentText = '';
+        this.replyTo = null;
+        this.activeMemory!.commentCount = (this.activeMemory!.commentCount || 0) + 1;
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  setReply(target: CommentDto) {
+    this.replyTo = target;
+  }
+
+  cancelReply() {
+    this.replyTo = null;
+  }
+
+  toggleMemoryLike(m: MemoryDto, event?: Event) {
+    if (event) event.stopPropagation();
+
+    if (m.isLiked) {
+      this.groupsService.unlikeMemory(this.groupId, m.id).subscribe({
+        next: () => {
+          m.isLiked = false;
+          m.likeCount = Math.max(0, (m.likeCount || 0) - 1);
+        },
+        error: (err) => console.error(err)
+      });
+    } else {
+      this.groupsService.likeMemory(this.groupId, m.id).subscribe({
+        next: () => {
+          m.isLiked = true;
+          m.likeCount = (m.likeCount || 0) + 1;
+        },
+        error: (err) => console.error(err)
+      });
+    }
+  }
+
+  toggleCommentLike(c: CommentDto, event?: Event) {
+    if (event) event.stopPropagation();
+
+    if (c.isLiked) {
+      this.groupsService.unlikeComment(this.groupId, c.id).subscribe({
+        next: () => {
+          c.isLiked = false;
+          c.likeCount = Math.max(0, (c.likeCount || 0) - 1);
+        },
+        error: (err) => console.error(err)
+      });
+    } else {
+      this.groupsService.likeComment(this.groupId, c.id).subscribe({
+        next: () => {
+          c.isLiked = true;
+          c.likeCount = (c.likeCount || 0) + 1;
+        },
+        error: (err) => console.error(err)
+      });
+    }
   }
 
   typeLabel(t: number) {
@@ -129,7 +374,12 @@ export class AlbumDetailComponent {
       quoteBy: this.newType === 2 ? (this.newQuoteBy || null) : null,
       happenedAt: new Date(this.newDate).toISOString(),
       tags: [],
-      albumId: this.albumId !== 'all' ? this.albumId : null
+      people: this.taggedUserIds,
+      albumId: this.albumId !== 'all' ? this.albumId : null,
+
+      location: this.newLocationName ?? null,
+      latitude: this.autoLat ?? null,
+      longitude: this.autoLong ?? null
     };
 
     if (this.newType === 2) {
@@ -141,7 +391,7 @@ export class AlbumDetailComponent {
     } else {
       // Photo or video
       if (!this.selectedFile) {
-        alert('Please select a file');
+        alert(this.i18n.translate('album.selectFile'));
         return;
       }
 
@@ -249,17 +499,37 @@ export class AlbumDetailComponent {
     this.addStep = 'choose';
   }
 
-  onFileSelected(e: any) {
+  async onFileSelected(e: any) {
     const file = e.target.files?.[0];
     if (!file) return;
 
     this.selectedFile = file;
     this.previewUrl = URL.createObjectURL(file);  
+
+    try {
+      const meta: any = await exifr.parse(file);
+
+      // GPS
+      if (meta?.latitude && meta?.longitude)  {
+        this.autoLat = meta.latitude;
+        this.autoLong = meta.longitude;
+
+        this.useGps = true;
+      } else {
+        this.autoLat = undefined;
+        this.autoLong = undefined;
+      }
+
+    } catch (err) {
+      console.warn('No EXIF metadata found');
+      this.autoLat = undefined;
+      this.autoLong = undefined;
+    }
   }
 
   submitMedia() {
     if (!this.selectedFile) {
-      alert('Please select a file');
+      alert(this.i18n.translate('album.selectFile'));
       return;
     }
 
@@ -273,7 +543,7 @@ export class AlbumDetailComponent {
     this.newType = 2;
 
     if (!this.newQuoteText) {
-      alert('Please write a quote');
+      alert(this.i18n.translate('album.writeQuote'));
       return;
     }
 
@@ -283,12 +553,31 @@ export class AlbumDetailComponent {
 
   isImage(url: string | null | undefined): boolean {
     if (!url) return false;
-    return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+    const result = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+    console.log("Image? " + result + "    " + url)
+    return result;
   }
 
   isVideo(url: string | null | undefined): boolean {
     if (!url) return false;
     return /\.(mp4|webm|mov)$/i.test(url);
+  }
+
+  mediaSrc(url?: string | null): string | null {
+    if (!url) return null;
+
+    const token = localStorage.getItem('token');
+
+    return `${environment.apiUrl}${url}?token=${token}`;
+  }
+
+  mediaFailed(url: string | null | undefined): boolean {
+    console.log("media failed");
+    return !!url && this.failedMedia.has(url);
+  }
+
+  onMediaError(url: string | null | undefined) {
+    if (url) this.failedMedia.add(url);
   }
 
   // People in Album
@@ -362,5 +651,259 @@ export class AlbumDetailComponent {
         },
         error: err => console.error(err)
       });
+  }
+
+  // Mentioning in media
+  onMediaTagInput() {
+    const ctx = this.getMentionContext(this.mediaTagInput || '');
+    if (!ctx) {
+      this.showMentionPopup = false;
+      return;
+    }
+
+    this.mentionQuery = ctx.query.toLowerCase();
+
+    this.mentionResults = this.members
+      .filter(u =>
+        u.name.toLowerCase().includes(this.mentionQuery) &&
+        !this.taggedUserIds.includes(u.userId) // prevent duplicates
+      )
+      .slice(0, 8);
+
+    this.showMentionPopup = true;
+    this.mentionIndex = 0;
+  }
+
+  selectMediaTag(u: { userId: string; name: string }) {
+    if (!this.taggedUserIds.includes(u.userId)) {
+      this.taggedUserIds.push(u.userId);
+    }
+
+    this.mediaTagInput = '';
+    this.showMentionPopup = false;
+  }
+
+  onMediaTagKeydown(event: KeyboardEvent) {
+    if (!this.showMentionPopup) return;
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.mentionIndex = Math.min(this.mentionIndex + 1, this.mentionResults.length - 1);
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.mentionIndex = Math.max(this.mentionIndex - 1, 0);
+    }
+
+    if (event.key === 'Enter') {
+      if (event.key === 'Enter') {
+        const u = this.mentionResults[this.mentionIndex];
+
+        if (u) {
+          this.selectMediaTag(u);
+        } else {
+          this.addFreeTextPerson(this.mediaTagInput);
+        }
+
+        event.preventDefault();
+      }
+    }
+
+    if (event.key === 'Escape') {
+      this.showMentionPopup = false;
+    }
+  }
+
+  removeTaggedUser(userId: string) {
+    this.taggedUserIds = this.taggedUserIds.filter(id => id !== userId);
+  }
+
+  getTaggedUsers(memory: MemoryDto) {
+    console.log(memory)
+    return (memory.people || [])
+      .map(id => ({
+        userId: id,
+        name: this.memberById[id]?.name || 'Unknown',
+        avatarUrl: this.memberById[id]?.avatarUrl || null
+      }));
+  }
+
+  addFreeTextPerson(name: string) {
+    const clean = name.trim();
+    if (!clean) return;
+
+    if (!this.freeTextPeople.includes(clean)) {
+      this.freeTextPeople.push(clean);
+    }
+
+    this.mediaTagInput = '';
+  }
+
+  // Searching
+  applySearch() {
+    const tokens = this.tokenize(this.searchQuery);
+
+    if (!tokens.length) {
+      this.filteredItems = [...this.items];
+      return;
+    }
+
+    const scored = this.items.map(m => ({
+      memory: m,
+      score: this.scoreMemory(m, tokens)
+    }));
+
+    this.filteredItems = scored
+      .filter(x => x.score > 0.5)
+      .sort((a, b) => b.score - a.score)
+      .map(x => x.memory);
+  }
+
+  tokenize(query: string): string[] {
+    return query
+      .toLowerCase()
+      .split(/\s+/)
+      .map(t => t.trim())
+      .filter(Boolean);
+  }
+
+  classifyToken(token: string) {
+    if (this.members.some(m => m.name.toLowerCase().includes(token))) {
+      return 'person';
+    }
+
+    if (this.isLocation(token)) {
+      return 'place';
+    }
+
+    if (this.isTimeWord(token)) {
+      return 'time';
+    }
+
+    return 'tag';
+  }
+
+  isLocation(token: string) {
+    return [''] // Fill up later
+  }
+
+  isTimeWord(token: string) {
+    return [''] // Fill up later
+  }
+
+  scoreMemory(memory: MemoryDto, tokens: string[]): number {
+    let totalScore = 0;
+    let matchedTokens = 0;
+
+    for (const token of tokens) {
+      // People
+      // We try to match the input with a person. If a token is 100% a person,
+      // we, ignore everything else and only look for that.
+      console.log("t")
+      if (memory.people) {
+        memory.people.forEach(p => {
+          console.log(p)
+          const personMatch = this.bestMatch(this.memberById[p].name || '', token);
+          if (personMatch > 0.95) { // You normally dont misspell names
+            matchedTokens++;
+            totalScore += personMatch;
+          }
+        })
+      }
+
+      // Title and location
+      const titleMatch = this.bestMatch(memory.title || '', token);
+      const locationMatch = this.bestMatch(memory.locationName || '', token);
+      const cityMatch = this.bestMatch(memory.locationCity || '', token);
+      const countryMatch = this.bestMatch(memory.locationCountry || '', token);
+
+      if (titleMatch > 0.8) {
+        matchedTokens++;
+        totalScore += titleMatch * 1.5; // Higher value for title
+        console.log(titleMatch, totalScore);
+      } else if (locationMatch > 0.6) {
+        matchedTokens++;
+        totalScore += locationMatch;
+      } else if (cityMatch > 0.8) {
+        matchedTokens++;
+        totalScore += cityMatch * 0.7;
+      } else if (countryMatch > 0.8) {
+        matchedTokens++;
+        totalScore += countryMatch * 0.7;
+      }
+    }
+
+    const ratio = matchedTokens / tokens.length;
+
+    if (ratio <= 0.7) return 0;
+
+    return totalScore;
+  }
+
+  similarity(a: string, b: string): number {
+    if (!a || !b) return 0;
+
+    a = a.toLowerCase();
+    b = b.toLowerCase();
+
+    if (a.includes(b)) return 1;
+
+    const dist = this.levensthein(a, b);
+    const maxLen = Math.max(a.length, b.length);
+
+    return 1 - dist / maxLen;
+  }
+
+  bestMatch(text: string, token: string): number {
+    if (!text) return 0;
+
+    const words = text.toLowerCase().split(/\s+/);
+
+    let best = 0;
+
+    for (const w of words) {
+      const sim = this.similarity(w, token);
+      if (sim > best) best = sim;
+    }
+
+    return best;
+  }
+
+  matchesTime(dateStr: string, token: string): boolean {
+    const d = new Date(dateStr);
+
+    if (token === 'summer')   return d.getMonth() >= 5 && d.getMonth() <= 7;
+    // Need more
+
+    return false;
+  }
+
+  levensthein(a: string, b: string) {
+    const m = a.length;
+    const n = b.length;
+
+    // Create matrix
+    const dp: number[][] = Array.from({ length: m + 1 }, () => 
+      new Array(n + 1).fill(0)
+    );
+
+    // Initialize edges
+    for (let i = 0; i <= m; i++) dp[i][0] = i
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+
+        dp[i][j] = Math.min(
+          dp[i - 1][j] + 1,
+          dp[i][j - 1] + 1,
+          dp[i - 1][j - 1] + cost
+        );
+      }
+    }
+
+    return dp[m][n];
   }
 }

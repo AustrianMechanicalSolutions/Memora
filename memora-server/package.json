@@ -1,0 +1,12 @@
+{
+  "name": "memora-server",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@angular/cli": "^21.2.1"
+  }
+}

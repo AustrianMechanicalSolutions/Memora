@@ -137,6 +137,75 @@ namespace memorabackend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("AuthApi.Models.CommentLike", b =>
+                {
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CommentId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CommentLikes");
+                });
+
+            modelBuilder.Entity("AuthApi.Models.MemoryComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("MemoryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ParentCommentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemoryId");
+
+                    b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("MemoryComments");
+                });
+
+            modelBuilder.Entity("AuthApi.Models.MemoryLike", b =>
+                {
+                    b.Property<Guid>("MemoryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("MemoryId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("MemoryLikes");
+                });
+
             modelBuilder.Entity("Group", b =>
                 {
                     b.Property<Guid>("Id")
@@ -204,6 +273,21 @@ namespace memorabackend.Migrations
                     b.Property<DateTime>("HappenedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("LocationCity")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LocationCountry")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LocationName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("REAL");
+
                     b.Property<string>("MediaUrl")
                         .HasColumnType("TEXT");
 
@@ -229,6 +313,26 @@ namespace memorabackend.Migrations
                     b.HasIndex("GroupId");
 
                     b.ToTable("Memory");
+                });
+
+            modelBuilder.Entity("MemoryPerson", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("MemoryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemoryId");
+
+                    b.ToTable("MemoryPerson");
                 });
 
             modelBuilder.Entity("MemoryTag", b =>
@@ -274,6 +378,70 @@ namespace memorabackend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("AuthApi.Models.CommentLike", b =>
+                {
+                    b.HasOne("AuthApi.Models.MemoryComment", "Comment")
+                        .WithMany()
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AuthApi.Models.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("AuthApi.Models.MemoryComment", b =>
+                {
+                    b.HasOne("Memory", "Memory")
+                        .WithMany()
+                        .HasForeignKey("MemoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AuthApi.Models.MemoryComment", "ParentComment")
+                        .WithMany()
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AuthApi.Models.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Memory");
+
+                    b.Navigation("ParentComment");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("AuthApi.Models.MemoryLike", b =>
+                {
+                    b.HasOne("Memory", "Memory")
+                        .WithMany()
+                        .HasForeignKey("MemoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AuthApi.Models.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Memory");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("GroupMember", b =>
                 {
                     b.HasOne("Group", "Group")
@@ -310,6 +478,17 @@ namespace memorabackend.Migrations
                     b.Navigation("Group");
                 });
 
+            modelBuilder.Entity("MemoryPerson", b =>
+                {
+                    b.HasOne("Memory", "Memory")
+                        .WithMany("People")
+                        .HasForeignKey("MemoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Memory");
+                });
+
             modelBuilder.Entity("MemoryTag", b =>
                 {
                     b.HasOne("Memory", "Memory")
@@ -342,6 +521,8 @@ namespace memorabackend.Migrations
 
             modelBuilder.Entity("Memory", b =>
                 {
+                    b.Navigation("People");
+
                     b.Navigation("Tags");
                 });
 #pragma warning restore 612, 618

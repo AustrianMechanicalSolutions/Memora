@@ -3,7 +3,7 @@
   <main class="main-content" [class.no-sidebar]="!isLoggedIn()">
     <router-outlet></router-outlet>
     <a class="impressum-link" routerLink="/impressum">
-      Impressum
+      {{ 'app.impressum' | t }}
     </a>
   </main>
 </div>

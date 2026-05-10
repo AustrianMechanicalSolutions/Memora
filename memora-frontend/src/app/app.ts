@@ -2,13 +2,15 @@ import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from './sidebar/sidebar';
 import { AuthService } from './user/auth.service';
+import { ThemeService } from './theme.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { TranslatePipe } from './translation/translate.pipe';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, SidebarComponent, RouterLink],
+  imports: [CommonModule, RouterOutlet, SidebarComponent, RouterLink, TranslatePipe],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -17,7 +19,7 @@ export class App implements OnInit, OnDestroy {
   isLoggedIn = signal(false);
   private destroy$ = new Subject<void>();
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, private theme: ThemeService) {}
 
   ngOnInit() {
     this.isLoggedIn.set(this.auth.isLoggedIn());

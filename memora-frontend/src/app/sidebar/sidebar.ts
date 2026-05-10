@@ -5,11 +5,14 @@ import { AuthService, CurrentUser } from '../user/auth.service';
 import { Router } from '@angular/router';
 import { GroupsService, GroupListItemDto } from '../groups/groups';
 import { Subscription } from 'rxjs';
+import { ThemeService } from '../theme.service';
+import { TranslatePipe } from '../translation/translate.pipe';
+import { I18nService } from '../translation/i18n.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
@@ -19,7 +22,21 @@ export class SidebarComponent implements OnInit, OnDestroy {
   groups: GroupListItemDto[] = [];
   private subscriptions: Subscription = new Subscription();
 
-  constructor(private auth: AuthService, private router: Router, private groupsService: GroupsService) {}
+  constructor(
+    private auth: AuthService,
+    public router: Router,
+    private groupsService: GroupsService,
+    private theme: ThemeService,
+    private i18n: I18nService
+  ) {}
+
+  get themeMode() {
+    return this.theme.current;
+  }
+
+  toggleTheme() {
+    this.theme.toggleTheme();
+  }
 
   ngOnInit() {
     this.loadUserProfile();
@@ -28,6 +45,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.groupsService.groupsChanged$.subscribe(() => {
         this.loadGroups();
+      })
+    );
+
+    this.subscriptions.add(
+      this.auth.profileChanged$.subscribe(() => {
+        this.loadUserProfile();
       })
     );
   }
@@ -62,7 +85,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
   }
 
+  t(key: string, params?: Record<string, string | number>) {
+    return this.i18n.translate(key, params);
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+  }
+
+  isGroupActive(groupId: string): boolean {
+    return this.router.url.startsWith(`/groups/${groupId}`);
   }
 }

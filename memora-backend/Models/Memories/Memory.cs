@@ -16,6 +16,14 @@ public class Memory
 
     public Guid? AlbumId { get; set; }
     public Album? Album { get; set; }
+    public ICollection<MemoryPerson> People { get; set; } = new List<MemoryPerson>();
+
+    // Location
+    public string? LocationName { get; set; }
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+    public string? LocationCity { get; set; }
+    public string? LocationCountry { get; set; }
 
     public ICollection<MemoryTag> Tags { get; set; } = new List<MemoryTag>();
 }
