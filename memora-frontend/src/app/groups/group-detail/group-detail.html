@@ -14,6 +14,14 @@
       <button class="btn primary cover-action" (click)="goToAlbums()">
         📚 {{ 'group.viewAlbums' | t }}
       </button>
+
+      <button
+        *ngIf="isAdmin"
+        class="btn secondary cover-action"
+        (click)="goToAdmin()"
+      >
+        ⚙️ Admin
+      </button>
     </div>
   </div>
 

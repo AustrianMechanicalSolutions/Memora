@@ -1,6 +1,6 @@
 import { CommonModule, Location } from '@angular/common';
 import { Component } from '@angular/core';
-import { TranslatePipe } from '../../translate.pipe';
+import { TranslatePipe } from '../../translation/translate.pipe';
 
 @Component({
   selector: 'app-impressum',

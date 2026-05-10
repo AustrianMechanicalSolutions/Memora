@@ -10,7 +10,7 @@ namespace AuthApi.Endpoints;
 [ApiController]
 [Route("api/2fa")]
 [Authorize]
-public class TwoFactorController : ControllerBase
+public class TwoFactorController : BaseApiController
 {
     private readonly AppDbContext _db;
 
@@ -24,14 +24,14 @@ public class TwoFactorController : ControllerBase
     {
         var uid = User.UserId();
         var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == uid);
-        if (user is null) return NotFound();
+        if (user is null) throw new ApiException("not_found", "User not found.", 404);
 
         // Generate new secret every time setup is called
         var secretBytes = KeyGeneration.GenerateRandomKey(20);
         var secretBase32 = Base32Encoding.ToString(secretBytes);
 
         user.TwoFactorSecret = secretBase32;
-        user.TwoFactorEnabled = true;
+        user.TwoFactorEnabled = false;
         await _db.SaveChangesAsync();
 
         var issuer = "Memora";
@@ -55,15 +55,15 @@ public class TwoFactorController : ControllerBase
     {
         var uid = User.UserId();
         var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == uid);
-        if (user is null) return NotFound();
+        if (user is null) throw new ApiException("not_found", "User not found.", 404);
 
         if (string.IsNullOrWhiteSpace(user.TwoFactorSecret))
-            return BadRequest("2FA secret not set. Run setup first.");
+            throw new ApiException("invalid_code", "2FA secret not set.");
 
         var totp = new Totp(Base32Encoding.ToBytes(user.TwoFactorSecret));
         var ok = totp.VerifyTotp(req.Code.Trim(), out _, new VerificationWindow(1, 1));
 
-        if (!ok) return BadRequest("Invalid 2FA code.");
+        if (!ok) throw new ApiException("invalid_code", "Invalid 2FA code.");
 
         user.TwoFactorEnabled = true;
         await _db.SaveChangesAsync();
@@ -76,7 +76,7 @@ public class TwoFactorController : ControllerBase
     {
         var uid = User.UserId();
         var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == uid);
-        if (user is null) return NotFound();
+        if (user is null) throw new ApiException("not_found", "User not found.", 404);
 
         user.TwoFactorEnabled = false;
         user.TwoFactorSecret = null;

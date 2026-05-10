@@ -3,8 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GroupsService, AlbumDto } from '../groups';
-import { TranslatePipe } from '../../translate.pipe';
-import { I18nService } from '../../i18n.service';
+import { TranslatePipe } from '../../translation/translate.pipe';
+import { I18nService } from '../../translation/i18n.service';
 
 @Component({
   selector: 'app-albums',

@@ -10,7 +10,7 @@ import {
 } from '../../services/admin';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TranslatePipe } from '../../../../translate.pipe';
+import { TranslatePipe } from '../../../../translation/translate.pipe';
 
 @Component({
   selector: 'app-group-admin-dashboard',

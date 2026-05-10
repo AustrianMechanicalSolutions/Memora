@@ -7,9 +7,10 @@ import { RouterModule } from '@angular/router';
 import QRCode from 'qrcode';
 import { TwoFactorService, TwoFactorSetupResponse } from './twofactor';
 import { ThemeService } from '../../theme.service';
-import { TranslatePipe } from '../../translate.pipe';
-import { AppLanguage, I18nService } from '../../i18n.service';
+import { TranslatePipe } from '../../translation/translate.pipe';
+import { AppLanguage, I18nService } from '../../translation/i18n.service';
 import { AuthService } from '../auth.service';
+import { environment } from '../../../environment';
 
 @Component({
   selector: 'app-settings',
@@ -19,7 +20,7 @@ import { AuthService } from '../auth.service';
   styleUrls: ['./settings.css']
 })
 export class SettingsComponent {
-  private api = 'http://localhost:5000/api/account';
+  private api = `${environment.apiUrl}/api/account`
 
   loading = true;
   saving = false;

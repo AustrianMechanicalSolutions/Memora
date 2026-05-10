@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.FileProviders;
+using System.Threading.RateLimiting;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // ---- Security services ----
 builder.Services.AddSingleton<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
+builder.Services.AddSingleton<ICityLookupService, GeoNamesCityLookupService>();
+builder.Services.AddSingleton<ICountryLookupService, CsvCountryLookupService>();
 
 // ---- Auth ----
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()!;
@@ -43,9 +47,73 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey)),
             ClockSkew = TimeSpan.FromSeconds(30)
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var token = context.Request.Query["token"];
+
+                if (!string.IsNullOrEmpty(token))
+                {
+                    context.Token = token;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
+
+// ---- Rate Limiting ----
+builder.Services.AddRateLimiter(options =>
+{
+    // Global default
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
+
+    options.AddPolicy("auth-login", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            }));
+
+    options.AddPolicy("auth-register", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromMinutes(5),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            }));
+
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+        context.HttpContext.Response.ContentType = "application/json";
+
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            error = "rate_limited",
+            message = "Too many requests."
+        });
+    };
+});
 
 // ---- CORS (Angular) ----
 builder.Services.AddCors(options =>
@@ -53,34 +121,33 @@ builder.Services.AddCors(options =>
     options.AddPolicy("frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200")
+            .WithOrigins("http://localhost:4200", "https://austrianms.at", "https://www.austrianms.at", "https://memora.austrianms.at")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
 var app = builder.Build();
 var webRootPath = app.Environment.WebRootPath ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
-var uploadsPath = Path.Combine(webRootPath, "uploads");
+var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
 
 Directory.CreateDirectory(uploadsPath);
 
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseRateLimiter();
+
 app.UseHttpsRedirection();
 app.UseCors("frontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseStaticFiles();
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(uploadsPath),
-    RequestPath = "/uploads"
-});
 
 // ---- Ensure interaction tables exist (SQLite, no migrations) ----
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.ExecuteSqlRaw(@"
+    /*db.Database.ExecuteSqlRaw(@"
 CREATE TABLE IF NOT EXISTS MemoryLikes (
     MemoryId TEXT NOT NULL,
     UserId TEXT NOT NULL,
@@ -102,11 +169,8 @@ CREATE TABLE IF NOT EXISTS CommentLikes (
     UserId TEXT NOT NULL,
     CreatedAt TEXT NOT NULL,
     PRIMARY KEY (CommentId, UserId)
-);");
+);");*/
 }
-
-// ---- Map endpoints ----
-app.MapAuthEndpoints();
 
 app.MapControllers();
 
@@ -118,5 +182,11 @@ app.MapGet("/api/me", (System.Security.Claims.ClaimsPrincipal user) =>
         email = user.FindFirst("email")?.Value
     });
 }).RequireAuthorization();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.Run();

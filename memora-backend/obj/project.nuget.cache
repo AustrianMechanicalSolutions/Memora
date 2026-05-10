@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "RHfcBsEESRs=",
+  "dgSpecHash": "qB6IEvYSadU=",
   "success": true,
   "projectFilePath": "C:\\Schule\\S4\\Heiko_Doli\\Projekt\\Memora\\memora-backend\\memora-backend.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\nicok\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512",
     "C:\\Users\\nicok\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\nicok\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.6\\microsoft.aspnetcore.authentication.jwtbearer.8.0.6.nupkg.sha512",
     "C:\\Users\\nicok\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\6.0.0\\microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512",

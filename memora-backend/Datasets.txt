@@ -1,0 +1,8 @@
+GeoNames
+https://download.geonames.org/export/dump/
+The GeoNames cities500.zip file is licensed under a Creative Commons Attribution 4.0 License (CC BY 4.0).
+This allows free use, sharing, and adaptation of the data for both commercial and non-commercial purposes,
+provided that appropriate credit is given to GeoNames, typically via a link to their website.
+
+Countries ISO Codes
+https://www.kaggle.com/datasets/juanumusic/countries-iso-codes

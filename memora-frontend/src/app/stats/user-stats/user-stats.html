@@ -10,7 +10,9 @@
       </h1>
       <p class="subline">
         <ng-container *ngIf="isGroupMode; else allGroupsInfo">
-          {{ 'stats.groupSubline' | t:{ name: userDisplayName, group: (groupName || '...') } }}
+          <button class="group-badge" (click)="goToGroup()">
+            {{ 'stats.groupSubline' | t:{ name: userDisplayName, group: (groupName || '...') } }}
+          </button>
         </ng-container>
         <ng-template #allGroupsInfo>
           {{ 'stats.allGroupsSubline' | t:{ name: userDisplayName } }}
@@ -143,14 +145,18 @@
 
       <div class="bars">
         <div class="bar-row" *ngFor="let b of activityBars">
-          <div class="bar-copy">
+          <div class="bar-header">
             <span class="bar-label">{{ b.label }}</span>
-            <span class="bar-meta">{{ distributionWidth(b.value) | number:'1.0-0' }}%</span>
+            <span class="bar-percent">
+              {{ distributionWidth(b.value) | number:'1.0-0' }}%
+            </span>
           </div>
+
           <div class="bar-track">
             <div class="bar-fill" [style.width.%]="distributionWidth(b.value)"></div>
           </div>
-          <span class="bar-value">{{ b.value }}</span>
+
+          <div class="bar-value">{{ b.value }}</div>
         </div>
       </div>
     </section>

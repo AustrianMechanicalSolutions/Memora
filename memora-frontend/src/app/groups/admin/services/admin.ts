@@ -1,6 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
+import { GroupsService } from '../../groups';
+import { environment } from '../../../../environment';
 
 export type MemoryType = 'Photo' | 'Video' | 'Quote' | number; // backend uses enum; we accept string/number
 
@@ -9,7 +11,15 @@ export interface GroupDetailDto {
   name: string;
   inviteCode: string;
   memberCount: number;
-  createdByUserId: number;
+  CreatedByUserId: number;
+}
+
+export interface GroupDetailInfoDto {
+  id: string;
+  name: string;
+  inviteCode: string;
+  memberCount: number;
+  createdByUserName: string;
 }
 
 export interface GroupStatsDto {
@@ -33,10 +43,11 @@ export interface GroupWeeklyActivityDto {
 }
 
 export interface GroupMemberDto {
-  userId: number;
-  displayName: string;
+  userId: string;
+  name: string;
   role: string;
-  profileImageUrl?: string | null;
+  avatarUrl?: string | null;
+  displayName: string;
 }
 
 export interface GroupMemberActivityDto {
@@ -103,13 +114,19 @@ export interface CreateAlbumRequest {
 
 @Injectable({ providedIn: 'root' })
 export class GroupAdminService {
-  private base = '/api/groups';
+  private base = `${environment.apiUrl}/api/groups`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private groupsService: GroupsService) {}
 
   // ===== Group =====
   getGroup(groupId: string): Observable<GroupDetailDto> {
     return this.http.get<GroupDetailDto>(`${this.base}/${groupId}`);
+  }
+
+  getGroupSettings(groupId: string): Observable<GroupDetailInfoDto> {
+    const test = this.http.get<GroupDetailInfoDto>(`${this.base}/${groupId}`);
+    console.log(test);
+    return test;
   }
 
   getStats(groupId: string): Observable<GroupStatsDto> {
@@ -129,20 +146,17 @@ export class GroupAdminService {
     return this.http.get<GroupMemberDto[]>(`${this.base}/${groupId}/members`);
   }
 
-  // PLACEHOLDER: Endpoint not in backend yet
-  changeMemberRole(groupId: string, userId: number, role: string): Observable<void> {
-    console.warn('[PLACEHOLDER] changeMemberRole() needs backend endpoint');
-    return new Observable<void>((subscriber) => {
-      subscriber.error('PLACEHOLDER: changeMemberRole endpoint missing');
-    });
+  changeMemberRole(groupId: string, userId: string, role: string) {
+    return this.http.put(
+      `${this.base}/${groupId}/members/${userId}/role`,
+      { Role: role }
+    );
   }
 
-  // PLACEHOLDER: Endpoint not in backend yet
-  removeMember(groupId: string, userId: number): Observable<void> {
-    console.warn('[PLACEHOLDER] removeMember() needs backend endpoint');
-    return new Observable<void>((subscriber) => {
-      subscriber.error('PLACEHOLDER: removeMember endpoint missing');
-    });
+  removeMember(groupId: string, userId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.base}/${groupId}/members/${userId}`
+    );
   }
 
   // ===== Memories =====
@@ -176,5 +190,26 @@ export class GroupAdminService {
 
   createAlbum(groupId: string, body: CreateAlbumRequest): Observable<AlbumDto> {
     return this.http.post<AlbumDto>(`${this.base}/${groupId}/albums`, body);
+  }
+
+  // ===== Settings ======
+  renameGroup(groupId: string, name: string): Observable<GroupDetailDto> {
+    return this.http.patch<GroupDetailDto>(`${this.base}/${groupId}`, { name }).pipe(
+      tap(() => {
+        this.groupsService.notifyGroupsChanged();
+      })
+    );
+  }
+  
+  regenerateInviteCode(groupId: string): Observable<GroupDetailDto> {
+    return this.http.post<GroupDetailDto>(`${this.base}/${groupId}/invite/regenerate`, {});
+  }
+  
+  deleteGroup(groupId: string) {
+    return this.http.delete<GroupDetailDto>(`${this.base}/${groupId}`).pipe(
+      tap(() => {
+        this.groupsService.notifyGroupsChanged();
+      })
+    );
   }
 }

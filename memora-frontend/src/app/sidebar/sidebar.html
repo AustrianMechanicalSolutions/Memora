@@ -29,7 +29,7 @@
             <ul class="groups-sublist"
                 *ngIf="router.url.startsWith('/groups/' + group.id + '/admin')">
               
-              <li class="group-subitem">
+              <li class="group-adminsubitem">
                 <a [routerLink]="['/groups', group.id, 'admin', 'dashboard']"
                   routerLinkActive="active"
                   class="group-link">
@@ -38,25 +38,16 @@
                 </a>
               </li>
 
-              <li class="group-subitem">
+              <li class="group-adminsubitem">
                 <a [routerLink]="['/groups', group.id, 'admin', 'members']"
                   routerLinkActive="active"
                   class="group-link">
                   <span class="group-indicator">├</span>
                   <span class="group-name">{{ 'sidebar.members' | t }}</span>
                 </a>
-              </li>
+              </li> 
 
-              <li class="group-subitem">
-                <a [routerLink]="['/groups', group.id, 'admin', 'memories']"
-                  routerLinkActive="active"
-                  class="group-link">
-                  <span class="group-indicator">├</span>
-                  <span class="group-name">{{ 'sidebar.memories' | t }}</span>
-                </a>
-              </li>
-
-              <li class="group-subitem">
+              <li class="group-adminsubitem">
                 <a [routerLink]="['/groups', group.id, 'admin', 'albums']"
                   routerLinkActive="active"
                   class="group-link">
@@ -65,7 +56,7 @@
                 </a>
               </li>
 
-              <li class="group-subitem">
+              <li class="group-adminsubitem">
                 <a [routerLink]="['/groups', group.id, 'admin', 'settings']"
                   routerLinkActive="active"
                   class="group-link">
