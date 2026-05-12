@@ -138,6 +138,14 @@
             <button class="icon-btn" type="button" (click)="openMemory(m); $event.stopPropagation()">
               &#x1F4AC; <span>{{ m.commentCount || 0 }}</span>
             </button>
+
+            <button
+              *ngIf="canRemoveMemory(m)"
+              class="icon-btn danger"
+              type="button"
+              (click)="removeMemory(m, $event)">
+              🗑
+            </button>
           </div>
         </ng-container>
 
@@ -338,6 +346,13 @@
               [placeholder]="'album.writeComment' | t"
             ></textarea>
             <div class="comment-submit">
+              <button
+                *ngIf="canRemoveMemory(m)"
+                class="icon-btn danger"
+                type="button"
+                (click)="removeMemory(m, $event)">
+                🗑 Remove
+              </button>
               <button class="btn primary" type="button" (click)="submitComment()">{{ 'album.send' | t }}</button>
             </div>
           </div>
@@ -448,7 +463,7 @@
                   type="button"
                   class="btn ghost small"
                   (click)="useGps = !useGps">
-                  {{ useGps ? "Using GPS ✓" : "Use GPS location" }}
+                  {{ useGps ? "Using GPS ✓" : "Not using GPS location" }}
                 </button>
               </div>
               <div class="hint subtle">
