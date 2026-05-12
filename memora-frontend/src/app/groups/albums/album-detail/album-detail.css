@@ -489,11 +489,7 @@
 }
 
 .choice-card:hover {
-  background: var(--bg-card-strong);
-}
-
-.upload-box {
-  border: 2px dashed var(--border-strong);
+  background: rgba(255,255,255,0.06);
   border-radius: 18px;
   padding: 40px;
   text-align: center;
@@ -1055,4 +1051,12 @@
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 4px;
+}
+
+.icon-btn.danger {
+  color: #b91c1c;
+}
+
+.icon-btn.danger:hover {
+  background: rgba(185, 28, 28, 0.08);
 }

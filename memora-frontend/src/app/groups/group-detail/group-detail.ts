@@ -108,8 +108,6 @@ export class GroupDetailComponent {
     this.auth.currentUser().subscribe(u => {
       this.currentUserId = u.id;
     });
-
-    this.loadAlbums();
   }
 
   reload() {
