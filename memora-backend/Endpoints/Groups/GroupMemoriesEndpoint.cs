@@ -12,11 +12,15 @@ public class GroupMemoriesController : BaseApiController
 {
     private readonly AppDbContext _db;
     private readonly IWebHostEnvironment _environment;
+    private readonly ICityLookupService _cityLookup;
+    private readonly ICountryLookupService _countryLookup;
 
-    public GroupMemoriesController(AppDbContext db, IWebHostEnvironment environment)
+    public GroupMemoriesController(AppDbContext db, IWebHostEnvironment environment, ICityLookupService cityLookup, ICountryLookupService countryLookup)
     {
         _db = db;
         _environment = environment;
+        _cityLookup = cityLookup;
+        _countryLookup = countryLookup;
     }
 
     [HttpGet()]
@@ -110,7 +114,10 @@ public class GroupMemoriesController : BaseApiController
 
                 x.LocationName,
                 x.Latitude,
-                x.Longitude
+                x.Longitude,
+
+                x.LocationCity,
+                x.LocationCountry
             );
         }).ToList();
 
@@ -165,7 +172,10 @@ public class GroupMemoriesController : BaseApiController
 
             m.LocationName,
             m.Latitude,
-            m.Longitude
+            m.Longitude,
+
+            null,
+            null
         ));
     }
 
@@ -206,6 +216,23 @@ public class GroupMemoriesController : BaseApiController
             mediaUrl = $"/uploads/{fileName}";
         }
 
+        string? locationCity = null;
+        string? locationCountry = null;
+
+        if (req.Latitude.HasValue && req.Longitude.HasValue)
+        {
+            var result = _cityLookup.FindNearest(
+                req.Latitude.Value,
+                req.Longitude.Value
+            );
+
+            if (result != null)
+            {
+                locationCity = result.City;
+                locationCountry = _countryLookup.GetCountryName(result.CountryCode);
+            }
+        }
+
         var m = new Memory
         {
             Id = Guid.NewGuid(),
@@ -222,7 +249,9 @@ public class GroupMemoriesController : BaseApiController
 
             LocationName = req.LocationName,
             Latitude = req.Latitude,
-            Longitude = req.Longitude
+            Longitude = req.Longitude,
+            LocationCity = locationCity,
+            LocationCountry = locationCountry
         };
 
         if (req.Tags?.Any() == true)
@@ -267,7 +296,10 @@ public class GroupMemoriesController : BaseApiController
 
             m.LocationName,
             m.Latitude,
-            m.Longitude
+            m.Longitude,
+
+            m.LocationCity,
+            m.LocationCountry
         ));
     }
 

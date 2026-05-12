@@ -36,7 +36,7 @@ public class ExceptionMiddleware
             var result = JsonSerializer.Serialize(new
             {
                 code = "server_error",
-                message = "Something went wrong."
+                message = ex.ToString()
             });
 
             await context.Response.WriteAsync(result);

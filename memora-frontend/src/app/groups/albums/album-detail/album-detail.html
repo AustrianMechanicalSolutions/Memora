@@ -109,8 +109,25 @@
             {{ m.happenedAt | date:'dd/MM/yyyy' }}
           </div>
 
-          <div class="wall-location" *ngIf="m.locationName || m.latitude">
-            📍 {{ m.locationName || '...' }}
+          <div class="wall-location"
+              *ngIf="m.locationName || m.locationCity || m.locationCountry || m.latitude">
+            📍
+
+            <span *ngIf="m.locationName">
+              {{ m.locationName }}
+            </span>
+
+            <span *ngIf="m.locationName && (m.locationCity || m.locationCountry)">
+              ·
+            </span>
+
+            <span *ngIf="m.locationCity || m.locationCountry">
+              {{ m.locationCity }}<span *ngIf="m.locationCity && m.locationCountry">, </span>{{ m.locationCountry }}
+            </span>
+
+            <span *ngIf="!m.locationName && !m.locationCity && !m.locationCountry">
+              {{ m.latitude }}, {{ m.longitude }}
+            </span>
           </div>
 
           <div class="wall-actions">
@@ -201,7 +218,24 @@
               <div class="memory-title" *ngIf="m.title"> {{ m.title }} </div>
 
               <div class="memory-date">{{ m.happenedAt | date:'dd/MM/yyyy' }}</div>
-              <div class="memory-location">{{ m.locationName || 'No location provided.' }}</div>
+              <div class="memory-location" *ngIf="m.locationName || m.locationCity || m.locationCountry || m.latitude">
+                📍
+                <span *ngIf="m.locationName">{{ m.locationName }}</span>
+
+                <span *ngIf="m.locationName && (m.locationCity || m.locationCountry)"> · </span>
+
+                <span *ngIf="m.locationCity || m.locationCountry">
+                  {{ m.locationCity }}<span *ngIf="m.locationCity && m.locationCountry">, </span>{{ m.locationCountry }}
+                </span>
+
+                <span *ngIf="!m.locationName && !m.locationCity && !m.locationCountry">
+                  {{ m.latitude }}, {{ m.longitude }}
+                </span>
+              </div>
+
+              <div class="memory-location muted" *ngIf="!m.locationName && !m.locationCity && !m.locationCountry && !m.latitude">
+                No location provided.
+              </div>
 
               <div class="memory-uploader" *ngIf="activeUploader as uploader">
                 <div class="uploader-avatar">
