@@ -209,14 +209,20 @@
 }
 
 .theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
   width: 100%;
-  justify-content: flex-start;
-  gap: 8px;
+  min-height: 44px;
+  margin: 0 8px;
   padding: 10px 12px;
+
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: var(--bg-card);
+  background: linear-gradient(180deg, var(--bg-card), var(--bg-surface-alt));
   color: var(--text-primary);
+
   cursor: pointer;
   transition: all 0.2s ease;
   box-sizing: border-box;
@@ -225,6 +231,11 @@
 .theme-toggle:hover {
   background: var(--hover-bg);
   border-color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.theme-toggle .label {
+  line-height: 1;
 }
 
 .switch {
@@ -488,8 +499,7 @@
 
   .nav-link,
   .user-button,
-  .logout-button,
-  .theme-toggle {
+  .logout-button {
     width: 100%;
   }
 
