@@ -320,4 +320,10 @@ export class GroupsService {
 >>>>>>> main
     );
   }
+
+  deleteMemory(groupId: string, memoryId: string) {
+    return this.http.delete<void>(
+      `${this.baseUrl}/${groupId}/memories/${memoryId}`
+    );
+  }
 }
