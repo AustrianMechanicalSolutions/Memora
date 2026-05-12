@@ -309,15 +309,12 @@ export class GroupsService {
   getAlbumPreviewMemories(groupId: string, albumId: string) {
     return this.http.get<MemoryDto[]>(
       `${this.baseUrl}/${groupId}/albums/${albumId}/preview-memories`
-<<<<<<< HEAD
     );
   }
 
   deleteMemory(groupId: string, memoryId: string) {
     return this.http.delete<void>(
       `${this.baseUrl}/${groupId}/memories/${memoryId}`
-=======
->>>>>>> main
     );
   }
 }
