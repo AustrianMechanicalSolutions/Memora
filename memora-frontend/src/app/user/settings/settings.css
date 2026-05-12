@@ -396,3 +396,175 @@ label {
     width: 100%;
   }
 } 
+
+.twofa-box {
+  margin-top: 1rem;
+}
+
+.twofa-setup,
+.twofa-enabled {
+  display: grid;
+  gap: 1rem;
+}
+
+.twofa-qr {
+  width: 180px;
+  height: 180px;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 12px;
+}
+
+.backup-codes {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.backup-code-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.5rem;
+}
+
+.backup-code-list code {
+  padding: 0.5rem;
+  border-radius: 8px;
+  background: var(--surface-muted);
+  text-align: center;
+}
+
+.twofa-card {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.twofa-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.twofa-top h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.4rem;
+}
+
+.twofa-top p,
+.twofa-action-box p,
+.setup-content p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.twofa-status {
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  background: rgba(255, 80, 80, 0.12);
+  color: #ff7777;
+}
+
+.twofa-status.enabled {
+  background: rgba(80, 220, 140, 0.12);
+  color: #69dc9e;
+}
+
+.alert {
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.alert.error {
+  background: rgba(255, 80, 80, 0.12);
+  color: #ff7777;
+  border: 1px solid rgba(255, 80, 80, 0.25);
+}
+
+.alert.success {
+  background: rgba(80, 220, 140, 0.12);
+  color: #69dc9e;
+  border: 1px solid rgba(80, 220, 140, 0.25);
+}
+
+.twofa-action-box,
+.backup-download-box {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 16px;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-color);
+}
+
+.twofa-setup-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.qr-box {
+  padding: 1rem;
+  border-radius: 16px;
+  background: white;
+}
+
+.qr-box img {
+  width: 100%;
+  display: block;
+}
+
+.setup-content {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.secret-code {
+  display: block;
+  padding: 0.75rem;
+  border-radius: 10px;
+  word-break: break-all;
+  background: rgba(255,255,255,0.06);
+}
+
+.backup-download-box {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  border-color: rgba(255, 190, 80, 0.35);
+  background: rgba(255, 190, 80, 0.08);
+}
+
+.twofa-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.danger-zone {
+  border-color: rgba(255, 80, 80, 0.25);
+}
+
+.full-width {
+  width: 100%;
+}
+
+@media (max-width: 800px) {
+  .twofa-top,
+  .backup-download-box {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .twofa-setup-grid,
+  .twofa-actions {
+    grid-template-columns: 1fr;
+  }
+}
