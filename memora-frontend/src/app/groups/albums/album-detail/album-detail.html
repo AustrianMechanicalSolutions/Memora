@@ -20,9 +20,15 @@
         </div>
       </div>
 
-      <button class="btn primary hero-action" type="button" (click)="openAddMemory()">
-        {{ 'album.addMemory' | t }}
-      </button>
+      <div class="hero-actions">
+        <button class="btn ghost hero-action" type="button" (click)="openRandomMemory()" [disabled]="items.length === 0">
+          Random memory
+        </button>
+
+        <button class="btn primary hero-action" type="button" (click)="openAddMemory()">
+          {{ 'album.addMemory' | t }}
+        </button>
+      </div>
     </div>
   </section>
 

@@ -219,6 +219,15 @@ export class AlbumDetailComponent {
     this.loadComments();
   }
 
+  openRandomMemory() {
+    const pool = this.filteredItems.length > 0 ? this.filteredItems : this.items;
+
+    if (!pool.length) return;
+
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    this.openMemory(pool[randomIndex]);
+  }
+
   closeMemory() {
     this.showMemoryModal = false;
     this.activeMemory = null;
