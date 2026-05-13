@@ -88,6 +88,9 @@ export class AlbumDetailComponent {
   // Delete a memory
   currentUserId: string | null = null;
   isAdmin = false;
+  isPreparingRandomMemory = false;
+  randomMemoryStatus = '';
+  private randomMemoryTimer?: number;
 
   constructor(
     private route: ActivatedRoute,
@@ -220,12 +223,38 @@ export class AlbumDetailComponent {
   }
 
   openRandomMemory() {
+    if (this.isPreparingRandomMemory) return;
+
     const pool = this.filteredItems.length > 0 ? this.filteredItems : this.items;
 
     if (!pool.length) return;
 
-    const randomIndex = Math.floor(Math.random() * pool.length);
-    this.openMemory(pool[randomIndex]);
+    const statusMessages = [
+      'Shuffling through the album for a hidden gem...',
+      'Picking a memory at random...',
+      'Dusting off a surprise worth revisiting...',
+      'Revealing something unexpected...'
+    ];
+
+    this.isPreparingRandomMemory = true;
+    this.randomMemoryStatus = statusMessages[Math.floor(Math.random() * statusMessages.length)];
+
+    if (this.randomMemoryTimer) {
+      window.clearTimeout(this.randomMemoryTimer);
+    }
+
+    this.randomMemoryTimer = window.setTimeout(() => {
+      const randomIndex = Math.floor(Math.random() * pool.length);
+      this.isPreparingRandomMemory = false;
+      this.randomMemoryStatus = '';
+      this.openMemory(pool[randomIndex]);
+    }, 1800);
+  }
+
+  ngOnDestroy() {
+    if (this.randomMemoryTimer) {
+      window.clearTimeout(this.randomMemoryTimer);
+    }
   }
 
   closeMemory() {
