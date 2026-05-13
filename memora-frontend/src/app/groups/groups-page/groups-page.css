@@ -148,6 +148,8 @@
   font-weight: 800;
   font-size: 15px;
   letter-spacing: -0.2px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .arrow {
@@ -184,4 +186,40 @@
 
 .empty-sub {
   margin-top: 4px;
+}
+
+.empty-icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+  opacity: 0.4;
+}
+
+.search-row {
+  margin-bottom: 12px;
+}
+
+.search-input {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.success {
+  margin: 10px 0 0 0;
+  color: var(--accent);
+  font-size: 13px;
+}
+
+.icon-btn {
+  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.btn.ghost {
+  background: transparent;
 }

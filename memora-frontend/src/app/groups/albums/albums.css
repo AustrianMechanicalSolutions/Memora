@@ -189,6 +189,8 @@
   font-size: 17px;
   font-weight: 800;
   line-height: 1.2;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .album-pill {

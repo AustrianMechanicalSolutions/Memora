@@ -44,7 +44,8 @@ export class SettingsComponent {
 
   password = {
     currentPassword: '',
-    newPassword: ''
+    newPassword: '',
+    twoFactorCode: ''
   };
 
   // ===== 2FA UI state =====
@@ -156,11 +157,20 @@ export class SettingsComponent {
     this.saving = true;
     this.clearMessages();
 
-    this.http.put(`${this.api}/password`, this.password).subscribe({
+    const body: any = {
+      currentPassword: this.password.currentPassword,
+      newPassword: this.password.newPassword,
+    };
+    if (this.twoFaEnabled && this.password.twoFactorCode) {
+      body.twoFactorCode = this.password.twoFactorCode;
+    }
+
+    this.http.put(`${this.api}/password`, body).subscribe({
       next: () => {
         this.msg = this.i18n.translate('settings.passwordChanged');
         this.password.currentPassword = '';
         this.password.newPassword = '';
+        this.password.twoFactorCode = '';
         this.saving = false;
       },
       error: (e) => {
