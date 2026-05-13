@@ -4,6 +4,7 @@ using AuthApi.Models;
 using AuthApi.Services;
 using AuthApi.Endpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,7 +14,13 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 builder.Services.AddControllers();
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(
+        Path.Combine(builder.Environment.ContentRootPath, "keys")));
 
 // ---- JWT config ----
 builder.Services.Configure<JwtOptions>(
@@ -186,7 +193,63 @@ app.MapGet("/api/me", (System.Security.Claims.ClaimsPrincipal user) =>
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    MarkInitialMigrationForLegacyDatabase(db);
     db.Database.Migrate();
 }
 
 app.Run();
+
+static void MarkInitialMigrationForLegacyDatabase(AppDbContext db)
+{
+    var connection = db.Database.GetDbConnection();
+    var shouldClose = connection.State != System.Data.ConnectionState.Open;
+
+    if (shouldClose)
+        connection.Open();
+
+    try
+    {
+        ExecuteNonQuery(connection, @"
+CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
+    ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
+    ""ProductVersion"" TEXT NOT NULL
+);");
+
+        var hasLegacySchema =
+            TableExists(connection, "Group") &&
+            TableExists(connection, "Users") &&
+            TableExists(connection, "Memory");
+
+        if (!hasLegacySchema)
+            return;
+
+        ExecuteNonQuery(connection, @"
+INSERT OR IGNORE INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+VALUES ('20260322014236_InitialCreate', '8.0.6');");
+    }
+    finally
+    {
+        if (shouldClose)
+            connection.Close();
+    }
+}
+
+static bool TableExists(System.Data.Common.DbConnection connection, string tableName)
+{
+    using var command = connection.CreateCommand();
+    command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = $name;";
+
+    var parameter = command.CreateParameter();
+    parameter.ParameterName = "$name";
+    parameter.Value = tableName;
+    command.Parameters.Add(parameter);
+
+    return Convert.ToInt32(command.ExecuteScalar()) > 0;
+}
+
+static void ExecuteNonQuery(System.Data.Common.DbConnection connection, string sql)
+{
+    using var command = connection.CreateCommand();
+    command.CommandText = sql;
+    command.ExecuteNonQuery();
+}

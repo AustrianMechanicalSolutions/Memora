@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,7 +17,7 @@ import { AuthService } from '../../../user/auth.service';
   templateUrl: './album-detail.html',
   styleUrls: ['./album-detail.css']
 })
-export class AlbumDetailComponent {
+export class AlbumDetailComponent implements OnDestroy {
   private readonly backendOrigin = `${window.location.protocol}//${window.location.hostname}:5000`;
   groupId!: string;
   albumId!: string;
@@ -89,6 +89,8 @@ export class AlbumDetailComponent {
   currentUserId: string | null = null;
   isAdmin = false;
 
+  private refreshTimer?: ReturnType<typeof setInterval>;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -111,6 +113,93 @@ export class AlbumDetailComponent {
     this.loadAlbumPeople();
     this.loadMemories();
     this.loadMembers();
+
+    this.refreshTimer = setInterval(() => this.refreshCounts(), 10_000);
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.refreshTimer);
+  }
+
+  // Polls server every 10s and syncs the full memory list:
+  // - adds new memories posted by other users (+ loads their media)
+  // - removes memories deleted by others
+  // - patches likeCount / commentCount / isLiked in-place (no media re-download)
+  // - refreshes comments silently when the modal is open
+  private refreshCounts() {
+    const query: any = { sort: 'newest', page: 1, pageSize: 50 };
+    if (this.albumId !== 'all') query.albumId = this.albumId;
+
+    this.groupsService.memories(this.groupId, query).subscribe({
+      next: (r) => {
+        const serverById = new Map(r.items.map(m => [m.id, m]));
+        const localById  = new Map(this.items.map(m => [m.id, m]));
+
+        // 1. Patch existing items in-place (no flicker, no media re-fetch)
+        for (const item of this.items) {
+          const fresh = serverById.get(item.id);
+          if (fresh) {
+            item.likeCount    = fresh.likeCount;
+            item.commentCount = fresh.commentCount;
+            item.isLiked      = fresh.isLiked;
+          }
+        }
+
+        // 2. Add memories that appeared since last poll
+        for (const fresh of r.items) {
+          if (!localById.has(fresh.id)) {
+            this.items.unshift(fresh);
+            // Trigger media blob load for photo/video memories
+            if (fresh.type === 0 || fresh.type === 1) {
+              this.loadMedia(fresh.mediaUrl);
+            }
+          }
+        }
+
+        // 3. Remove memories that were deleted on the server
+        this.items = this.items.filter(m => serverById.has(m.id));
+
+        // 4. Keep filteredItems in sync (re-apply current search)
+        this.applySearch();
+
+        // 5. Update open modal memory
+        if (this.activeMemory) {
+          const fresh = serverById.get(this.activeMemory.id);
+          if (fresh) {
+            this.activeMemory.likeCount    = fresh.likeCount;
+            this.activeMemory.commentCount = fresh.commentCount;
+            this.activeMemory.isLiked      = fresh.isLiked;
+          }
+        }
+      },
+      error: () => {}
+    });
+
+    // 6. Silently refresh comments when the modal is open
+    if (this.showMemoryModal && this.activeMemory) {
+      this.silentRefreshComments();
+    }
+  }
+
+  // Refreshes comments without showing a loading indicator or resetting the text input.
+  private silentRefreshComments() {
+    if (!this.activeMemory) return;
+
+    this.groupsService.memoryComments(this.groupId, this.activeMemory.id).subscribe({
+      next: (r) => {
+        // Only rebuild tree if something actually changed (count or last id)
+        const changed =
+          r.length !== this.comments.length ||
+          (r.length > 0 && r[r.length - 1]?.id !== this.comments[this.comments.length - 1]?.id);
+
+        if (changed) {
+          this.comments = r;
+          this.rebuildCommentTree();
+          this.activeMemory!.commentCount = r.length;
+        }
+      },
+      error: () => {}
+    });
   }
 
   backToAlbums() {

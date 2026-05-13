@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { GroupsService, GroupDetailDto, MemoryDto, AlbumDto, GroupStatsDto, GroupWeeklyActivityDto, GroupMemberActivityDto } from '../groups';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -15,7 +15,7 @@ import { AuthService } from '../../user/auth.service';
   templateUrl: './group-detail.html',
   styleUrls: ['./group-detail.css']
 })
-export class GroupDetailComponent {
+export class GroupDetailComponent implements OnDestroy {
 
   groupId!: string;
   group?: GroupDetailDto;
@@ -75,6 +75,8 @@ export class GroupDetailComponent {
   currentUserId: string | null = null;
   isAdmin = false;
 
+  private refreshTimer?: ReturnType<typeof setInterval>;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -108,6 +110,12 @@ export class GroupDetailComponent {
     this.auth.currentUser().subscribe(u => {
       this.currentUserId = u.id;
     });
+
+    this.refreshTimer = setInterval(() => this.reload(), 30_000);
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.refreshTimer);
   }
 
   reload() {

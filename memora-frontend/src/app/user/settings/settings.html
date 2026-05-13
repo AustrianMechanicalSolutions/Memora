@@ -148,6 +148,22 @@
         <input type="password" class="input" [(ngModel)]="password.newPassword" />
       </div>
 
+      <div class="form-group full" *ngIf="twoFaEnabled">
+        <label>{{ 'settings.twoFactorCode' | t }}</label>
+        <input
+          type="text"
+          class="input"
+          [(ngModel)]="password.twoFactorCode"
+          maxlength="20"
+          autocomplete="one-time-code"
+          inputmode="numeric"
+          placeholder="123456 oder Backup-Code"
+        />
+        <span class="hint" style="color: var(--accent); font-size: 12px; margin-top: 4px; display: block;">
+          2FA aktiv — Code erforderlich zum Ändern des Passworts
+        </span>
+      </div>
+
       <div class="form-group full">
         <button class="btn primary" (click)="changePassword()">
           {{ 'settings.changePassword' | t }}

@@ -1,26 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Schule\\S4\\Heiko_Doli\\Projekt\\Memora\\memora-backend\\memora-backend.csproj": {}
+    "C:\\Users\\gajip\\Music\\Spengergasse\\4BHIF\\PRE\\Memora\\Memora\\memora-backend\\memora-backend.csproj": {}
   },
   "projects": {
-    "C:\\Schule\\S4\\Heiko_Doli\\Projekt\\Memora\\memora-backend\\memora-backend.csproj": {
+    "C:\\Users\\gajip\\Music\\Spengergasse\\4BHIF\\PRE\\Memora\\Memora\\memora-backend\\memora-backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Schule\\S4\\Heiko_Doli\\Projekt\\Memora\\memora-backend\\memora-backend.csproj",
+        "projectUniqueName": "C:\\Users\\gajip\\Music\\Spengergasse\\4BHIF\\PRE\\Memora\\Memora\\memora-backend\\memora-backend.csproj",
         "projectName": "memora-backend",
-        "projectPath": "C:\\Schule\\S4\\Heiko_Doli\\Projekt\\Memora\\memora-backend\\memora-backend.csproj",
-        "packagesPath": "C:\\Users\\nicok\\.nuget\\packages\\",
-        "outputPath": "C:\\Schule\\S4\\Heiko_Doli\\Projekt\\Memora\\memora-backend\\obj\\",
+        "projectPath": "C:\\Users\\gajip\\Music\\Spengergasse\\4BHIF\\PRE\\Memora\\Memora\\memora-backend\\memora-backend.csproj",
+        "packagesPath": "C:\\Users\\gajip\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\gajip\\Music\\Spengergasse\\4BHIF\\PRE\\Memora\\Memora\\memora-backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\nicok\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\gajip\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files\\dotnet\\library-packs": {},
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -79,24 +80,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[8.0.22, 8.0.22]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
