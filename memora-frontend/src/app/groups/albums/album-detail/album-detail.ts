@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,15 +9,19 @@ import { I18nService } from '../../../translation/i18n.service';
 import { environment } from '../../../../environment';
 import * as exifr from 'exifr';
 import { AuthService } from '../../../user/auth.service';
+import { DrawingCanvasComponent } from '../../drawing-canvas/drawing-canvas';
 
 @Component({
   selector: 'app-album-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, TranslatePipe],
+  imports: [CommonModule, FormsModule, DatePipe, TranslatePipe, DrawingCanvasComponent],
   templateUrl: './album-detail.html',
   styleUrls: ['./album-detail.css']
 })
 export class AlbumDetailComponent implements OnDestroy {
+  @ViewChild(DrawingCanvasComponent) drawingCanvas?: DrawingCanvasComponent;
+
+
   private readonly backendOrigin = `${window.location.protocol}//${window.location.hostname}:5000`;
   groupId!: string;
   albumId!: string;
@@ -58,7 +62,7 @@ export class AlbumDetailComponent implements OnDestroy {
 
   // Adding a memory
   showAddMemoryModal = false;
-  addStep: 'choose' | 'media' | 'quote' = 'choose';
+  addStep: 'choose' | 'media' | 'quote' | 'draw' = 'choose';
   mediaType: 'photo' | 'video' = 'photo';
   previewUrl: string | null = null;
   failedMedia = new Set<string>();
@@ -658,6 +662,30 @@ export class AlbumDetailComponent implements OnDestroy {
 
     this.createMemory();
     this.showAddMemoryModal = false;
+  }
+
+  exportDrawing() {
+    this.drawingCanvas?.export();
+  }
+
+  submitDrawing(file: File) {
+    const data = {
+      type: 0,
+      title: 'Drawing',
+      quoteText: null,
+      happenedAt: new Date().toISOString(),
+      albumId: this.albumId !== 'all' ? this.albumId : null,
+      tags: [],
+      people: [],
+    };
+
+    this.groupsService.createMemoryWithFile(this.groupId, file, data).subscribe({
+      next: () => {
+        this.showAddMemoryModal = false;
+        this.loadMemories();
+      },
+      error: (err) => console.error(err)
+    });
   }
 
   isImage(url: string | null | undefined): boolean {
