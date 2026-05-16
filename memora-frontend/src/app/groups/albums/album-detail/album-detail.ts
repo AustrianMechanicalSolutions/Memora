@@ -21,6 +21,7 @@ import { DrawingCanvasComponent } from '../../drawing-canvas/drawing-canvas';
 export class AlbumDetailComponent implements OnDestroy {
   @ViewChild(DrawingCanvasComponent) drawingCanvas?: DrawingCanvasComponent;
 
+
   private readonly backendOrigin = `${window.location.protocol}//${window.location.hostname}:5000`;
   groupId!: string;
   albumId!: string;

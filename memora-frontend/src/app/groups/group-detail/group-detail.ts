@@ -79,6 +79,8 @@ export class GroupDetailComponent implements OnDestroy {
 
   private refreshTimer?: ReturnType<typeof setInterval>;
 
+  private refreshTimer?: ReturnType<typeof setInterval>;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
