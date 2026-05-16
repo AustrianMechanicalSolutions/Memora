@@ -887,6 +887,47 @@
   color: var(--text-primary);
 }
 
+/* Draw mode */
+.modal.draw-mode {
+  width: min(860px, 95vw);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.modal.draw-mode h2 {
+  padding: 16px 20px 0;
+}
+
+.modal.draw-mode .modal-close {
+  top: 12px;
+  right: 16px;
+}
+
+.draw-step {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.draw-step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  background: var(--bg-surface-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+.btn.small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
 /* Close button */
 .modal-close {
   color: var(--text-subtle);

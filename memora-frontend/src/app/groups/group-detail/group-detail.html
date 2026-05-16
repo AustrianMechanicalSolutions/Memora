@@ -1,3 +1,11 @@
+<app-guess-game
+  *ngIf="showGame"
+  [memories]="items"
+  [members]="members"
+  [albums]="albums"
+  (closed)="showGame = false"
+></app-guess-game>
+
 <div class="page" *ngIf="group as g">
 
   <!-- Cover -->
@@ -13,6 +21,10 @@
 
       <button class="btn primary cover-action" (click)="goToAlbums()">
         📚 {{ 'group.viewAlbums' | t }}
+      </button>
+
+      <button class="btn secondary cover-action" (click)="showGame = true" *ngIf="items.length > 0">
+        🧠 Guess the Memory
       </button>
 
       <button

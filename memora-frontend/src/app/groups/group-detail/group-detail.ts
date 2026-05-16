@@ -1,17 +1,18 @@
 import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { GroupsService, GroupDetailDto, MemoryDto, AlbumDto, GroupStatsDto, GroupWeeklyActivityDto, GroupMemberActivityDto } from '../groups';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '../../translation/translate.pipe';
 import { AppLanguage, I18nService } from '../../translation/i18n.service';
 import { AuthService } from '../../user/auth.service';
+import { GuessGameComponent } from '../guess-game/guess-game';
 
 @Component({
   selector: 'app-group-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, TranslatePipe, GuessGameComponent],
   templateUrl: './group-detail.html',
   styleUrls: ['./group-detail.css']
 })
@@ -74,6 +75,7 @@ export class GroupDetailComponent implements OnDestroy {
 
   currentUserId: string | null = null;
   isAdmin = false;
+  showGame = false;
 
   private refreshTimer?: ReturnType<typeof setInterval>;
 

@@ -268,7 +268,9 @@
         "reply": "Antworten",
         "cancel": "Abbrechen",
         "replyingTo": "Antwort an {name}",
-        "unknownUser": "Unbekannt"
+        "unknownUser": "Unbekannt",
+        "draw": "Zeichnen",
+        "addDrawing": "Zeichnung hinzufügen"
     },
     "group": {
         "inviteCode": "Einladungscode",

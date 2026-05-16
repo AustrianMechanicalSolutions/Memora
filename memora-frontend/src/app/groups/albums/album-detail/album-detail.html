@@ -362,7 +362,7 @@
   </div>
 
   <div class="modal-backdrop" *ngIf="showAddMemoryModal">
-    <div class="modal" [class.media-mode]="addStep === 'media'">
+    <div class="modal" [class.media-mode]="addStep === 'media'" [class.draw-mode]="addStep === 'draw'">
       <button class="modal-close" type="button" (click)="showAddMemoryModal = false">&times;</button>
 
       <h2>{{ 'album.addMemory' | t }}</h2>
@@ -382,6 +382,11 @@
         <div class="choice-card" (click)="addStep='quote'">
           <div class="icon">&#x275D;</div>
           <div class="title">{{ 'album.addQuote' | t }}</div>
+        </div>
+
+        <div class="choice-card" (click)="addStep='draw'">
+          <div class="icon">🎨</div>
+          <div class="title">{{ 'album.draw' | t }}</div>
         </div>
       </div>
 
@@ -565,6 +570,15 @@
           <button class="btn ghost" (click)="addStep='choose'">{{ 'album.back' | t }}</button>
           <button class="btn primary" (click)="submitQuote()">{{ 'album.addQuote' | t }}</button>
         </div>
+      </div>
+
+      <!-- Draw -->
+      <div *ngIf="addStep === 'draw'" class="draw-step">
+        <div class="draw-step-header">
+          <button class="btn ghost small" type="button" (click)="addStep='choose'">← {{ 'album.back' | t }}</button>
+          <button class="btn primary small" type="button" (click)="exportDrawing()">{{ 'album.addDrawing' | t }}</button>
+        </div>
+        <app-drawing-canvas (exported)="submitDrawing($event)"></app-drawing-canvas>
       </div>
     </div>
   </div>

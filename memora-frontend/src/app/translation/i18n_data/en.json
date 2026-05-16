@@ -269,7 +269,9 @@
         "reply": "Reply",
         "cancel": "Cancel",
         "replyingTo": "Replying to {name}",
-        "unknownUser": "Unknown"
+        "unknownUser": "Unknown",
+        "draw": "Draw",
+        "addDrawing": "Add Drawing"
     },
     "group": {
         "inviteCode": "Invite code",
